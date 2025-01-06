@@ -1,16 +1,18 @@
-# analyze Mo et al., 2019 data
+# analyze Fan et al. (2024) data
+
+
 
 # Libraries
 library(tidyverse)
 
 # Load Mo et al. (2019) data
-ma_data <- read.csv("../raw_data/Ma_2023_pFraction_data.csv")
+fan_data <- read.csv("../raw_data/Fan_2024_pFraction_data.csv")
 
-# Group by and summarize Ma et al. (2023) dataset for easy input into 
+# Group by and summarize Fan et al. (2024) dataset for easy input into 
 # compiled datasheet
-head(ma_data)
+head(fan_data)
 
-ma_data %>%
+fan_data %>%
 
   group_by(treatment) %>%
   summarize(n = length(lma),
@@ -85,4 +87,4 @@ ma_data %>%
             
             ) %>%
   slice(-1) %>%
-  write.csv("../raw_data/Ma_2023_pFraction_data_summary.csv", row.names = F)
+  write.csv("../data_summaries/Fan2024_pFraction_data_summary.csv", row.names = F)
