@@ -27,7 +27,7 @@ library(ggplot2)
 library(readr)
 library(metafor)
 library(MAd)
-library(ggpubr)
+library(patchwork)
 
 # MESI data
 df_mesi <- read_csv("../data/mesi_main.csv")
@@ -934,9 +934,5 @@ meta_plot_all_biomass
 #           meta_plot_all_biomass, nrow = 3, ncol = 1, common.legend = TRUE,
 #           legend = "right", labels = c("(a)", "(b)", "(c)", align = "hv"))
 # dev.off()
-
-library(patchwork)
-
-
 
 ```
