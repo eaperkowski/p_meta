@@ -12,7 +12,7 @@ crous_data <- read.csv("../raw_data/Crous_2017_NewPhyt.csv") %>%
          ppue = PSsat / Parea) 
 head(crous_data)
 
-# 
+# Generate treatment summary statistics
 crous_data_summary <- crous_data %>%
   group_by(Treatm) %>%
   summarize(
@@ -172,5 +172,12 @@ crous_data_summary_control %>%
                values_to = "value") %>%
   pivot_wider(names_from = stat:trt,
               values_from = value) %>%
+  mutate(trait = factor(trait, levels = c("Asat", "Vcmax", "Jmax", "rd", "gsw",
+                                          "lma", "Nmass", "Narea", "Pmass",
+                                          "Parea", "leafnp", "pnue", "ppue")),
+         mean_control = ifelse(trait == "rd", abs(mean_control),
+                               mean_control),
+         mean_trt = ifelse(trait == "rd", abs(mean_trt),
+                           mean_trt)) %>%
   arrange(trait) %>%
-  write.csv("../data_summaries/Cleland2019_summary.csv", row.names = F)
+  write.csv("../data_summaries/Crous2017_summary.csv", row.names = F)

@@ -114,7 +114,7 @@ bloomfield_data_summary_treatment <- bloomfield_data_summary %>%
 names(bloomfield_data_summary_treatment)[3:62] <- str_c(names(bloomfield_data_summary_treatment)[3:62], "_trt")
 
 
-test <- bloomfield_data_summary_control %>%
+bloomfield_data_summary_control %>%
   full_join(bloomfield_data_summary_treatment, by = c("exp", "Months.in")) %>%
   dplyr::select(exp, Treatment, Months.in, 
                 
@@ -198,6 +198,10 @@ test <- bloomfield_data_summary_control %>%
                values_to = "value") %>%
   pivot_wider(names_from = stat:trt,
               values_from = value) %>%
+  mutate(trait = factor(trait, levels = c("Amax", "Asat", "Vcmax", "Jmax",
+                                          "TPU", "Rd", "cica", "lma",
+                                          "nmass", "narea", "pmass", "parea",
+                                          "leafnp", "pnue", "ppue"))) %>%
   arrange(trait) %>%
   write.csv("../data_summaries/Bloomfield2014_FPB_summarized.csv", row.names = F)
   
