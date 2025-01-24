@@ -8,6 +8,7 @@ cleland_data <- read.csv("../raw_data/Cleland_2019_ecosystems.csv") %>%
   filter(Kµ == 0) %>%
   rename(bgb = Rootsgperm2, rmf = rootmassfraction) %>%
   mutate(agb = (bgb/rmf) - bgb,
+         total_biomass = agb + bgb,
          root_shoot_ratio = bgb / agb,
          treatment_name = factor(treatment_name, levels = c("Control", "N", "P", "NP")))
 
@@ -36,20 +37,25 @@ cleland_data_summary <- cleland_data %>%
     rootshoot_n = sum(!is.na(root_shoot_ratio)),
     rootshoot_mean = mean(root_shoot_ratio, na.rm = TRUE),
     rootshoot_sd = sd(root_shoot_ratio, na.rm = TRUE),
-    rootshoot_se = rootshoot_sd / sqrt(rootshoot_n))
+    rootshoot_se = rootshoot_sd / sqrt(rootshoot_n),
+    
+    totalbiomass_n = sum(!is.na(total_biomass)),
+    totalbiomass_mean = mean(total_biomass, na.rm = TRUE),
+    totalbiomass_sd = sd(total_biomass, na.rm = TRUE),
+    totalbiomass_se = rootshoot_sd / sqrt(totalbiomass_n))
 
 # Prep for easy merge into compiled datasheet
 cleland_data_summary_control <- cleland_data_summary %>%
   filter(treatment_name == "Control") %>%
   select(-treatment_name)
-names(cleland_data_summary_control)[2:17] <- str_c(names(cleland_data_summary_control)[2:17], "_control")
+names(cleland_data_summary_control)[2:21] <- str_c(names(cleland_data_summary_control)[2:21], "_control")
 
 cleland_data_summary_treatment <- cleland_data_summary %>%
   filter(treatment_name != "Control")
-names(cleland_data_summary_treatment)[3:18] <- str_c(names(cleland_data_summary_treatment)[3:18], "_trt")
+names(cleland_data_summary_treatment)[3:22] <- str_c(names(cleland_data_summary_treatment)[3:22], "_trt")
 
 # Format into easy merge into compiled datasheet, write to .csv
-cleland_data_summary_control %>%
+test <- cleland_data_summary_control %>%
   full_join(cleland_data_summary_treatment, by = "site_code") %>%
   dplyr::select(site_code, treatment_name, 
                 
@@ -64,9 +70,15 @@ cleland_data_summary_control %>%
                 
                 rootshoot_mean_control, rootshoot_mean_trt, rootshoot_sd_control, 
                 rootshoot_sd_trt, rootshoot_se_control, rootshoot_se_trt, 
-                rootshoot_n_control, rootshoot_n_trt) %>%
+                rootshoot_n_control, rootshoot_n_trt,
+                
+                totalbiomass_mean_control, totalbiomass_mean_trt, totalbiomass_sd_control, 
+                totalbiomass_sd_trt, totalbiomass_se_control, totalbiomass_se_trt, 
+                totalbiomass_n_control, totalbiomass_n_trt
+                
+                ) %>%
   
-  pivot_longer(cols = agb_mean_control:rootshoot_n_trt,
+  pivot_longer(cols = agb_mean_control:totalbiomass_n_trt,
                names_to = c("trait", "stat", "trt"), 
                names_sep = "_",
                values_to = "value") %>%

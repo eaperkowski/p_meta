@@ -1,23 +1,17 @@
----
-title: "Meta-analysis investigating P and N*P addition impacts on plant functional traits"
-author: "Evan Perkowski"
-date: "`r Sys.Date()`"
-output:
-  pdf_document: default
-  html_document: default
----
+# Script that explores the effect of P addition on leaf and whole-plant 
+# functional traits using P fertilization and N+P fertilization 
+# experiments. The meta-analysis includes data from the MESI database as of 
+# January 07, 2025 and additional experiments compiled by Evan Perkowski.
+# 
+# Script summarizes the number of observations per trait and then conducts a 
+# meta-analysis to summarize plant responses to P addition, then conducts a 
+# second meta-analysis that summarizes responses when P is added in 
+# concert with N.
+# 
+# NOTE: NEED TO CHECK THAT ADDED SAMPLE SIZE OF ADDED EXPERIMENTS IS 
+# APPROPRIATE FOR MESI (SHOULD BE LISTED AS 'PLOT' REPS, NOT INDIVIDUAL REP 
+# NUMBER)
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-Script that explores the effect of P addition on leaf and whole-plant functional traits using P fertilization and N\*P fertilization experiments. The meta-analysis includes data from the MESI database as of January 07, 2025 and additional experiments compiled by Evan Perkowski.
-
-Script summarizes the number of observations per trait and then conducts a meta-analysis to summarize plant responses to P addition, then conducts a second meta-analysis that summarizes responses when P is added in concert with N.
-
-NOTE: NEED TO CHECK THAT ADDED SAMPLE SIZE OF ADDED EXPERIMENTS IS APPROPRIATE FOR MESI (SHOULD BE LISTED AS 'PLOT' REPS, NOT INDIVIDUAL REP NUMBER)
-
-```{r, warning = FALSE, message=FALSE}
 # Libraries
 library(dplyr)
 library(tidyr)
@@ -27,6 +21,7 @@ library(readr)
 library(metafor)
 library(MAd)
 library(patchwork)
+library(ggpubr)
 
 # MESI data
 df_mesi <- read_csv("../data/mesi_main.csv") %>%
@@ -48,15 +43,14 @@ df_manual <- read_csv("../data/CNP_compiled_data.csv") %>%
 df_total <- df_mesi %>%
   full_join(df_manual)
 
-```
-
-# Explore data availability in combined dataset for N-fertilization experiments
-
-```{r}
+##############################################################################
+# NITROGEN FERTILIZATION RESPONSES
+##############################################################################
+# Subset to only include N addition treatments
 explore_nfert_exps <- df_total %>%
   
   # field experiments only
-  filter(experiment_type == "field") %>%
+  #filter(experiment_type == "field") %>%
   
   # fertilisation experiments only
   filter(treatment == "f") %>%
@@ -72,27 +66,32 @@ length(unique(explore_nfert_exps$exp))
 ## What traits are available?
 unique(explore_nfert_exps$response)
 
-```
-
-## Select variables
-
-```{r}
-use_response_n <- c(unique(explore_nfert_exps$response))
+# Select variables
+use_response_n <- c("agb", "bgb", "total_biomass", "fine_root_biomass",
+                    "rmf", "rootshoot", "lma", "leaf_n_mass", "leaf_n_area",
+                    "leaf_p_mass", "leaf_p_area", "leaf_np", "sla", "vcmax",                 
+                    "jmax", "tpu", "leaf_nue", "leaf_pue", "asat", "rd",                    
+                    "gsw", "gs", "spad", "anet", "leaf_structure_p", 
+                    "leaf_metabolic_p", "leaf_nucleic_p", "leaf_residual_p",
+                    "leaf_thickness", "leaf_pi", "leaf_sugar_p", "E", 
+                    "leaf_wue")              
 
 nfert_responses <- explore_nfert_exps %>% 
   filter(response %in% use_response_n) %>% 
   mutate(myvar = response) %>%
   mutate(myvar = ifelse(myvar %in% c("anet", "asat"),
-                        "asat", myvar))
+                        "asat", myvar),
+         myvar = ifelse(myvar %in% c("gs", "gsw"),
+                        "gs", myvar))
 
 use_vars_n <- unique(nfert_responses$myvar)
-```
 
 ## Analysis
 
-Calculate `"ROM"` - the log transformed ratio of means (Hedges et al., 1999; Lajeunesse, 2011) for each observation pair (ambient and elevated).
+# Calculate `"ROM"` - the log transformed ratio of means (Hedges et al., 1999; 
+# Lajeunesse, 2011) for each # observation pair (ambient and N added).
 
-```{r}
+
 nfert_responses2 <- nfert_responses %>%
   
   ## keep only essential variables and drop rows containing missing values for 
@@ -117,10 +116,9 @@ nfert_responses2 <- nfert_responses %>%
   mutate( logr_se = sqrt(logr_var) / sqrt(rep_t) )
 
 head(nfert_responses2)
-```
 
-```{r}
-# Aggregate all measurements (multiple years, sampling dates and plots) by experiment (and response variable - although here only one) for meta analysis.
+# Aggregate all measurements (multiple years, sampling dates and plots) by 
+# experiment (and response variable - although here only one) for meta analysis.
 nfert_responses3 <- nfert_responses2 %>% 
   
   # suggested addition by Kevin, email 02.10.2023 10:03
@@ -169,18 +167,19 @@ nfert_responses3 <- nfert_responses2 %>%
           myvar = ifelse(myvar == "sla", "lma", myvar))
 
 head(nfert_responses3)
-```
+
 
 # Meta-analysis
 
-Aggregate log-ratios across multiple experiments, taking into account their respective variance and using the experiment identity as a grouping factor for random intercepts.
+# Aggregate log-ratios across multiple experiments, taking into account 
+# their respective variance and using the experiment identity as a 
+# grouping factor for random intercepts.
 
-```{r, warning=FALSE, message=FALSE}
 source("../helper_fxns/analyse_meta.R")
 
 out_n  <- purrr::map(as.list(use_vars_n), 
-                   ~analyse_meta(nfert_responses3 %>% 
-                                   rename(var = myvar), nam_target = .))
+                     ~analyse_meta(nfert_responses3 %>% 
+                                     rename(var = myvar), nam_target = .))
 names(out_n) <- use_vars_n
 df_box_n <- purrr::map_dfr(out_n, "df_box") |> 
   left_join(
@@ -188,86 +187,109 @@ df_box_n <- purrr::map_dfr(out_n, "df_box") |>
       group_by(myvar) |> 
       summarise(logr_min = min(logr), logr_max = max(logr)) |> 
       rename(var = myvar),
-    by = "var"
-  )
-saveRDS(df_box_n, file = paste0(here::here(), "df_box_nfert.rds"))
-```
+    by = "var")
 
 ## Final data size
 
-Number of data points (plot-level measurements) per variable:
-
-```{r, message=FALSE}
+# Number of data points (plot-level measurements) per variable:
 nfert_responses3 %>% 
   group_by(myvar) %>% 
   summarise(n_plots = sum(n_c, na.rm = TRUE), n_exp = n()) %>% 
   rename("Variable"="myvar", "N observations"="n_plots", "N experiments"="n_exp") %>% 
   knitr::kable()
-```
 
-## Some quick plots:
 
-```{r}
-
+# Some quick plots:
 nfert_responses3 <- nfert_responses3 %>%
-  mutate(myvar = factor(myvar, levels = c("bgb", "agb", "rootshoot", "rmf",
-                                          "leaf_pue", "leaf_nue", "rd", "tpu", 
-                                          "jmax", "vcmax", "cica", "gs", "asat", "amax", 
-                                          "spad", "leaf_np",
-                                          "leaf_p_area", "leaf_p_mass", "leaf_n_area",
-                                           "leaf_n_mass", "lma")))
+mutate(myvar = factor(myvar,
+                      levels = c("rootshoot", "rmf", "bgb", "agb", 
+                                 "total_biomass", "leaf_wue", 
+                                 "leaf_pue", "leaf_nue", "rd", 
+                                 "tpu", "jmax", "vcmax", 
+                                 "E", "asat", "leaf_residual_p",
+                                 "leaf_structure_p",
+                                 "leaf_nucleic_p", "leaf_metabolic_p",
+                                 "leaf_sugar_p", "leaf_pi",
+                                 "leaf_np", "leaf_p_area", 
+                                 "leaf_p_mass", "leaf_n_area",
+                                 "leaf_n_mass", "lma")))
+df_box_n$var <- factor(df_box_n$var, levels = c("rootshoot", "rmf", "bgb", "agb", 
+                                                "total_biomass", "leaf_wue", 
+                                                "leaf_pue", "leaf_nue", "rd", 
+                                                "tpu", "jmax", "vcmax", 
+                                                "E", "asat", "leaf_residual_p",
+                                                "leaf_structure_p",
+                                                "leaf_nucleic_p", "leaf_metabolic_p",
+                                                "leaf_sugar_p", "leaf_pi",
+                                                "leaf_np", "leaf_p_area", 
+                                                "leaf_p_mass", "leaf_n_area",
+                                                "leaf_n_mass", "lma"))
 
-c(unique(explore_nfert_exps$response))
-
-meta_plot_n <- ggplot(data = subset(nfert_responses3, myvar != "cica"), 
-                    aes(x = myvar, y = logr)) +
+meta_plot_n <- ggplot(data = nfert_responses3, 
+                      aes(x = myvar,
+                          y = logr)) +
   geom_jitter(color = rgb(0,0,0,0.3), 
-              aes( size = 1/logr_se ), 
+              aes(x = myvar,y = logr,
+                  size = 1/logr_se), 
               position = position_jitter(w = 0.2, h = 0),
               show.legend = FALSE) +
-  geom_crossbar( data = df_box_n %>% drop_na(var), 
-                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
+  geom_crossbar(data = df_box_n %>% drop_na(var),
+                 aes(x = fct_inorder(var), y = middle, ymin = ymin, ymax = ymax),
                  fill = "royalblue", 
                  color = "royalblue4", 
                  alpha = 0.6, 
-                 width = 0.5 ) +
+                 width = 0.5) +
   geom_hline( yintercept = 0.0, linewidth = 0.5, linetype = "dotted" ) +
-    coord_flip() +
-  scale_x_discrete(labels = c("Belowground biomass", 
-                              "Aboveground biomass", 
+  scale_x_discrete(limits = c("rootshoot", "rmf", "bgb", "agb", 
+                                "total_biomass", "leaf_wue", 
+                                "leaf_pue", "leaf_nue", "rd", 
+                                "tpu", "jmax", "vcmax", 
+                                "E", "asat", "leaf_residual_p",
+                                "leaf_structure_p",
+                                "leaf_nucleic_p", "leaf_metabolic_p",
+                                "leaf_sugar_p", "leaf_pi",
+                                "leaf_np", "leaf_p_area", 
+                                "leaf_p_mass", "leaf_n_area",
+                                "leaf_n_mass", "lma"),
+                   labels = c("Root:shoot", "Root mass fraction", 
+                              "BG biomass", 
+                              "AG biomass", 
                               "Total biomass", 
-                              "PPUE",
+                              "WUEi", 
+                              "PPUE", 
                               "PNUE", 
                               expression("R"["d"]), 
                               "TPU", 
                               expression("J"["max"]), 
                               expression("V"["cmax"]),
-                              expression("g"["s"]),
-                              expression("A"["net"]), 
-                              "SPAD", 
+                              "E",
+                              expression("A"["sat"]),  
+                              "Leaf residual P",
+                              "Leaf structural P",
+                              "Leaf nucleic P", 
+                              "Leaf metabolic P",
+                              "Leaf soluble P", 
+                              "Leaf inorganic P",
                               "Leaf N:P",
                               expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
-                              expression("N"["mass"]), 
+                              expression("N"["mass"]),
                               expression("M"["area"]))) +
-  
-  #scale_x_discrete("", labels = mylabl) +
   labs(x = "", 
        y = "Log response to N addition") +
   coord_flip() +
   theme_classic(base_size = 18)
 meta_plot_n
 
-```
-
-# Explore data availability in combined dataset for P-fertilization experiments
-
-```{r}
+##############################################################################
+# PHOSPHORUS FERTILIZATION RESPONSES
+##############################################################################
+# Subset to only include N addition treatments
 explore_pfert_exps <- df_total %>%
   
   # field experiments only
-  # filter(experiment_type == "field") %>%
+  #filter(experiment_type == "field") %>%
   
   # fertilisation experiments only
   filter(treatment == "f") %>%
@@ -283,59 +305,32 @@ length(unique(explore_pfert_exps$exp))
 ## What traits are available?
 unique(explore_pfert_exps$response)
 
-```
-
-## Select variables
-
-```{r}
-use_response_p <- c("total_biomass",
-                    "agb",
-                    "bgb",
-                    "rmf",
-                    "rootshoot",
-                    "leaf_n_mass",
-                    "leaf_n_area",
-                    "leaf_p_mass",
-                    "leaf_p_area",
-                    "leaf_np",
-                    "gs",
-                    "lma",
-                    "sla",
-                    "spad",
-                    "amax",
-                    "vcmax",
-                    "jmax",
-                    "leaf_nue",
-                    "leaf_pue",
-                    "rd",
-                    "tpu",
-                    "asat",
-                    "cica",
-                    "ci",
-                    "leaf_strucure_p",
-                    "leaf_metabolic_p",
-                    "leaf_nucleic_p",
-                    "leaf_residual_p",
-                    "leaf_pi",
-                    "leaf_sugar_p"
-)
+# Select variables
+use_response_p <- c("agb", "bgb", "total_biomass", "fine_root_biomass",
+                    "rmf", "rootshoot", "lma", "leaf_n_mass", "leaf_n_area",
+                    "leaf_p_mass", "leaf_p_area", "leaf_np", "sla", "vcmax",
+                    "jmax", "tpu", "leaf_nue", "leaf_pue", "asat", "rd",
+                    "gsw", "gs", "spad", "anet", "leaf_structure_p",
+                    "leaf_metabolic_p", "leaf_nucleic_p", "leaf_residual_p",
+                    "leaf_thickness", "leaf_pi", "leaf_sugar_p", "E",
+                    "leaf_wue")              
 
 pfert_responses <- explore_pfert_exps %>% 
   filter(response %in% use_response_p) %>% 
-  mutate(myvar = response) %>% 
-  mutate(myvar = ifelse(myvar %in% c("cica", "ci"),
-                        "cica", myvar)) %>% 
-  mutate(myvar = ifelse(myvar %in%  c("asat", "amax"), 
-                        "anet", myvar))
+  mutate(myvar = response) %>%
+  mutate(myvar = ifelse(myvar %in% c("anet", "asat"),
+                        "asat", myvar),
+         myvar = ifelse(myvar %in% c("gs", "gsw"),
+                        "gs", myvar))
 
 use_vars_p <- unique(pfert_responses$myvar)
-```
 
 ## Analysis
 
-Calculate `"ROM"` - the log transformed ratio of means (Hedges et al., 1999; Lajeunesse, 2011) for each observation pair (ambient and elevated).
+# Calculate `"ROM"` - the log transformed ratio of means (Hedges et al., 1999; 
+# Lajeunesse, 2011) for each # observation pair (ambient and N added).
 
-```{r}
+
 pfert_responses2 <- pfert_responses %>%
   
   ## keep only essential variables and drop rows containing missing values for 
@@ -360,10 +355,9 @@ pfert_responses2 <- pfert_responses %>%
   mutate( logr_se = sqrt(logr_var) / sqrt(rep_t) )
 
 head(pfert_responses2)
-```
 
-```{r}
-# Aggregate all measurements (multiple years, sampling dates and plots) by experiment (and response variable - although here only one) for meta analysis.
+# Aggregate all measurements (multiple years, sampling dates and plots) by 
+# experiment (and response variable - although here only one) for meta analysis.
 pfert_responses3 <- pfert_responses2 %>% 
   
   # suggested addition by Kevin, email 02.10.2023 10:03
@@ -412,18 +406,16 @@ pfert_responses3 <- pfert_responses2 %>%
           myvar = ifelse(myvar == "sla", "lma", myvar))
 
 head(pfert_responses3)
-```
+
 
 # Meta-analysis
 
-Aggregate log-ratios across multiple experiments, taking into account their respective variance and using the experiment identity as a grouping factor for random intercepts.
-
-```{r, warning=FALSE, message=FALSE}
-source("../helper_fxns/analyse_meta.R")
-
+# Aggregate log-ratios across multiple experiments, taking into account 
+# their respective variance and using the experiment identity as a 
+# grouping factor for random intercepts.
 out_p  <- purrr::map(as.list(use_vars_p), 
-                   ~analyse_meta(pfert_responses3 %>% 
-                                   rename(var = myvar), nam_target = .))
+                     ~analyse_meta(pfert_responses3 %>% 
+                                     rename(var = myvar), nam_target = .))
 names(out_p) <- use_vars_p
 df_box_p <- purrr::map_dfr(out_p, "df_box") |> 
   left_join(
@@ -431,106 +423,114 @@ df_box_p <- purrr::map_dfr(out_p, "df_box") |>
       group_by(myvar) |> 
       summarise(logr_min = min(logr), logr_max = max(logr)) |> 
       rename(var = myvar),
-    by = "var"
-  )
-saveRDS(df_box_p, file = paste0(here::here(), "df_box_pfert.rds"))
-```
+    by = "var")
 
 ## Final data size
 
-Number of data points (plot-level measurements) per variable:
-
-```{r, message=FALSE}
+# Number of data points (plot-level measurements) per variable:
 pfert_responses3 %>% 
   group_by(myvar) %>% 
   summarise(n_plots = sum(n_c, na.rm = TRUE), n_exp = n()) %>% 
   rename("Variable"="myvar", "N observations"="n_plots", "N experiments"="n_exp") %>% 
   knitr::kable()
-```
 
-Number of data points (plot-level measurements) per experiment:
 
-```{r, warning=FALSE}
-pfert_responses3 %>% 
-  group_by(exp) %>% 
-  summarise(n_plots = sum(n_c), n_exp = n()) %>% 
-  rename_("Experiment"="exp", "N observations"="n_plots", "N experiments"="n_exp") %>% 
-  knitr::kable()
-```
-
-## Some quick plots:
-
-```{r}
-
+# Some quick plots:
 pfert_responses3 <- pfert_responses3 %>%
-  mutate(myvar = factor(myvar, levels = c("bgb", "agb", "total_biomass", "rmf", "rootshoot",
-                                          "leaf_pue", "leaf_nue", "rd", "tpu", "jmax", "vcmax",
-                                          "cica", "gs", "anet", "spad", "leaf_np",
-                                          "leaf_p_area", "leaf_p_mass", "leaf_n_area",
-                                           "leaf_n_mass", "lma", "leaf_strucure_p", "leaf_pi",
-                                          "leaf_metabolic_p", "leaf_sugar_p", "leaf_nucleic_p", 
-                                          "leaf_residual_p")))
+  mutate(myvar = factor(myvar,
+                        levels = c("rootshoot", "rmf", "bgb", "agb", 
+                                   "total_biomass", "leaf_wue", 
+                                   "leaf_pue", "leaf_nue", "rd", 
+                                   "tpu", "jmax", "vcmax", 
+                                   "E", "asat", "leaf_residual_p",
+                                   "leaf_structure_p",
+                                   "leaf_nucleic_p", "leaf_metabolic_p",
+                                   "leaf_sugar_p", "leaf_pi",
+                                   "leaf_np", "leaf_p_area", 
+                                   "leaf_p_mass", "leaf_n_area",
+                                   "leaf_n_mass", "lma")))
+df_box_p$var <- factor(df_box_p$var, levels = c("rootshoot", "rmf", "bgb", "agb", 
+                                                "total_biomass", "leaf_wue", 
+                                                "leaf_pue", "leaf_nue", "rd", 
+                                                "tpu", "jmax", "vcmax", 
+                                                "E", "asat", "leaf_residual_p",
+                                                "leaf_structure_p",
+                                                "leaf_nucleic_p", "leaf_metabolic_p",
+                                                "leaf_sugar_p", "leaf_pi",
+                                                "leaf_np", "leaf_p_area", 
+                                                "leaf_p_mass", "leaf_n_area",
+                                                "leaf_n_mass", "lma"))
 
-meta_plot_p <- ggplot(data = subset(pfert_responses3, myvar != "cica"), 
-                    aes(x = myvar, y = logr)) +
+meta_plot_p <- ggplot(data = pfert_responses3, 
+                      aes(x = myvar,
+                          y = logr)) +
   geom_jitter(color = rgb(0,0,0,0.3), 
-              aes( size = 1/logr_se ), 
+              aes(x = myvar,y = logr,
+                  size = 1/logr_se), 
               position = position_jitter(w = 0.2, h = 0),
               show.legend = FALSE) +
-  geom_crossbar( data = df_box_p %>% drop_na(var), 
-                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                 fill = "royalblue", 
-                 color = "royalblue4", 
-                 alpha = 0.6, 
-                 width = 0.5 ) +
+  geom_crossbar(data = df_box_p %>% drop_na(var),
+                aes(x = fct_inorder(var), y = middle, ymin = ymin, ymax = ymax),
+                fill = "royalblue", 
+                color = "royalblue4", 
+                alpha = 0.6, 
+                width = 0.5) +
   geom_hline( yintercept = 0.0, linewidth = 0.5, linetype = "dotted" ) +
-  scale_x_discrete(labels = c("Belowground biomass", 
-                              "Aboveground biomass", 
+  scale_x_discrete(limits = c("rootshoot", "rmf", "bgb", "agb", 
+                              "total_biomass", "leaf_wue", 
+                              "leaf_pue", "leaf_nue", "rd", 
+                              "tpu", "jmax", "vcmax", 
+                              "E", "asat", "leaf_residual_p",
+                              "leaf_structure_p",
+                              "leaf_nucleic_p", "leaf_metabolic_p",
+                              "leaf_sugar_p", "leaf_pi",
+                              "leaf_np", "leaf_p_area", 
+                              "leaf_p_mass", "leaf_n_area",
+                              "leaf_n_mass", "lma"),
+                   labels = c("Root:shoot", "Root mass fraction", 
+                              "BG biomass", 
+                              "AG biomass", 
                               "Total biomass", 
-                              "Root mass fraction",
-                              "Root:shoot",
-                              "PPUE",
+                              "WUEi", 
+                              "PPUE", 
                               "PNUE", 
                               expression("R"["d"]), 
                               "TPU", 
                               expression("J"["max"]), 
                               expression("V"["cmax"]),
-                              expression("g"["s"]),
-                              expression("A"["net"]), 
-                              "SPAD", 
+                              "E",
+                              expression("A"["sat"]),  
+                              "Leaf residual P",
+                              "Leaf structural P",
+                              "Leaf nucleic P", 
+                              "Leaf metabolic P",
+                              "Leaf soluble P", 
+                              "Leaf inorganic P",
                               "Leaf N:P",
                               expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
-                              expression("N"["mass"]), 
-                              expression("M"["area"]),
-                              "Leaf structural P",
-                              "Leaf Pi",
-                              "Leaf metabolic P",
-                              "Leaf sugar P",
-                              "Leaf nucleic P", 
-                              "Leaf residual P")) +
-  
-  #scale_x_discrete("", labels = mylabl) +
+                              expression("N"["mass"]),
+                              expression("M"["area"]))) +
   labs(x = "", 
        y = "Log response to P addition") +
   coord_flip() +
   theme_classic(base_size = 18)
 meta_plot_p
 
-
-
-```
-
-# Explore data availability in combined dataset for N\*P-fertilization experiments
-
-```{r}
+##############################################################################
+# NITROGEN + PHOSPHORUS FERTILIZATION RESPONSES
+##############################################################################
+# Subset to only include N+P addition treatments
 explore_npfert_exps <- df_total %>%
+  
+  # field experiments only
+  #filter(experiment_type == "field") %>%
   
   # fertilisation experiments only
   filter(treatment == "f") %>%
   
-  # P-fertilization in concert with N-fertilization (without K addition)
+  # P-fertilisation only (without N or K addition)
   filter(npk == "_110")
 
 head(explore_npfert_exps)
@@ -541,51 +541,32 @@ length(unique(explore_npfert_exps$exp))
 ## What traits are available?
 unique(explore_npfert_exps$response)
 
-```
-
-## Select variables
-
-```{r}
-use_response_np <- c("total_biomass",
-                    "agb",
-                    "bgb",
-                    "leaf_n_mass",
-                    "leaf_n_area",
-                    "leaf_p_mass",
-                    "leaf_p_area",
-                    "leaf_np",
-                    "gs",
-                    "lma",
-                    "sla",
-                    "spad",
-                    "amax",
-                    "vcmax",
-                    "jmax",
-                    "leaf_nue",
-                    "leaf_pue",
-                    "rd",
-                    "tpu",
-                    "asat",
-                    "cica",
-                    "ci"
-)
+# Select variables
+use_response_np <- c("agb", "bgb", "total_biomass", "fine_root_biomass",
+                    "rmf", "rootshoot", "lma", "leaf_n_mass", "leaf_n_area",
+                    "leaf_p_mass", "leaf_p_area", "leaf_np", "sla", "vcmax",
+                    "jmax", "tpu", "leaf_nue", "leaf_pue", "asat", "rd",
+                    "gsw", "gs", "spad", "anet", "leaf_structure_p",
+                    "leaf_metabolic_p", "leaf_nucleic_p", "leaf_residual_p",
+                    "leaf_thickness", "leaf_pi", "leaf_sugar_p", "E",
+                    "leaf_wue")              
 
 npfert_responses <- explore_npfert_exps %>% 
   filter(response %in% use_response_np) %>% 
-  mutate(myvar = response) %>% 
-  mutate(myvar = ifelse(myvar %in% c("cica", "ci"),
-                        "cica", myvar)) %>% 
-  mutate(myvar = ifelse(myvar %in%  c("asat", "amax"), 
-                        "anet", myvar))
+  mutate(myvar = response) %>%
+  mutate(myvar = ifelse(myvar %in% c("anet", "asat"),
+                        "asat", myvar),
+         myvar = ifelse(myvar %in% c("gs", "gsw"),
+                        "gs", myvar))
 
 use_vars_np <- unique(npfert_responses$myvar)
-```
 
 ## Analysis
 
-Calculate `"ROM"` - the log transformed ratio of means (Hedges et al., 1999; Lajeunesse, 2011) for each observation pair (ambient and elevated).
+# Calculate `"ROM"` - the log transformed ratio of means (Hedges et al., 1999; 
+# Lajeunesse, 2011) for each # observation pair (ambient and N added).
 
-```{r}
+
 npfert_responses2 <- npfert_responses %>%
   
   ## keep only essential variables and drop rows containing missing values for 
@@ -610,10 +591,9 @@ npfert_responses2 <- npfert_responses %>%
   mutate( logr_se = sqrt(logr_var) / sqrt(rep_t) )
 
 head(npfert_responses2)
-```
 
-```{r}
-# Aggregate all measurements (multiple years, sampling dates and plots) by experiment (and response variable - although here only one) for meta analysis.
+# Aggregate all measurements (multiple years, sampling dates and plots) by 
+# experiment (and response variable - although here only one) for meta analysis.
 npfert_responses3 <- npfert_responses2 %>% 
   
   # suggested addition by Kevin, email 02.10.2023 10:03
@@ -647,7 +627,7 @@ npfert_responses3 <- npfert_responses2 %>%
   
   ## add number of observations (sum of plots and repeated samplings)
   left_join(
-    npfert_responses2 %>%
+    pfert_responses2 %>%
       group_by(exp, myvar, treatment) %>%
       summarise(n_c = sum(rep_c), n_t = sum(rep_t)),
     by = c("exp", "myvar")
@@ -662,16 +642,16 @@ npfert_responses3 <- npfert_responses2 %>%
           myvar = ifelse(myvar == "sla", "lma", myvar))
 
 head(npfert_responses3)
-```
+
 
 # Meta-analysis
 
-Aggregate log-ratios across multiple experiments, taking into account their respective variance and using the experiment identity as a grouping factor for random intercepts.
-
-```{r, warning=FALSE, message=FALSE}
+# Aggregate log-ratios across multiple experiments, taking into account 
+# their respective variance and using the experiment identity as a 
+# grouping factor for random intercepts.
 out_np  <- purrr::map(as.list(use_vars_np), 
-                   ~analyse_meta(npfert_responses3 %>% 
-                                   rename(var = myvar), nam_target = .))
+                     ~analyse_meta(npfert_responses3 %>% 
+                                     rename(var = myvar), nam_target = .))
 names(out_np) <- use_vars_np
 df_box_np <- purrr::map_dfr(out_np, "df_box") |> 
   left_join(
@@ -679,84 +659,105 @@ df_box_np <- purrr::map_dfr(out_np, "df_box") |>
       group_by(myvar) |> 
       summarise(logr_min = min(logr), logr_max = max(logr)) |> 
       rename(var = myvar),
-    by = "var"
-  )
-saveRDS(df_box_np, file = paste0(here::here(), "df_box_npfert.rds"))
-```
+    by = "var")
 
 ## Final data size
 
-Number of data points (plot-level measurements) per variable:
-
-```{r, message=FALSE}
+# Number of data points (plot-level measurements) per variable:
 npfert_responses3 %>% 
   group_by(myvar) %>% 
   summarise(n_plots = sum(n_c, na.rm = TRUE), n_exp = n()) %>% 
   rename("Variable"="myvar", "N observations"="n_plots", "N experiments"="n_exp") %>% 
   knitr::kable()
-```
 
-Number of data points (plot-level measurements) per experiment:
 
-```{r, warning=FALSE}
-npfert_responses3 %>% 
-  group_by(exp) %>% 
-  summarise(n_plots = sum(n_c), n_exp = n()) %>% 
-  rename_("Experiment"="exp", "N observations"="n_plots", "N experiments"="n_exp") %>% 
-  knitr::kable()
-```
-
-## Some quick plots:
-
-```{r}
+# Some quick plots:
 npfert_responses3 <- npfert_responses3 %>%
-  mutate(myvar = factor(myvar, levels = c("bgb", "agb", "total_biomass", "leaf_pue",
-                                          "leaf_nue", "rd", "tpu", "jmax", "vcmax",
-                                          "cica", "gs", "anet", "spad", "leaf_np",
-                                          "leaf_p_area", "leaf_p_mass", "leaf_n_area",
-                                           "leaf_n_mass", "lma")))
+  mutate(myvar = factor(myvar,
+                        levels = c("rootshoot", "rmf", "bgb", "agb", 
+                                   "total_biomass", "leaf_wue", 
+                                   "leaf_pue", "leaf_nue", "rd", 
+                                   "tpu", "jmax", "vcmax", 
+                                   "E", "asat", "leaf_residual_p",
+                                   "leaf_structure_p",
+                                   "leaf_nucleic_p", "leaf_metabolic_p",
+                                   "leaf_sugar_p", "leaf_pi",
+                                   "leaf_np", "leaf_p_area", 
+                                   "leaf_p_mass", "leaf_n_area",
+                                   "leaf_n_mass", "lma")))
+df_box_np$var <- factor(df_box_np$var, levels = c("rootshoot", "rmf", "bgb", "agb", 
+                                                "total_biomass", "leaf_wue", 
+                                                "leaf_pue", "leaf_nue", "rd", 
+                                                "tpu", "jmax", "vcmax", 
+                                                "E", "asat", "leaf_residual_p",
+                                                "leaf_structure_p",
+                                                "leaf_nucleic_p", "leaf_metabolic_p",
+                                                "leaf_sugar_p", "leaf_pi",
+                                                "leaf_np", "leaf_p_area", 
+                                                "leaf_p_mass", "leaf_n_area",
+                                                "leaf_n_mass", "lma"))
 
-meta_plot_np <- ggplot(data = subset(npfert_responses3, myvar != "cica"), 
-                    aes(x = myvar, y = logr)) +
+meta_plot_np <- ggplot(data = npfert_responses3, 
+                      aes(x = myvar,
+                          y = logr)) +
   geom_jitter(color = rgb(0,0,0,0.3), 
-              aes( size = 1/logr_se ), 
+              aes(x = myvar,y = logr,
+                  size = 1/logr_se), 
               position = position_jitter(w = 0.2, h = 0),
               show.legend = FALSE) +
-  geom_crossbar( data = df_box_np %>% drop_na(var), 
-                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                 fill = "royalblue", 
-                 color = "royalblue4", 
-                 alpha = 0.6, 
-                 width = 0.5 ) +
+  geom_crossbar(data = df_box_np %>% drop_na(var),
+                aes(x = fct_inorder(var), y = middle, ymin = ymin, ymax = ymax),
+                fill = "royalblue", 
+                color = "royalblue4", 
+                alpha = 0.6, 
+                width = 0.5) +
   geom_hline( yintercept = 0.0, linewidth = 0.5, linetype = "dotted" ) +
-  scale_x_discrete(labels = c("Belowground biomass", 
-                              "Aboveground biomass", 
+  scale_x_discrete(limits = c("rootshoot", "rmf", "bgb", "agb", 
+                              "total_biomass", "leaf_wue", 
+                              "leaf_pue", "leaf_nue", "rd", 
+                              "tpu", "jmax", "vcmax", 
+                              "E", "asat", "leaf_residual_p",
+                              "leaf_structure_p",
+                              "leaf_nucleic_p", "leaf_metabolic_p",
+                              "leaf_sugar_p", "leaf_pi",
+                              "leaf_np", "leaf_p_area", 
+                              "leaf_p_mass", "leaf_n_area",
+                              "leaf_n_mass", "lma"),
+                   labels = c("Root:shoot", "Root mass fraction", 
+                              "BG biomass", 
+                              "AG biomass", 
                               "Total biomass", 
-                              "PPUE",
+                              "WUEi", 
+                              "PPUE", 
                               "PNUE", 
                               expression("R"["d"]), 
                               "TPU", 
                               expression("J"["max"]), 
                               expression("V"["cmax"]),
-                              expression("g"["s"]), 
-                              "SPAD", 
+                              "E",
+                              expression("A"["sat"]),  
+                              "Leaf residual P",
+                              "Leaf structural P",
+                              "Leaf nucleic P", 
+                              "Leaf metabolic P",
+                              "Leaf soluble P", 
+                              "Leaf inorganic P",
                               "Leaf N:P",
                               expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
-                              expression("N"["mass"]), 
+                              expression("N"["mass"]),
                               expression("M"["area"]))) +
-  
-  #scale_x_discrete("", labels = mylabl) +
   labs(x = "", 
-       y = "Log response to N*P addition") +
+       y = "Log response to N+P addition") +
   coord_flip() +
   theme_classic(base_size = 18)
 meta_plot_np
 
-```
+##############################################################################
+# Let's put together some plots
+##############################################################################
 
-```{r}
 # Add exp type to all data frames to merge together
 df_box_np$manip_type <- "np"
 df_box_p$manip_type <- "p"
@@ -789,8 +790,8 @@ meta_plot_all_leaf_nutrients <- ggplot(
               shape = 21, aes(size = 1/logr_se)) +
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
                   filter(var %in% c("lma", "leaf_n_mass", "leaf_n_area", 
-                                      "leaf_p_mass", "leaf_p_area", "leaf_np", 
-                                      "spad")),
+                                    "leaf_p_mass", "leaf_p_area", "leaf_np", 
+                                    "spad")),
                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
                 alpha = 0.6, width = 0.5,
                 position = position_dodge(width = 0.75)) +
@@ -804,7 +805,7 @@ meta_plot_all_leaf_nutrients <- ggplot(
                               expression("M"["area"]))) +
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
   scale_fill_manual(limits = c("n", "p", "np"),
-                      values = c("red", "blue", "magenta")) +
+                    values = c("red", "blue", "magenta")) +
   scale_size(range = c(0.25, 4)) +
   labs(x = "", 
        y = "Log response to N, P, or N+P addition",
@@ -816,20 +817,18 @@ meta_plot_all_leaf_nutrients <- ggplot(
         legend.title = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"))
 meta_plot_all_leaf_nutrients
-```
 
-```{r}
 # Plot photosynthetic traits. Separating by trait type to avoid plot overwhelm
 meta_plot_all_photo <- ggplot(
   data = subset(fert_exp_responses_all, 
-                myvar %in% c("anet", "gs", "vcmax", "jmax",
+                myvar %in% c("asat", "vcmax", "jmax",
                              "rd", "leaf_nue", "leaf_pue")),
   aes(x = myvar, y = logr, fill = manip_type)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
               shape = 21, aes(size = 1/logr_se)) +
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
-                  filter(var %in% c("anet", "gs", "vcmax", "jmax",
+                  filter(var %in% c("asat", "vcmax", "jmax",
                                     "rd", "leaf_nue", "leaf_pue")),
                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
                 alpha = 0.6, width = 0.5,
@@ -844,7 +843,7 @@ meta_plot_all_photo <- ggplot(
                               expression("A"["net"]))) +
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
   scale_fill_manual(limits = c("n", "p", "np"),
-                      values = c("red", "blue", "magenta")) +
+                    values = c("red", "blue", "magenta")) +
   scale_size(range = c(0.25, 4)) +
   labs(x = "", 
        y = "Log response to N, P, or N+P addition",
@@ -856,29 +855,29 @@ meta_plot_all_photo <- ggplot(
         legend.title = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"))
 meta_plot_all_photo
-```
 
-```{r}
 # Plot biomass traits. Separating by trait type to avoid plot overwhelm
 meta_plot_all_biomass <- ggplot(
   data = subset(fert_exp_responses_all, 
-                myvar %in% c("bgb", "agb", "total_biomass")),
+                myvar %in% c("rootshoot", "rmf", "bgb", "agb", "total_biomass")),
   aes(x = myvar, y = logr, fill = manip_type)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
               shape = 21, aes(size = 1/logr_se)) +
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
-                  filter(var %in% c("bgb", "agb", "total_biomass")),
+                  filter(var %in% c("rootshoot", "rmf", "bgb", "agb", "total_biomass")),
                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
                 alpha = 0.6, width = 0.5,
                 position = position_dodge(width = 0.75)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("Belowground biomass",
+  scale_x_discrete(labels = c("Root:shoot",
+                              "RMF",
+                              "Belowground biomass",
                               "Aboveground biomass",
                               "Total biomass")) +
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
   scale_fill_manual(limits = c("n", "p", "np"),
-                      values = c("red", "blue", "magenta")) +
+                    values = c("red", "blue", "magenta")) +
   scale_size(range = c(0.25, 4)) +
   labs(x = "", 
        y = "Log response to N, P, or N+P addition",
@@ -890,53 +889,13 @@ meta_plot_all_biomass <- ggplot(
         legend.title = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"))
 meta_plot_all_biomass
-```
 
-## Write plots
 
-```{r}
-# N meta-analysis
-# png("../plots/meta_results_n.png", width = 9, height = 6,
-#     units = "in", res = 600)
-# meta_plot_n
-# dev.off()
-# 
-# # P meta-analysis
-png("../plots/meta_results_p.png", width = 9, height = 6,
-    units = "in", res = 600)
-meta_plot_p
-dev.off()
-# 
-# # NP meta-analysis
-# png("../plots/meta_results_np.png", width = 9, height = 6,
-#     units = "in", res = 600)
-# meta_plot_np
-# dev.off()
-# 
-# # Combine N, P, NP meta-analysis into single figure. First, leaf nutrients
-# png("../plots/CNPmeta_plot_nutrients_combined.png", width = 9, height = 6,
-#     units = "in", res = 600)
-# meta_plot_all_leaf_nutrients
-# dev.off()
-# 
-# # Second, photosynthetic traits
-# png("../plots/CNPmeta_plot_photo_combined.png", width = 9, height = 6,
-#     units = "in", res = 600)
-# meta_plot_all_photo
-# dev.off()
-# 
-# # Third, biomass
-# png("../plots/CNPmeta_plot_biomass_combined.png", width = 9, height = 6,
-#     units = "in", res = 600)
-# meta_plot_all_biomass
-# dev.off()
-# 
-# # Finally, lets arange all of the combined plots into a 3-panel figure
-# png("../plots/CNPmeta_plot_all_combined.png", height = 16, width = 9,
-#     units = "in", res = 600)
-# ggarrange(meta_plot_all_leaf_nutrients, meta_plot_all_photo,
-#           meta_plot_all_biomass, nrow = 3, ncol = 1, common.legend = TRUE,
-#           legend = "right", labels = c("(a)", "(b)", "(c)", align = "hv"))
-# dev.off()
+meta_plot_all_leaf_nutrients / meta_plot_all_photo / meta_plot_all_biomass +
+  plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
+  theme(plot.tag = element_text(size = 12, face = "bold"))
 
-```
+
+
+
+
