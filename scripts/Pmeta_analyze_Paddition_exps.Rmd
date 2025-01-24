@@ -33,9 +33,10 @@ library(patchwork)
 df_mesi <- read_csv("../data/mesi_main.csv")
 
 # Manual data compilation
-df_manual <- read_csv("../data/CNP_meta_data.csv") %>%
+df_manual <- read_csv("../data/CNP_compiled_data.csv") %>%
   mutate(sampling_year = as.character(sampling_year),
-         treatment = ifelse(treatment == FALSE, "f", treatment))
+         treatment = ifelse(treatment == FALSE, "f", treatment),
+         sampling_date = as.character(sampling_date))
 
 # Merge MESI database with manual data compilation
 df_total <- df_mesi %>%
@@ -48,13 +49,16 @@ df_total <- df_mesi %>%
 ```{r}
 explore_nfert_exps <- df_total %>%
   
+  # field experiments only
+  filter(experiment_type == "field") %>%
+  
   # fertilisation experiments only
   filter(treatment == "f") %>%
   
   # P-fertilisation only (without N or K addition)
   filter(npk == "_100")
 
-head(explore_pfert_exps)
+head(explore_nfert_exps)
 
 ## How many experiments?
 length(unique(explore_nfert_exps$exp))
@@ -87,7 +91,13 @@ use_response_n <- c("total_biomass",
                     "tpu",
                     "asat",
                     "cica",
-                    "ci"
+                    "ci",
+                    "leaf_strucure_p",
+                    "leaf_metabolic_p",
+                    "leaf_nucleic_p",
+                    "leaf_residual_p",
+                    "leaf_pi",
+                    "leaf_sugar_p"
 )
 
 nfert_responses <- explore_nfert_exps %>% 
@@ -95,7 +105,7 @@ nfert_responses <- explore_nfert_exps %>%
   mutate(myvar = response) %>% 
   mutate(myvar = ifelse(myvar %in% c("cica", "ci"),
                         "cica", myvar)) %>% 
-  mutate(myvar = ifelse(myvar %in%  c("asat", "amax"), 
+  mutate(myvar = ifelse(myvar %in%  c("leaf_", "amax"), 
                         "anet", myvar))
 
 use_vars_n <- unique(nfert_responses$myvar)
@@ -271,17 +281,13 @@ meta_plot_n
 ```
 
 
-
-
-
-
-
-
-
 # Explore data availability in combined dataset for P-fertilization experiments
 
 ```{r}
 explore_pfert_exps <- df_total %>%
+  
+  # field experiments only
+  # filter(experiment_type == "field") %>%
   
   # fertilisation experiments only
   filter(treatment == "f") %>%
@@ -305,6 +311,8 @@ unique(explore_pfert_exps$response)
 use_response_p <- c("total_biomass",
                     "agb",
                     "bgb",
+                    "rmf",
+                    "rootshoot",
                     "leaf_n_mass",
                     "leaf_n_area",
                     "leaf_p_mass",
@@ -323,7 +331,13 @@ use_response_p <- c("total_biomass",
                     "tpu",
                     "asat",
                     "cica",
-                    "ci"
+                    "ci",
+                    "leaf_strucure_p",
+                    "leaf_metabolic_p",
+                    "leaf_nucleic_p",
+                    "leaf_residual_p",
+                    "leaf_pi",
+                    "leaf_sugar_p"
 )
 
 pfert_responses <- explore_pfert_exps %>% 
@@ -467,13 +481,15 @@ pfert_responses3 %>%
 ```{r}
 
 pfert_responses3 <- pfert_responses3 %>%
-  mutate(myvar = factor(myvar, levels = c("bgb", "agb", "total_biomass", "leaf_pue",
-                                          "leaf_nue", "rd", "tpu", "jmax", "vcmax",
+  mutate(myvar = factor(myvar, levels = c("bgb", "agb", "total_biomass", "rmf", "rootshoot",
+                                          "leaf_pue", "leaf_nue", "rd", "tpu", "jmax", "vcmax",
                                           "cica", "gs", "anet", "spad", "leaf_np",
                                           "leaf_p_area", "leaf_p_mass", "leaf_n_area",
-                                           "leaf_n_mass", "lma")))
+                                           "leaf_n_mass", "lma", "leaf_strucure_p", "leaf_pi",
+                                          "leaf_metabolic_p", "leaf_sugar_p", "leaf_nucleic_p", 
+                                          "leaf_residual_p")))
 
-meta_plot <- ggplot(data = subset(pfert_responses3, myvar != "cica"), 
+meta_plot_p <- ggplot(data = subset(pfert_responses3, myvar != "cica"), 
                     aes(x = myvar, y = logr)) +
   geom_jitter(color = rgb(0,0,0,0.3), 
               aes( size = 1/logr_se ), 
@@ -489,6 +505,8 @@ meta_plot <- ggplot(data = subset(pfert_responses3, myvar != "cica"),
   scale_x_discrete(labels = c("Belowground biomass", 
                               "Aboveground biomass", 
                               "Total biomass", 
+                              "Root mass fraction",
+                              "Root:shoot",
                               "PPUE",
                               "PNUE", 
                               expression("R"["d"]), 
@@ -503,14 +521,22 @@ meta_plot <- ggplot(data = subset(pfert_responses3, myvar != "cica"),
                               expression("P"["mass"]), 
                               expression("N"["area"]),
                               expression("N"["mass"]), 
-                              expression("M"["area"]))) +
+                              expression("M"["area"]),
+                              "Leaf structural P",
+                              "Leaf Pi",
+                              "Leaf metabolic P",
+                              "Leaf sugar P",
+                              "Leaf nucleic P", 
+                              "Leaf residual P")) +
   
   #scale_x_discrete("", labels = mylabl) +
   labs(x = "", 
        y = "Log response to P addition") +
   coord_flip() +
   theme_classic(base_size = 18)
-meta_plot
+meta_plot_p
+
+
 
 ```
 
@@ -898,10 +924,10 @@ meta_plot_all_biomass
 # dev.off()
 # 
 # # P meta-analysis
-# png("../plots/meta_results_p.png", width = 9, height = 6,
-#     units = "in", res = 600)
-# meta_plot_p
-# dev.off()
+png("../plots/meta_results_p.png", width = 9, height = 6,
+    units = "in", res = 600)
+meta_plot_p
+dev.off()
 # 
 # # NP meta-analysis
 # png("../plots/meta_results_np.png", width = 9, height = 6,
