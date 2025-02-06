@@ -22,6 +22,7 @@ library(metafor)
 library(MAd)
 library(patchwork)
 library(ggpubr)
+library(forcats)
 
 # MESI data
 df_mesi <- read_csv("../data/mesi_main.csv") %>%
@@ -68,7 +69,7 @@ unique(explore_nfert_exps$response)
 
 # Select variables
 use_response_n <- c("agb", "bgb", "total_biomass", "fine_root_biomass",
-                    "rmf", "rootshoot", "lma", "leaf_n_mass", "leaf_n_area",
+                    "rmf", "rootshoot", "gpp", "lma", "leaf_n_mass", "leaf_n_area",
                     "leaf_p_mass", "leaf_p_area", "leaf_np", "sla", "vcmax",                 
                     "jmax", "tpu", "leaf_nue", "leaf_pue", "asat", "rd",                    
                     "gsw", "gs", "spad", "anet", "leaf_structure_p", 
@@ -82,7 +83,9 @@ nfert_responses <- explore_nfert_exps %>%
   mutate(myvar = ifelse(myvar %in% c("anet", "asat"),
                         "asat", myvar),
          myvar = ifelse(myvar %in% c("gs", "gsw"),
-                        "gs", myvar))
+                        "gs", myvar),
+         myvar = ifelse(myvar == "fine_root_biomass",
+                        "bgb", myvar))
 
 use_vars_n <- unique(nfert_responses$myvar)
 
@@ -263,7 +266,7 @@ meta_plot_n <- ggplot(data = nfert_responses3,
                               expression("J"["max"]), 
                               expression("V"["cmax"]),
                               "E",
-                              expression("A"["sat"]),  
+                              expression("A"["net"]),  
                               "Leaf residual P",
                               "Leaf structural P",
                               "Leaf nucleic P", 
@@ -321,7 +324,9 @@ pfert_responses <- explore_pfert_exps %>%
   mutate(myvar = ifelse(myvar %in% c("anet", "asat"),
                         "asat", myvar),
          myvar = ifelse(myvar %in% c("gs", "gsw"),
-                        "gs", myvar))
+                        "gs", myvar),
+         myvar = ifelse(myvar == "fine_root_biomass",
+                        "bgb", myvar))
 
 use_vars_p <- unique(pfert_responses$myvar)
 
@@ -557,7 +562,9 @@ npfert_responses <- explore_npfert_exps %>%
   mutate(myvar = ifelse(myvar %in% c("anet", "asat"),
                         "asat", myvar),
          myvar = ifelse(myvar %in% c("gs", "gsw"),
-                        "gs", myvar))
+                        "gs", myvar),
+         myvar = ifelse(myvar == "fine_root_biomass",
+                        "bgb", myvar))
 
 use_vars_np <- unique(npfert_responses$myvar)
 
@@ -783,21 +790,19 @@ head(fert_exp_responses_all)
 meta_plot_all_leaf_nutrients <- ggplot(
   data = subset(fert_exp_responses_all, 
                 myvar %in% c("lma", "leaf_n_mass", "leaf_n_area", "leaf_p_mass",
-                             "leaf_p_area", "leaf_np", "spad")),
+                             "leaf_p_area", "leaf_np")),
   aes(x = myvar, y = logr, fill = manip_type)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
               shape = 21, aes(size = 1/logr_se)) +
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
                   filter(var %in% c("lma", "leaf_n_mass", "leaf_n_area", 
-                                    "leaf_p_mass", "leaf_p_area", "leaf_np", 
-                                    "spad")),
+                                    "leaf_p_mass", "leaf_p_area", "leaf_np")),
                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.5,
-                position = position_dodge(width = 0.75)) +
+                alpha = 0.6, width = 0.6,
+                position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("SPAD", 
-                              "Leaf N:P",
+  scale_x_discrete(labels = c("Leaf N:P",
                               expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
@@ -831,16 +836,15 @@ meta_plot_all_photo <- ggplot(
                   filter(var %in% c("asat", "vcmax", "jmax",
                                     "rd", "leaf_nue", "leaf_pue")),
                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.5,
-                position = position_dodge(width = 0.75)) +
+                alpha = 0.6, width = 0.6,
+                position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression("Rd"), 
                               expression("J"["max"]),
                               expression("V"["cmax"]),
-                              expression("g"["s"]),
-                              expression("A"["net"]))) +
+                              expression("A"["sat"]))) +
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
   scale_fill_manual(limits = c("n", "p", "np"),
                     values = c("red", "blue", "magenta")) +
@@ -867,8 +871,8 @@ meta_plot_all_biomass <- ggplot(
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
                   filter(var %in% c("rootshoot", "rmf", "bgb", "agb", "total_biomass")),
                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.5,
-                position = position_dodge(width = 0.75)) +
+                alpha = 0.6, width = 0.6,
+                position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
@@ -891,10 +895,12 @@ meta_plot_all_biomass <- ggplot(
 meta_plot_all_biomass
 
 
+png("../plots/CNPmeta_plot_all_combined.png", height = 12, width = 12, 
+    units = "in", res = 600)
 meta_plot_all_leaf_nutrients / meta_plot_all_photo / meta_plot_all_biomass +
   plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
   theme(plot.tag = element_text(size = 12, face = "bold"))
-
+dev.off()
 
 
 
