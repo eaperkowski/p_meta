@@ -1,6 +1,6 @@
 # CNP working group P meta-analysis
 
-Repository containing data and scripts needed to investigate P fertilization impacts on leaf and whole-plant functional traits.
+Repository containing data and scripts needed to investigate P fertilization impacts on leaf and whole-plant functional traits. 
 
 Folder contents:
  - `data`                                  = contains compiled meta-analysis dataset and MESI dataset
