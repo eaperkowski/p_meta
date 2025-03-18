@@ -1,0 +1,5 @@
+"filename","variable","group_id","mean","sd","n","r","se","error_type","plot_type"
+"Arens_2008_gpp.jpg","gpp","np",2.25694444444445,0.233892249744922,6,NA,0.0954861111111112,"se","mean_error"
+"Arens_2008_gpp.jpg","gpp","p",0.486111111111111,0.106314658974965,6,NA,0.043402777777778,"se","mean_error"
+"Arens_2008_gpp.jpg","gpp","n",0.876736111111111,0.127577590769957,6,NA,0.0520833333333334,"se","mean_error"
+"Arens_2008_gpp.jpg","gpp","control",0.321180555555556,0.106314658974964,6,NA,0.0434027777777778,"se","mean_error"

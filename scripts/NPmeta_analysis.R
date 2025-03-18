@@ -25,12 +25,14 @@ library(ggpubr)
 library(forcats)
 
 # MESI data
-df_mesi <- read_csv("../data/mesi_main.csv") %>%
+read.csv("../data/mesi_main.csv") %>%
   group_by(exp) %>%
   filter(treatment == "f") %>%
-  filter(any(npk == "_100")) %>%
-  filter(any(npk == "_010")) %>%
-  filter(any(npk == "_110"))
+  filter(any(npk == "_110")) %>%
+  distinct(citation) %>%
+  write.csv("../np_fert_exps_in_mesi.csv", row.names = F)
+  
+
 # Note: filter is setup to only include MESI data from experiments that have
 # full-factorial combinations of N and P addition
 
