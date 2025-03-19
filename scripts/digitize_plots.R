@@ -29,3 +29,12 @@ arens2008 <- metaDigitise(dir = "../plots_to_digitize/Arens_2008/")
 # Aydin & Uzun 2004
 aydin2004 <- metaDigitise(dir = "../plots_to_digitize/Aydin_Uzun_2004/")
 
+# Blanke et al. 2012
+blanke2012 <- metaDigitise(dir = "../plots_to_digitize/Blanke_2012/")
+
+# Borer et al. 2013
+borer2013 <- metaDigitise(dir = "../plots_to_digitize/Borer_2013/")
+
+# Bowman et al. 1993
+bowman1993 <- metaDigitise(dir = "../plots_to_digitize/Bowman_1993/")
+bowman1993
