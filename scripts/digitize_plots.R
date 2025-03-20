@@ -37,4 +37,22 @@ borer2013 <- metaDigitise(dir = "../plots_to_digitize/Borer_2013/")
 
 # Bowman et al. 1993
 bowman1993 <- metaDigitise(dir = "../plots_to_digitize/Bowman_1993/")
-bowman1993
+
+# Davidson et al. 2004
+davidson2004 <- metaDigitise(dir = "../plots_to_digitize/Davidson_2004/")
+
+# Dong et al. 2016
+dong2016 <- metaDigitise(dir = "../plots_to_digitize/Dong_2016/")
+
+# Eller et al. 2017
+eller2017 <- metaDigitise(dir = "../plots_to_digitize/Eller_2017/")
+
+# Falk et al. 2010
+falk2010 <- metaDigitise(dir = "../plots_to_digitize/Falk_2010/")
+
+# Fisher et al. 2013
+fisher2013 <- metaDigitise(dir = "../plots_to_digitize/Fisher_2013/")
+
+
+
+
