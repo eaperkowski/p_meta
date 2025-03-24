@@ -50,9 +50,23 @@ eller2017 <- metaDigitise(dir = "../plots_to_digitize/Eller_2017/")
 # Falk et al. 2010
 falk2010 <- metaDigitise(dir = "../plots_to_digitize/Falk_2010/")
 
-# Fisher et al. 2013
-fisher2013 <- metaDigitise(dir = "../plots_to_digitize/Fisher_2013/")
+# Fornara et al. 2013
+fornara2013 <- metaDigitise(dir = "../plots_to_digitize/Fornara_2013/")
+
+# Frost et al. 2009
+frost2009 <- metaDigitise(dir = "../plots_to_digitize/Frost_2009/")
+
+# Gough et al. 2003
+gough2003 <- metaDigitise(dir = "../plots_to_digitize/Gough_2003/")
+
+# Gusewell 2002
+gusewell200 <- metaDigitise(dir = "../plots_to_digitize/Güsewell_2002/")
 
 
 
+
+gusewell2002 %>%
+  mutate(mean = round(mean, 2),
+         sd = round(sd, 2),
+         se = round(se, 2))
 
