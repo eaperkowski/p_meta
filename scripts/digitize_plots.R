@@ -60,13 +60,24 @@ frost2009 <- metaDigitise(dir = "../plots_to_digitize/Frost_2009/")
 gough2003 <- metaDigitise(dir = "../plots_to_digitize/Gough_2003/")
 
 # Gusewell 2002
-gusewell200 <- metaDigitise(dir = "../plots_to_digitize/Güsewell_2002/")
+gusewell2002 <- metaDigitise(dir = "../plots_to_digitize/Güsewell_2002/")
+
+# Gusewell 2003
+gusewell2003 <- metaDigitise(dir = "../plots_to_digitize/Güsewell_2003/")
+
+# Harrington 2001
+harrington2001 <- metaDigitise(dir = "../plots_to_digitize/Harrington_2001/")
+
+# Haubensak 2011
+haubensak2011 <- metaDigitise(dir = "../plots_to_digitize/Haubensak_2011/")
+
+# Huff 2015
+huff2015 <- metaDigitise(dir = "../plots_to_digitize/Huff_2015/")
 
 
 
-
-gusewell2002 %>%
-  mutate(mean = round(mean, 2),
-         sd = round(sd, 2),
-         se = round(se, 2))
+huff2015 %>%
+  mutate(mean = round(mean, 1),
+         sd = round(sd, 1),
+         se = round(se, 1))
 
