@@ -74,10 +74,30 @@ haubensak2011 <- metaDigitise(dir = "../plots_to_digitize/Haubensak_2011/")
 # Huff 2015
 huff2015 <- metaDigitise(dir = "../plots_to_digitize/Huff_2015/")
 
+# Ket 2011
+ket2011 <- metaDigitise(dir = "../plots_to_digitize/Ket_2011/")
+
+# Lawrence 2001
+lawrence2001 <- metaDigitise(dir = "../plots_to_digitize/Lawrence_2001/")
+
+# Li 2011
+li2011 <- metaDigitise(dir = "../plots_to_digitize/Li_2011/")
+
+# Li 2014
+li2014 <- metaDigitise(dir = "../plots_to_digitize/Li_2014/")
+
+# Li 2015
+li2015 <- metaDigitise(dir = "../plots_to_digitize/Li_2015")
+
+# Ludwig 2001
+ludwig2001 <- metaDigitise(dir = "../plots_to_digitize/Ludwig_2001/")
 
 
-huff2015 %>%
-  mutate(mean = round(mean, 1),
+ludwig2001 %>%
+  mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
+         mean = round(mean, 1),
          sd = round(sd, 1),
-         se = round(se, 1))
+         se = round(se, 1)) %>%
+  arrange(variable, group_id) %>%
+  dplyr::select(variable:mean, sd, se)
 
