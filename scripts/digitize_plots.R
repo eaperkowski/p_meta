@@ -92,12 +92,28 @@ li2015 <- metaDigitise(dir = "../plots_to_digitize/Li_2015")
 # Ludwig 2001
 ludwig2001 <- metaDigitise(dir = "../plots_to_digitize/Ludwig_2001/")
 
+# Lund 2009
+lund2009 <- metaDigitise(dir = "../plots_to_digitize/Lund_2009/")
 
-ludwig2001 %>%
-  mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
+# McMaster 1982
+mcmaster1982 <- metaDigitise(dir = "../plots_to_digitize/McMaster_1982/")
+
+# Ngai 2004
+ngai2004 <- metaDigitise(dir = "../plots_to_digitize/Ngai_2004/")
+
+# Ngatia 2015
+ngatia2015 <- metaDigitise(dir = "../plots_to_digitize/Ngatia_2015/")
+
+# Nielsen 2009
+nielsen2009 <- metaDigitise(dir = "../plots_to_digitize/Nielsen_2009/")
+
+nielsen2009 %>%
+  separate(group_id, into = c("species", "trt")) %>%
+  mutate(trt = ifelse(trt == "nnp", "np", trt),
+         trt = factor(trt, levels = c("control", "n", "p", "np")),
          mean = round(mean, 1),
          sd = round(sd, 1),
          se = round(se, 1)) %>%
-  arrange(variable, group_id) %>%
-  dplyr::select(variable:mean, sd, se)
+  arrange(species, variable, trt) %>%
+  dplyr::select(variable:mean, se)
 
