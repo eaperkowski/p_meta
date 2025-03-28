@@ -107,13 +107,19 @@ ngatia2015 <- metaDigitise(dir = "../plots_to_digitize/Ngatia_2015/")
 # Nielsen 2009
 nielsen2009 <- metaDigitise(dir = "../plots_to_digitize/Nielsen_2009/")
 
-nielsen2009 %>%
-  separate(group_id, into = c("species", "trt")) %>%
-  mutate(trt = ifelse(trt == "nnp", "np", trt),
+# Ohalloran_2010
+ohalloran2010 <- metaDigitise(dir = "../plots_to_digitize/Ohalloran_2010/")
+
+# Oien 2004
+oien2004 <- metaDigitise(dir = "../plots_to_digitize/Oien_2004/")
+
+oien2004 %>%
+  separate(group_id, into = c("spp", "trt")) %>%
+  mutate(spp = factor(spp, levels = c("thalictrum", "carex", "molinia")),
          trt = factor(trt, levels = c("control", "n", "p", "np")),
-         mean = round(mean, 1),
-         sd = round(sd, 1),
-         se = round(se, 1)) %>%
-  arrange(species, variable, trt) %>%
+         mean = round(mean, 2),
+         sd = round(sd, 2),
+         se = round(se, 2)) %>%
+  arrange(spp, variable, trt) %>%
   dplyr::select(variable:mean, se)
 
