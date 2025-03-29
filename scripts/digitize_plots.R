@@ -113,13 +113,45 @@ ohalloran2010 <- metaDigitise(dir = "../plots_to_digitize/Ohalloran_2010/")
 # Oien 2004
 oien2004 <- metaDigitise(dir = "../plots_to_digitize/Oien_2004/")
 
-oien2004 %>%
-  separate(group_id, into = c("spp", "trt")) %>%
-  mutate(spp = factor(spp, levels = c("thalictrum", "carex", "molinia")),
-         trt = factor(trt, levels = c("control", "n", "p", "np")),
-         mean = round(mean, 2),
-         sd = round(sd, 2),
-         se = round(se, 2)) %>%
-  arrange(spp, variable, trt) %>%
-  dplyr::select(variable:mean, se)
+# Rejmankova 2008
+rejmankova2008 <- metaDigitise(dir = "../plots_to_digitize/Rejmankova_2008/")
+
+# Ren 2010
+ren2010 <- metaDigitise(dir = "../plots_to_digitize/Ren_2010/")
+
+# Shaver 1998
+shaver1998 <- metaDigitise(dir = "../plots_to_digitize/Shaver_1998/")
+
+# Soudzilovskaia 2005
+soudz2005 <- metaDigitise(dir = "../plots_to_digitize/Soudzilovskaia_2005/")
+
+# Tischner 2015
+tischner2015 <- metaDigitise(dir = "../plots_to_digitize/Tischner_2015/")
+
+#vanderHoek 2004
+vanderhoek2004 <- metaDigitise(dir = "../plots_to_digitize/vanderHoek_2004/")
+
+# van der Waal 2011
+vanderwaal2011 <- metaDigitise(dir = "../plots_to_digitize/vanderWaal_2011/")
+
+# van Duren 1997
+vanduren1997 <- metaDigitise(dir = "../plots_to_digitize/vanDuren_1997/")
+
+# van Winjen 1999
+vanwinjen1999 <- metaDigitise(dir = "../plots_to_digitize/vanWinjen_1999/")
+
+# Wang 2017
+wang2017 <- metaDigitise(dir = "../plots_to_digitize/Wang_2017/")
+
+# Wright 2011
+wright2011 <- metaDigitise(dir = "../plots_to_digitize/Wright_et_al_2011/")
+
+wright2011 %>%
+  #separate(group_id, into = c("site", "trt")) %>%
+  mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
+         mean = round(mean, 3),
+         sd = round(sd, 3),
+         se = round(se, 3)) %>%
+  arrange(variable, group_id) %>%
+  dplyr::select(variable:mean, sd)
 
