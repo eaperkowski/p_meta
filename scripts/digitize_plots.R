@@ -146,12 +146,21 @@ wang2017 <- metaDigitise(dir = "../plots_to_digitize/Wang_2017/")
 # Wright 2011
 wright2011 <- metaDigitise(dir = "../plots_to_digitize/Wright_et_al_2011/")
 
-wright2011 %>%
+# Craft 1995
+craft1995 <- metaDigitise(dir = "../plots_to_digitize/Craft_1995/")
+
+# Yu 2009
+yu2009 <- metaDigitise(dir = "../plots_to_digitize/Yu_2009/")
+
+# Zeng 2015
+zeng2015 <- metaDigitise(dir = "../plots_to_digitize/Zeng_2015/")
+
+zeng2015 %>%
   #separate(group_id, into = c("site", "trt")) %>%
   mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
          mean = round(mean, 3),
          sd = round(sd, 3),
          se = round(se, 3)) %>%
   arrange(variable, group_id) %>%
-  dplyr::select(variable:mean, sd)
+  dplyr::select(variable:mean, se)
 
