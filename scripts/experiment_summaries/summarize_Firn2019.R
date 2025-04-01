@@ -5,7 +5,7 @@ library(tidyverse)
 
 # Load NutNet data from Alissar paper and Firn et al., 2019, filter to
 # include only control, P, N, and NP data
-firn_data <- read.csv("../raw_data/Firn_2019_nature.csv") %>%
+firn_data <- read.csv("../../raw_data/Firn_2019_nature.csv") %>%
   filter(trt %in% c("P", "Control", "N", "NP") & Exclose == 0 & year_trt > 1) %>%
   mutate(trt = factor(trt, levels = c("Control", "N", "P", "NP")),
          lma = (1/SLA_v2) * 1000000,
@@ -21,7 +21,7 @@ unique(firn_data$site_code)
 
 # Calculate site-level treatment means +/- SE
 firn_data_summary <- firn_data %>%
-  group_by(site_code, year, trt) %>%
+  group_by(site_code,  trt, Taxon) %>%
   summarize(
     
     exp_duration = mean(year_trt),
@@ -61,6 +61,7 @@ firn_data_summary <- firn_data %>%
 # Prep for easy merge into compiled datasheet
 firn_data_summary_control <- firn_data_summary %>%
   filter(trt == "Control") %>%
+  ungroup(trt) %>%
   select(-trt)
 names(firn_data_summary_control)[4:27] <- str_c(names(firn_data_summary_control)[4:27], "_control")
 
@@ -70,7 +71,7 @@ names(firn_data_summary_treatment)[5:28] <- str_c(names(firn_data_summary_treatm
 
 # Format into easy merge into compiled datasheet, write to .csv
 firn_data_summary_control %>%
-  full_join(firn_data_summary_treatment, by = c("site_code", "year", "exp_duration")) %>%
+  full_join(firn_data_summary_treatment, by = c("site_code", "Taxon", "exp_duration")) %>%
   dplyr::select(site_code:exp_duration, trt,
                 
                 lma_mean_control, lma_mean_trt, 
@@ -109,9 +110,13 @@ firn_data_summary_control %>%
   pivot_wider(names_from = stat:treatment,
               values_from = value) %>%
   mutate(trait = factor(trait, levels = c("lma", "nmass", "narea",
-                                          "pmass", "parea", "leafnp"))) %>%
-  arrange(trait, site_code, trt) %>%
-  write.csv("../data_summaries/Firn2019_nature_summary.csv", row.names = F)
+                                          "pmass", "parea", "leafnp")),
+         Taxon = gsub(tolower(Taxon), pattern = " ", replacement = "_")) %>%
+  group_by(site_code, Taxon, trait) %>%
+  filter(n_control > 1 & n_trt > 1) %>%
+  filter(n_distinct(trt) == 3) %>%
+  arrange(trait, site_code, Taxon, trt) %>%
+  write.csv("../../data_summaries/Firn2019_nature_summary_spp.csv", row.names = F)
 
 
 # Climate data summaries
