@@ -4,7 +4,7 @@
 library(tidyverse)
 
 # Load NutNet data from Hersch-Green et al. (2024), rename some of the colnames
-herschgreen_data <- read.csv("../raw_data/Hersch-Green-Petosky_metabolicMS_EDI.csv") %>%
+herschgreen_data <- read.csv("../../raw_data/Hersch-Green-Petosky_metabolicMS_EDI.csv") %>%
   dplyr::select(Site:MAP_v2, Treatment, GS.pg, Cmass = Cmg.mgleaftissue, 
                 Nmass = Nmg.mgleaftissue, Pmass = Pmg.mgleaftissue, 
                 Amax = Amax_.µmolCO2m..s..., E = E_.mmolH2Om..s...,
@@ -17,7 +17,7 @@ unique(herschgreen_data$Site)
 
 # Calculate site-level treatment means +/- SE
 herschgreen_data_summary <- herschgreen_data %>%
-  group_by(Site, Treatment) %>%
+  group_by(Site, Treatment, Taxa) %>%
   mutate(Treatment = factor(Treatment, levels = c("C", "N", "P", "NP"))) %>%
   summarize(
     Nmass_n = sum(!is.na(Nmass)),
@@ -54,17 +54,18 @@ herschgreen_data_summary <- herschgreen_data %>%
 # Prep for easy merge into compiled datasheet
 herschgreen_data_summary_control <- herschgreen_data_summary %>%
   filter(Treatment == "C") %>%
+  ungroup(Treatment) %>%
   select(-Treatment)
-names(herschgreen_data_summary_control)[2:25] <- str_c(names(herschgreen_data_summary_control)[2:25], "_control")
+names(herschgreen_data_summary_control)[3:26] <- str_c(names(herschgreen_data_summary_control)[3:26], "_control")
 
 herschgreen_data_summary_treatment <- herschgreen_data_summary %>%
   filter(Treatment != "C")
-names(herschgreen_data_summary_treatment)[3:26] <- str_c(names(herschgreen_data_summary_treatment)[3:26], "_trt")
+names(herschgreen_data_summary_treatment)[4:27] <- str_c(names(herschgreen_data_summary_treatment)[4:27], "_trt")
 
 # Format into easy merge into compiled datasheet, write to .csv
 herschgreen_data_summary_control %>%
-  full_join(herschgreen_data_summary_treatment, by = "Site") %>%
-  dplyr::select(Site, Treatment, 
+  full_join(herschgreen_data_summary_treatment, by = c("Site", "Taxa")) %>%
+  dplyr::select(Site, Treatment, Taxa,
                 
                 Nmass_mean_control, Nmass_mean_trt,
                 Nmass_sd_control, Nmass_sd_trt,
@@ -101,8 +102,11 @@ herschgreen_data_summary_control %>%
              values_to = "value") %>%
   pivot_wider(names_from = stat:trt,
               values_from = value) %>%
-  arrange(trait, Site, Treatment) %>%
-  write.csv("../data_summaries/HerschGreen2024_summary.csv", row.names = F)
+  group_by(Site, Taxa, trait) %>%
+  filter(n_control > 1 & n_trt > 1) %>%
+  filter(n_distinct(Treatment) == 3) %>%
+  arrange(trait, Site, Taxa, Treatment) %>%
+  write.csv("../../data_summaries/HerschGreen2024_summary_spp.csv", row.names = F)
 
   
 
