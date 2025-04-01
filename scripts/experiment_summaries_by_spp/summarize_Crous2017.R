@@ -4,7 +4,7 @@
 library(tidyverse)
 
 # Load Crous et al. (2017) data
-crous_data <- read.csv("../raw_data/Crous_2017_NewPhyt.csv") %>%
+crous_data <- read.csv("../../raw_data/Crous_2017_NewPhyt.csv") %>%
   mutate(Treatm = 
            factor(Treatm, 
                   levels = c("LNLP", "HNLP", "LNHP", "HNHP")),
@@ -14,7 +14,7 @@ head(crous_data)
 
 # Generate treatment summary statistics
 crous_data_summary <- crous_data %>%
-  group_by(Treatm) %>%
+  group_by(Species, Treatm) %>%
   summarize(
 
     Asat_n = sum(!is.na(PSsat)),
@@ -83,24 +83,24 @@ crous_data_summary <- crous_data %>%
     ppue_se = ppue_sd / sqrt(ppue_n)
     
   ) 
-
+head(crous_data_summary)
 
 # Prep for easy merge into compiled datasheet
 crous_data_summary_control <- crous_data_summary %>%
   filter(Treatm == "LNLP") %>%
   mutate(exp = "crous2017") %>%
   select(-Treatm)
-names(crous_data_summary_control)[1:52] <- str_c(names(crous_data_summary_control)[1:52], "_control")
+names(crous_data_summary_control)[2:53] <- str_c(names(crous_data_summary_control)[2:53], "_control")
 
 crous_data_summary_treatment <- crous_data_summary %>%
   filter(Treatm != "LNLP") %>%
   mutate(exp = "crous2017")
-names(crous_data_summary_treatment)[2:53] <- str_c(names(crous_data_summary_treatment)[2:53], "_trt")
+names(crous_data_summary_treatment)[3:54] <- str_c(names(crous_data_summary_treatment)[3:54], "_trt")
 
 # Format into easy merge into compiled datasheet, write to .csv
 crous_data_summary_control %>%
-  full_join(crous_data_summary_treatment, by = "exp") %>%
-  dplyr::select(exp, Treatm, 
+  full_join(crous_data_summary_treatment, by = c("Species", "exp")) %>%
+  dplyr::select(exp, Species, Treatm, 
                 
                 Asat_mean_control, Asat_mean_trt, 
                 Asat_sd_control, Asat_sd_trt, 
@@ -172,12 +172,16 @@ crous_data_summary_control %>%
                values_to = "value") %>%
   pivot_wider(names_from = stat:trt,
               values_from = value) %>%
-  mutate(trait = factor(trait, levels = c("Asat", "Vcmax", "Jmax", "rd", "gsw",
+  mutate(Treatm = factor(Treatm, levels = c("LNLP", "HNLP", "LNHP", "HNHP")),
+         trait = factor(trait, levels = c("Asat", "Vcmax", "Jmax", "rd", "gsw",
                                           "lma", "Nmass", "Narea", "Pmass",
                                           "Parea", "leafnp", "pnue", "ppue")),
          mean_control = ifelse(trait == "rd", abs(mean_control),
                                mean_control),
          mean_trt = ifelse(trait == "rd", abs(mean_trt),
-                           mean_trt)) %>%
-  arrange(trait) %>%
-  write.csv("../data_summaries/Crous2017_summary.csv", row.names = F)
+                           mean_trt),
+         Species = gsub(tolower(Species), pattern = " ", replacement = "_")) %>%
+  group_by(Species, trait) %>%
+  filter(n_control > 1 & n_trt > 1) %>%
+  arrange(trait, Species) %>%
+  write.csv("../../data_summaries/species_level/Crous2017_summary_spp.csv", row.names = F)
