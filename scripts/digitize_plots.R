@@ -161,12 +161,18 @@ bown2007 <- metaDigitise(dir = "../plots_to_digitize/Bown_2007/")
 # Warren 2002
 warren2002 <- metaDigitise(dir = "../plots_to_digitize/Warren2002/")
 
-warren2002 %>%
-  #separate(group_id, into = c("site", "trt")) %>%
-  mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
-         mean = round(mean, 3),
-         sd = round(sd, 3),
-         se = round(se, 3)) %>%
-  arrange(variable, group_id) %>%
+# Mo 2021
+mo2021 <- metaDigitise(dir = "../plots_to_digitize/Mo_2021/")
+
+mo2021  %>%
+  separate(group_id, into = c("spp", "trt")) %>%
+  mutate(trt = factor(trt, levels = c("control", "n", "p", "np")),
+         spp = factor(spp, levels = c("sBullockii", "uMicrocarpa",
+                                      "sOctophylla", "cCyrtophyllum",
+                                      "pRubra")),
+         mean = round(mean, 2),
+         sd = round(sd, 2),
+         se = round(se, 2)) %>%
+  arrange(variable, spp, trt) %>%
   dplyr::select(variable:mean, se)
 
