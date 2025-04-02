@@ -4,10 +4,11 @@
 library(tidyverse)
 
 # Load Mo et al. (2019) data
-fan_data <- read.csv("../raw_data/Fan_2024_pFraction_data.csv") %>%
+fan_data <- read.csv("../../raw_data/Fan_2024_pFraction_data.csv") %>%
   slice(1:122) %>%
   mutate(leaf_np = nmass / pmass)
 head(fan_data)
+
 
 # Summarize Fan et al. (2024) dataset 
 fan_data_summary <- fan_data %>%

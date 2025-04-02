@@ -5,14 +5,15 @@ library(tidyverse)
 
 # Load Verryckt et al. (2022) data and calculate Narea and Parea based on
 # SLA and leaf N concentration
-verryckt_data <- read.csv("../raw_data/Verryckt_2022_mature_trees.csv") %>%
+verryckt_data <- read.csv("../../raw_data/Verryckt_2022_mature_trees.csv") %>%
   slice(-1) %>%
   mutate(across(Vcmax:Height, \(x) as.numeric(x)),
          lma = 1 / (SLA * 0.0001),
          Narea = (N / 100) * lma,
          Parea = (P / 100) * lma,
          leaf_np = as.numeric(N) / as.numeric(P),
-         Fertilisation = factor(Fertilisation, levels = c("C", "N", "P", "NP")))
+         Fertilisation = factor(Fertilisation, levels = c("C", "N", "P", "NP")),
+         spName_full = str_c(tolower(Genus), "_", Species))
 
 
 # Selecting only wet season to control for seasonality and to ensure that 
@@ -21,7 +22,7 @@ verryckt_data <- read.csv("../raw_data/Verryckt_2022_mature_trees.csv") %>%
 # branches
 verryckt_data_summary <- verryckt_data %>%
   filter(Season == "wet" & Year == 2019 & Branch == "T") %>%
-  group_by(Fertilisation, Site) %>%
+  group_by(Fertilisation, Site, spName_full) %>%
   summarize(
     SPAD_n = sum(!is.na(CCI)),
     SPAD_mean = mean(CCI, na.rm = TRUE),
@@ -84,17 +85,17 @@ verryckt_data_summary_control <- verryckt_data_summary %>%
   ungroup(Fertilisation) %>%
   filter(Fertilisation == "C") %>%
   dplyr::select(-Fertilisation)
-names(verryckt_data_summary_control)[2:45] <- str_c(names(verryckt_data_summary_control)[2:45], "_control")
+names(verryckt_data_summary_control)[3:46] <- str_c(names(verryckt_data_summary_control)[3:46], "_control")
 
 verryckt_data_summary_treatment <- verryckt_data_summary %>%
   filter(Fertilisation != "C")
-names(verryckt_data_summary_treatment)[3:46] <- str_c(names(verryckt_data_summary_treatment)[3:46], "_trt")
+names(verryckt_data_summary_treatment)[4:47] <- str_c(names(verryckt_data_summary_treatment)[4:47], "_trt")
 
 
 # Format into easy merge into compiled datasheet, write to .csv
 verryckt_data_summary_control %>%
-  full_join(verryckt_data_summary_treatment, by = "Site") %>%
-  dplyr::select(Site, Treatment = Fertilisation, 
+  full_join(verryckt_data_summary_treatment, by = c("Site", "spName_full")) %>%
+  dplyr::select(Site, spName_full, Fertilisation, 
                 
                 SPAD_mean_control, SPAD_mean_trt,
                 SPAD_sd_control, SPAD_sd_trt,
@@ -159,8 +160,12 @@ verryckt_data_summary_control %>%
   mutate(trait = factor(trait, levels = c("SPAD", "lma", "Nmass", "Narea",
                                           "Pmass", "Parea", "leafnp", "Vcmax",
                                           "Jmax", "TPU", "Rd"))) %>%
-  arrange(Site, trait, Treatment) %>%
-  write.csv("../data_summaries/Verryckt_2022_summary.csv", row.names = F)
+  group_by(Site, spName_full) %>%
+  filter(n_control > 1 & n_trt > 1) %>%
+  filter(n_distinct(Fertilisation) == 3) %>%
+  arrange(Site, trait, spName_full, Fertilisation) %>%
+  write.csv("../../data_summaries/species_level/Verryckt2022_summary_by_spp.csv",
+            row.names = F)
 
 
 

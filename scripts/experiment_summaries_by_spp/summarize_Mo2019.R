@@ -4,16 +4,18 @@
 library(tidyverse)
 
 # Load Mo et al. (2019) data
-mo_data <- read.csv("../raw_data/Mo_2019_FE.csv") %>%
+mo_data <- read.csv("../../raw_data/Mo_2019_FE.csv") %>%
   mutate(Narea = (N / 1000) * LMA,
          Parea = (P / 1000) * LMA,
          leaf_np = N / P,
          Treatment = factor(Treatment, levels = c("CT", "N", "P", "NP")))
 head(mo_data)
 
+distinct(mo_data, Spname)
+
 # Calculate experiment summary statistics
 mo_data_summary <-  mo_data %>%
-  group_by(Treatment) %>%
+  group_by(Spname, Treatment) %>%
   summarize(anet_n = sum(!is.na(PA)),
             anet_mean = mean(PA, na.rm = TRUE),
             anet_sd = sd(PA, na.rm = TRUE),
@@ -85,16 +87,16 @@ mo_data_summary_control <- mo_data_summary %>%
   filter(Treatment == "CT") %>%
   mutate(exp = "Mo2019") %>%
   select(-Treatment)
-names(mo_data_summary_control)[1:52] <- str_c(names(mo_data_summary_control)[1:52], "_control")
+names(mo_data_summary_control)[2:53] <- str_c(names(mo_data_summary_control)[2:53], "_control")
 
 mo_data_summary_treatment <- mo_data_summary %>%
   filter(Treatment != "CT") %>%
   mutate(exp = "Mo2019")
-names(mo_data_summary_treatment)[2:53] <- str_c(names(mo_data_summary_treatment)[2:53], "_trt")
+names(mo_data_summary_treatment)[3:54] <- str_c(names(mo_data_summary_treatment)[3:54], "_trt")
 
 # Format into easy merge into compiled datasheet, write to .csv
 mo_data_summary_control %>%
-  full_join(mo_data_summary_treatment, by = "exp") %>%
+  full_join(mo_data_summary_treatment, by = c("exp", "Spname")) %>%
   dplyr::select(Treatment, 
                 
                 anet_mean_control, anet_mean_trt, 
@@ -171,6 +173,8 @@ mo_data_summary_control %>%
                                           "Pmass", "Parea", "leafnp", 
                                           "pnue", "ppue", "structuralp",
                                           "metabolicp", "nucleicp", 
-                                          "residualp"))) %>%
-  arrange(trait) %>%
-  write.csv("../data_summaries/Mo2019_FE_summarized.csv", row.names = F)
+                                          "residualp")),
+         Treatment = factor(Treatment, levels = c("N", "P", "NP")),
+         Spname = gsub(tolower(Spname), pattern = " ", replacement = "_")) %>%
+  arrange(trait, Spname) %>%
+  write.csv("../../data_summaries/species_level/Mo2019_summarized_by_spp.csv", row.names = F)

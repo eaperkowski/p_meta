@@ -155,7 +155,13 @@ yu2009 <- metaDigitise(dir = "../plots_to_digitize/Yu_2009/")
 # Zeng 2015
 zeng2015 <- metaDigitise(dir = "../plots_to_digitize/Zeng_2015/")
 
-zeng2015 %>%
+# Bown 2007
+bown2007 <- metaDigitise(dir = "../plots_to_digitize/Bown_2007/")
+
+# Warren 2002
+warren2002 <- metaDigitise(dir = "../plots_to_digitize/Warren2002/")
+
+warren2002 %>%
   #separate(group_id, into = c("site", "trt")) %>%
   mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
          mean = round(mean, 3),

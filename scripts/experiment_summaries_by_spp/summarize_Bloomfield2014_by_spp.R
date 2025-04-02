@@ -145,12 +145,7 @@ names(bloomfield_data_summary_treatment)[4:79] <- str_c(names(bloomfield_data_su
 bloomfield_data_summary_control %>%
   full_join(bloomfield_data_summary_treatment, by = c("Species", "Months.in")) %>%
   ungroup(Species) %>%
-  mutate(exp = "bloomfield_2014",
-         latitude = ,
-         longitude = ,
-         exp_type = "pot",
-         fert_type = "p_add") %>%
-  dplyr::select(exp, spp = Species, Treatment, Months.in, 
+  dplyr::select(spp = Species, Treatment, Months.in, 
                 
                 Amax_mean_control, Amax_mean_trt, 
                 Amax_sd_control, Amax_sd_trt, 
@@ -257,6 +252,11 @@ bloomfield_data_summary_control %>%
                                           "TPU", "Rd", "Rd25", "cica", "lma",
                                           "nmass", "narea", "pmass", "parea",
                                           "leafnp", "pnue", "ppue"))) %>%
+  filter(n_control > 1 & n_trt > 1) %>%
+  filter(n_distinct(Treatment) == 3) %>%
+  
+  
+  
   arrange(trait) %>%
   write.csv("../../data_summaries/species_level/Bloomfield2014_summary_spp.csv", row.names = F)
   
