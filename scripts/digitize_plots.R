@@ -170,6 +170,8 @@ wang2019 <- metaDigitise(dir = "../plots_to_digitize/Wang_2019/")
 # Cunha 2024
 cunha2024 <- metaDigitise(dir = "../plots_to_digitize/Cunha_2024/")
 
+# Yu 2022
+yu2022 <- metaDigitise(dir = "../plots_to_digitize/Yu_2022/")
 
 cunha2024  %>%
   separate(group_id, into = c("spp", "trt")) %>%
