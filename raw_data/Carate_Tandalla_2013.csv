@@ -1,0 +1,444 @@
+Site_name,numex_block,PlotID,PlotTreat,plant_id,Tree_species,LeaveNo,seedling_height,seedling_length,seedling_diameter,hole_area,leaf_area,specific_leaf_area,biomass_root,biomass_shoot,biomass_leaf,leaf_N,leaf_P
+Bombuscaro,1,1,NP,CR-np-01,Clarisia racemosa,4,35,35,4.77,0.79,42.85,323.54,1.58,1.2,0.13,34.75588,2.191947472
+Bombuscaro,1,1,NP,CR-np-02,Clarisia racemosa,2,29,29,3.3,0,18.23,364.6,0.16,0.17,0.05,33.29755,2.137061223
+Bombuscaro,1,1,NP,CR-np-03,Clarisia racemosa,4,28,30,3.54,0.15,68.17,283.42,0.4,0.38,0.24,25.96262,1.245338561
+Bombuscaro,1,1,NP,CR-np-04,Clarisia racemosa,3,15,15,1.71,0.48,17.28,420,0.05,0.06,0.04,45.88939,2.824536666
+Bombuscaro,1,1,NP,CR-np-05,Clarisia racemosa,2,20,20,2.39,1.53,19.56,257.57,0.29,0.17,0.07,31.36584,1.673427345
+Bombuscaro,1,1,NP,PT-np-01,Pouteria torta,4,19.5,19.5,2.77,2.27,103.67,220.43,0.51,0.49,0.46,20.36803,0.735032631
+Bombuscaro,1,1,NP,PT-np-02,Pouteria torta,5,19,20,2.92,4.9,68.96,200.19,0.64,0.41,0.32,19.92656,0.734338998
+Bombuscaro,1,1,NP,PT-np-03,Pouteria torta,8,23,23,3.25,2.2,196.41,242.76,0.35,0.36,0.8,20.936,0.920160163
+Bombuscaro,1,1,NP,PT-np-04,Pouteria torta,3,23,23,3.31,0,44.99,236.79,0.49,0.22,0.19,21.09167,0.815389201
+Bombuscaro,1,1,NP,PT-np-05,Pouteria torta,5,15,15,3.15,0.58,119.8,220.78,0.48,0.23,0.54,21.53672,0.849377761
+Bombuscaro,1,2,P,CR-p-01,Clarisia racemosa,4,17,28,2.44,1.64,79.52,259.6,0.94,0.33,0.3,22.46333,1.430296885
+Bombuscaro,1,2,P,CR-p-02,Clarisia racemosa,3,15.5,17,3.11,0.42,74.61,285.35,1.43,0.39,0.26,26.12998,1.391099917
+Bombuscaro,1,2,P,CR-p-03,Clarisia racemosa,8,35,40,3.88,0.35,202.51,202.16,1.56,1.16,1,28.12247,1.973735598
+Bombuscaro,1,2,P,CR-p-04,Clarisia racemosa,3,16,16,2.68,0.18,51.14,364,0.42,0.17,0.14,34.82067,1.409008707
+Bombuscaro,1,2,P,CR-p-05,Clarisia racemosa,4,13,13,1.46,0.48,9.73,308.33,0.04,0.05,0.03,39.06852,NULL
+Bombuscaro,1,2,P,PT-p-01,Pouteria torta,4,27,28,3.68,0.05,43.6,256.18,0.48,0.65,0.17,18.60691,1.204860172
+Bombuscaro,1,2,P,PT-p-02,Pouteria torta,5,23,23,3.96,0.293,122.853,207.73,1.93,0.85,0.59,31.18203,1.12028672
+Bombuscaro,1,2,P,PT-p-03,Pouteria torta,2,21,21,3.31,0,23.58,262,0.48,0.5,0.09,23.34124,1.234682424
+Bombuscaro,1,2,P,PT-p-04,Pouteria torta,7,36,36,5.01,9.98,222.19,230.66,1.64,1.69,0.92,19.15598,0.993877224
+Bombuscaro,1,2,P,PT-p-05,Pouteria torta,3,35,38.5,4.56,0.04,79.54,193.9,0.86,1.41,0.41,18.01859,0.902885219
+Bombuscaro,1,3,N,CR-n-01,Clarisia racemosa,4,20,25,2.13,1.22,76.03,267.18,0.38,0.2,0.28,31.41195,1.192254029
+Bombuscaro,1,3,N,CR-n-02,Clarisia racemosa,5,24,24,2.77,0,47.04,294,0.16,0.17,0.16,28.58156,1.276075373
+Bombuscaro,1,3,N,CR-n-03,Clarisia racemosa,6,24,26,2.76,0.003,70.213,270.04,0.48,0.38,0.26,31.0105,1.13589163
+Bombuscaro,1,3,N,CR-n-04,Clarisia racemosa,7,30,36,3.44,0,172.62,261.55,0.67,0.61,0.66,18.95334,1.021893008
+Bombuscaro,1,3,N,CR-n-05,Clarisia racemosa,8,18,21,2.5,0.4,97.21,261.65,0.66,0.2,0.37,31.98449,1.319732215
+Bombuscaro,1,3,N,PT-n-01,Pouteria torta,6,28,28,4.61,16.62,271.44,173.35,2.11,1.88,1.47,19.99873,0.71789172
+Bombuscaro,1,3,N,PT-n-02,Pouteria torta,5,24,24,3.31,0.12,153.64,219.31,0.73,0.77,0.7,21.49437,0.883649655
+Bombuscaro,1,3,N,PT-n-03,Pouteria torta,3,28,28,3.35,0.07,65.01,270.58,0.61,0.95,0.24,21.86635,0.97316087
+Bombuscaro,1,3,N,PT-n-04,Pouteria torta,4,19,24,2.86,0.59,77.82,241.34,0.43,0.5,0.32,NULL,NULL
+Bombuscaro,1,3,N,PT-n-05,Pouteria torta,6,19,19,2.91,6.42,66.17,239,0.39,0.33,0.25,19.45953,1.028155838
+Bombuscaro,1,4,con,CR-con-01,Clarisia racemosa,4,39,39,4.47,0,71.3,216.06,0.84,0.61,0.33,22.28729,0.871932322
+Bombuscaro,1,4,con,CR-con-02,Clarisia racemosa,4,27,30,4.17,3.39,87.96,291.62,0.63,0.51,0.29,29.27307,0.996649247
+Bombuscaro,1,4,con,CR-con-03,Clarisia racemosa,8,32,40,3.97,2.22,202.32,263.29,1.05,0.63,0.76,29.07519,1.213663469
+Bombuscaro,1,4,con,CR-con-04,Clarisia racemosa,5,24,26,2.1,0.59,68.76,340.85,0.14,0.19,0.2,36.65337,1.361886584
+Bombuscaro,1,4,con,PT-con-01,Pouteria torta,3,18,18,2.9,0,23.43,292.88,0.19,0.11,0.08,24.9731,1.282014725
+Bombuscaro,1,4,con,PT-con-02,Pouteria torta,4,19.5,19.5,2.27,1.12,71.49,234.57,0.28,0.25,0.3,21.79699,0.908668187
+Bombuscaro,1,4,con,PT-con-03,Pouteria torta,6,28.5,28.5,3.07,0.82,158.45,246.3,0.37,0.65,0.64,21.06246,0.849892533
+Bombuscaro,1,4,con,PT-con-04,Pouteria torta,5,14,14,3.65,0,77.59,235.12,0.36,0.26,0.33,21.14888,0.941913009
+Bombuscaro,1,4,con,PT-con-05,Pouteria torta,2,29,29,4.75,0.63,111.02,197.13,1.58,1.78,0.56,17.67166,0.768381818
+Bombuscaro,2,5,NP,CR-np-06,Clarisia racemosa,4,13,13,1,0.28,36.88,366,0.09,0.1,0.1,31.26067,1.452923641
+Bombuscaro,2,5,NP,CR-np-07,Clarisia racemosa,4,15,30,2,0.16,62.99,251.32,0.35,0.34,0.25,26.46907,1.122981905
+Bombuscaro,2,5,NP,CR-np-08,Clarisia racemosa,3,23,25,2,0.04,36.07,277.15,0.31,0.19,0.13,29.56551,1.245283602
+Bombuscaro,2,5,NP,CR-np-09,Clarisia racemosa,3,29,29,3,0,21.85,312.14,0.37,0.28,0.07,37.20152,1.696346243
+Bombuscaro,2,5,NP,CR-np-10,Clarisia racemosa,2,43,44,3,0,34.68,231.2,0.97,0.49,0.15,24.34693,1.00976278
+Bombuscaro,2,5,NP,PT-np-06,Pouteria torta,4,21,21,2,4.71,45.3,253.69,0.23,0.24,0.16,22.76888,0.724941157
+Bombuscaro,2,5,NP,PT-np-07,Pouteria torta,3,28,28,3,0.4,100.9,209.38,0.81,0.43,0.48,23.45419,0.613907832
+Bombuscaro,2,5,NP,PT-np-08,Pouteria torta,3,15,15,2,6.33,66.2,193.13,0.62,0.26,0.31,22.3822,0.64828262
+Bombuscaro,2,6,P,CR-p-06,Clarisia racemosa,2,11,14,2,0,18.86,235.75,0.46,0.04,0.08,23.55933,1.172233375
+Bombuscaro,2,6,P,CR-p-07,Clarisia racemosa,2,25,27,2,0,20.24,202.4,0.36,0.21,0.1,26.01371,2.508244308
+Bombuscaro,2,6,P,CR-p-08,Clarisia racemosa,3,20,22,2,0,41.46,276.4,0.33,0.1,0.15,15.6298,0.731605252
+Bombuscaro,2,6,P,CR-p-09,Clarisia racemosa,1,20,20,2,0,12.76,255.2,0.16,0.13,0.05,24.70615,1.207947224
+Bombuscaro,2,6,P,CR-p-10,Clarisia racemosa,4,16,26,2,0.56,78.1,250.13,0.33,0.27,0.31,21.75438,0.895499689
+Bombuscaro,2,6,P,PT-p-06,Pouteria torta,3,31,31,3,0.04,106.13,200.17,0.41,0.92,0.53,19.86484,0.814520235
+Bombuscaro,2,7,N,CR-n-06,Clarisia racemosa,2,17,17,2,0,18.46,263.71,0.25,0.14,0.07,22.25815,0.896926268
+Bombuscaro,2,7,N,CR-n-07,Clarisia racemosa,3,25,27,2,0.11,23.83,237.2,0.13,0.14,0.1,29.75262,1.347103412
+Bombuscaro,2,7,N,CR-n-08,Clarisia racemosa,2,19,19,1,0,20.54,256.75,NULL,0.15,0.08,29.33472,1.287829941
+Bombuscaro,2,7,N,CR-n-09,Clarisia racemosa,4,15,15.5,1,1.16,13.92,638,0.23,0.03,0.02,39.65169,2.857130076
+Bombuscaro,2,7,N,CR-n-10,Clarisia racemosa,2,23,23,1,0,22.93,458.6,0.11,0.06,0.05,45.23728,3.332326995
+Bombuscaro,2,8,con,CR-con-06,Clarisia racemosa,7,30,34,3,0.12,68.83,214.72,1,0.47,0.32,21.76259,0.730920041
+Bombuscaro,2,8,con,CR-con-07,Clarisia racemosa,7,29,32,2,0.69,66.79,244.81,0.58,0.35,0.27,22.50659,1.202091396
+Bombuscaro,2,8,con,CR-con-08,Clarisia racemosa,4,17,18.5,2,1.08,44.85,312.64,NULL,0.14,0.14,29.77024,1.288827836
+Bombuscaro,2,8,con,CR-con-09,Clarisia racemosa,2,20,25,2,0.01,25.73,142.89,0.32,0.28,0.18,22.71119,1.139328878
+Bombuscaro,2,8,con,CR-con-10,Clarisia racemosa,4,24,24,2,0.27,65.72,233.75,0.37,0.25,0.28,23.40488,1.233490529
+Bombuscaro,2,8,con,PT-con-06,Pouteria torta,4,20,20,3,0.35,49.95,261.05,0.36,0.22,0.19,20.07796,0.9327683
+Bombuscaro,2,8,con,PT-con-07,Pouteria torta,3,23,26,3,0.86,53.85,240.86,0.41,0.45,0.22,20.42794,0.858138043
+Bombuscaro,2,8,con,PT-con-08,Pouteria torta,4,30,30,3,0.01,92.02,242.13,0.32,1.06,0.38,19.36829,0.857931855
+Bombuscaro,2,8,con,PT-con-09,Pouteria torta,3,25,27,3,0,40.56,450.67,0.56,0.17,0.09,22.25142,1.224098906
+Bombuscaro,2,8,con,PT-con-10,Pouteria torta,5,20,20,1,0.22,54.52,258.57,0.43,0.17,0.21,23.29741,1.26081156
+Bombuscaro,3,9,NP,CR-np-11,Clarisia racemosa,3,26,26,1.65,0.08,16.89,120.07,NULL,0.16,0.14,30.3112,2.306873182
+Bombuscaro,3,9,NP,CR-np-12,Clarisia racemosa,5,20,20,1.94,0.13,46.51,289.88,NULL,0.17,0.16,32.03404,1.738936488
+Bombuscaro,3,9,NP,CR-np-13,Clarisia racemosa,4,20,23,1.66,0.62,50.78,278.67,0.15,0.15,0.18,28.30794,1.77872627
+Bombuscaro,3,9,NP,CR-np-14,Clarisia racemosa,1,20,20,1.33,0.25,3.95,370,0.08,0.07,0.01,NULL,NULL
+Bombuscaro,3,9,NP,CR-np-15,Clarisia racemosa,4,15,16,1.5,0.31,28.53,313.56,0.09,0.07,0.09,29.45109,1.557132172
+Bombuscaro,3,9,NP,PT-np-11,Pouteria torta,2,23,23,2,0.01,30.4,233.77,0.43,0.39,0.13,21.70951,1.129948037
+Bombuscaro,3,9,NP,PT-np-12,Pouteria torta,3,25,27,3,0.03,95.99,199.92,0.76,0.86,0.48,19.10693,0.668876112
+Bombuscaro,3,9,NP,PT-np-13,Pouteria torta,3,28,29,2.9,6.31,132.79,218.07,0.88,0.86,0.58,19.71256,0.608786058
+Bombuscaro,3,9,NP,PT-np-14,Pouteria torta,5,38,38,4.23,11.14,194.64,176.44,1.55,1.56,1.04,19.83895,0.599726595
+Bombuscaro,3,9,NP,PT-np-15,Pouteria torta,3,30,35,3.82,5.26,127.33,554.86,NULL,1.07,0.22,19.82949,0.682468208
+Bombuscaro,3,10,P,CR-p-11,Clarisia racemosa,7,21,22,2.22,0,93.64,302.06,0.33,0.2,0.31,NULL,NULL
+Bombuscaro,3,10,P,CR-p-12,Clarisia racemosa,7,24,25,2.1,0,123.59,325.24,0.34,0.22,0.38,NULL,NULL
+Bombuscaro,3,10,P,CR-p-13,Clarisia racemosa,5,20,22,1.88,0.65,66.36,262.84,0.29,0.19,0.25,28.89291,1.019291248
+Bombuscaro,3,10,P,CR-p-14,Clarisia racemosa,2,25,27,2,0.17,40.3,250.81,0.19,0.18,0.16,26.95031,1.079156536
+Bombuscaro,3,10,P,CR-p-15,Clarisia racemosa,3,20,29,1.79,1.12,44.08,268.5,0.18,0.12,0.16,28.80771,0.978007052
+Bombuscaro,3,10,P,PT-p-11,Pouteria torta,3,19,19,3.06,3.17,87.36,255.12,0.42,0.39,0.33,22.29347,1.404442034
+Bombuscaro,3,10,P,PT-p-12,Pouteria torta,2,28,28,3.03,0.37,34.28,188.39,0.47,0.53,0.18,19.16757,0.935117543
+Bombuscaro,3,10,P,PT-p-13,Pouteria torta,6,30,30,3.82,17.1,169.72,93.06,1.99,1.31,1.64,30.21883,2.341247431
+Bombuscaro,3,10,P,PT-p-14,Pouteria torta,4,30,30,3.4,0.01,103.75,199.5,0.46,0.61,0.52,19.68617,0.732931813
+Bombuscaro,3,10,P,PT-p-15,Pouteria torta,2,20,20,2.12,0.07,22.26,277.38,0.26,0.21,0.08,20.02523,0.750076445
+Bombuscaro,3,11,N,CR-n-11,Clarisia racemosa,4,21,24,1.65,0,59.33,148.33,0.61,0.41,0.4,30.25795,1.778899684
+Bombuscaro,3,11,N,CR-n-12,Clarisia racemosa,5,15,23,1.87,0.79,85.22,172.31,1.15,0.33,0.49,27.98749,1.561172354
+Bombuscaro,3,11,N,CR-n-13,Clarisia racemosa,4,25,27,2.36,0,37.67,121.52,0.51,0.2,0.31,24.95789,1.595252534
+Bombuscaro,3,11,N,CR-n-14,Clarisia racemosa,5,15.5,22.2,2.15,1.33,96.35,271.49,0.51,0.18,0.35,27.70306,1.86750133
+Bombuscaro,3,11,N,CR-n-15,Clarisia racemosa,10,24.2,29.1,2.51,0.06,58.71,279.29,0.33,0.32,0.21,28.9977,2.501698511
+Bombuscaro,3,11,N,PT-n-12,Pouteria torta,4,24,24,2.28,0.19,66.05,235.21,0.39,0.38,0.28,22.02602,0.809175194
+Bombuscaro,3,11,N,PT-n-13,Pouteria torta,2,15,15,1.9,0,40.11,222.83,0.38,0.19,0.18,21.02503,0.910624415
+Bombuscaro,3,11,N,PT-n-14,Pouteria torta,3,19.5,20,2.49,0,54.35,209.04,0.24,0.31,0.26,20.82159,0.930637651
+Bombuscaro,3,11,N,PT-n-15,Pouteria torta,4,18.5,18.5,2.29,1.37,49.03,226.95,0.33,0.35,0.21,21.8446,1.132954935
+Bombuscaro,3,12,con,CR-con-11,Clarisia racemosa,7,26,28,1.83,0.14,91.18,379.33,0.28,0.14,0.24,32.50739,1.322109876
+Bombuscaro,3,12,con,CR-con-12,Clarisia racemosa,5,18.5,20,2.16,0.33,53.32,278.89,0.24,0.13,0.19,28.53808,1.165763053
+Bombuscaro,3,12,con,CR-con-13,Clarisia racemosa,8,20,22,2.84,0.51,78.6,278.89,0.56,0.18,0.28,27.94184,1.200983043
+Bombuscaro,3,12,con,CR-con-14,Clarisia racemosa,5,28.5,30,2.29,0,88.37,259.91,0.86,0.32,0.34,26.87197,0.936999861
+Bombuscaro,3,12,con,CR-con-15,Clarisia racemosa,5,18.5,20,2.21,0.01,64.63,359,0.23,0.14,0.18,31.15024,1.117963236
+Bombuscaro,3,12,con,PT-con-11,Pouteria torta,6,20,20,3.73,2.2,92.85,201.44,0.68,0.44,0.45,18.14351,0.804407772
+Bombuscaro,3,12,con,PT-con-12,Pouteria torta,5,15,15,3.2,2.01,100.17,280.46,0.64,0.19,0.35,19.14716,0.90146242
+Bombuscaro,3,12,con,PT-con-13,Pouteria torta,5,28,28,3.27,3.04,154.76,197.04,1.33,0.56,0.77,17.30893,0.710465238
+Bombuscaro,3,12,con,PT-con-14,Pouteria torta,4,27,29,3.34,6.2,131.39,184.1,1.59,0.67,0.68,15.99126,0.63490049
+Bombuscaro,3,12,con,PT-con-15,Pouteria torta,3,19.5,19.5,2.63,0,24.65,352.14,0.43,0.19,0.07,21.41578,1.297475388
+Bombuscaro,4,13,P,CR-p-16,Clarisia racemosa,5,30,35,3.25,0,82.31,211.05,NULL,0.32,0.39,24.93388,1.243199923
+Bombuscaro,4,13,P,CR-p-17,Clarisia racemosa,3,26,26.5,2.32,0.12,47.01,246.79,0.58,0.18,0.19,26.12504,1.728649302
+Bombuscaro,4,13,P,CR-p-18,Clarisia racemosa,4,21,23,2.12,0,51.64,286.89,0.2,0.09,0.18,33.84458,2.675458044
+Bombuscaro,4,13,P,CR-p-19,Clarisia racemosa,4,26,28,2.22,0,37.85,252.33,0.45,0.28,0.15,27.92482,2.552168719
+Bombuscaro,4,13,P,CR-p-20,Clarisia racemosa,3,16,17,2.1,0,42.57,224.05,0.38,0.17,0.19,24.64407,1.38990159
+Bombuscaro,4,13,P,PT-p-16,Pouteria torta,8,39,42,10.82,4.51,505.09,155.94,12.18,5.57,3.21,17.16452,0.896434039
+Bombuscaro,4,13,P,PT-p-17,Pouteria torta,3,20,20,0.36,0.8,95.21,224.79,0.41,0.33,0.42,19.29853,1.096019947
+Bombuscaro,4,13,P,PT-p-18,Pouteria torta,4,35,36,0.94,11.99,148.37,186.82,1.13,1.31,0.73,19.48392,0.925175485
+Bombuscaro,4,13,P,PT-p-19,Pouteria torta,4,27,27,1.28,12.88,283.73,174.74,1.81,1.5,1.55,17.60615,0.718045503
+Bombuscaro,4,13,P,PT-p-20,Pouteria torta,6,25,25,1.81,6.2,98.36,249.08,0.21,0.29,0.37,21.49846,0.89856845
+Bombuscaro,4,14,con,CR-con-16,Clarisia racemosa,4,34,40,2.24,0.93,53.06,226.65,0.4,0.57,0.23,21.49346,0.850182408
+Bombuscaro,4,14,con,CR-con-17,Clarisia racemosa,2,33,36,3.38,0.4,31.21,220.07,1.12,0.98,0.14,24.61805,0.803395674
+Bombuscaro,4,14,con,CR-con-18,Clarisia racemosa,5,38,42,2.87,1.48,97.87,247.15,0.7,0.52,0.39,27.64508,1.09952028
+Bombuscaro,4,14,con,CR-con-19,Clarisia racemosa,4,25,26,1.94,0.02,49.56,291.41,NULL,0.26,0.17,32.71304,1.366807555
+Bombuscaro,4,14,con,CR-con-20,Clarisia racemosa,5,35,36,2.17,0.47,89.03,260.47,NULL,0.47,0.34,28.3259,1.094571381
+Bombuscaro,4,14,con,PT-con-16,Pouteria torta,3,22.5,23.5,3.53,0.85,145.84,170.58,2.16,0.91,0.85,17.30617,0.762818818
+Bombuscaro,4,14,con,PT-con-17,Pouteria torta,9,29,31.5,2.24,24.05,180.52,240.72,0.43,0.65,0.65,19.31058,0.915813256
+Bombuscaro,4,14,con,PT-con-18,Pouteria torta,4,22,22.5,1.34,2.12,63.74,246.48,0.27,0.28,0.25,19.58173,0.904923229
+Bombuscaro,4,14,con,PT-con-19,Pouteria torta,5,30,30,3.66,13.43,322.21,212.95,1.74,1.09,1.45,19.09585,0.756194776
+Bombuscaro,4,14,con,PT-con-20,Pouteria torta,3,31,31,2.61,3.08,157.48,208.65,0.96,0.78,0.74,19.16253,0.863563434
+Bombuscaro,4,15,N,CR-n-16,Clarisia racemosa,2,26,26,1.93,0.06,27.19,246.64,0.27,0.26,0.11,32.32139,1.785646029
+Bombuscaro,4,15,N,CR-n-17,Clarisia racemosa,3,19,26,1.63,0,34.85,268.08,0.2,0.15,0.13,28.43382,2.067243797
+Bombuscaro,4,15,N,CR-n-18,Clarisia racemosa,5,30,31,1.85,2.02,76.68,257.45,0.33,0.4,0.29,30.3055,1.362113637
+Bombuscaro,4,15,N,CR-n-19,Clarisia racemosa,5,30,32,2.28,0.29,40.38,286.36,0.23,0.25,0.14,33.72042,1.220118233
+Bombuscaro,4,15,N,CR-n-20,Clarisia racemosa,4,28,29,2.26,0,74.92,325.74,0.29,0.24,0.23,30.84304,1.325879631
+Bombuscaro,4,15,N,PT-n-16,Pouteria torta,5,30,30,3.84,10.37,267.37,203.97,1.54,1.43,1.26,18.6684,0.770449805
+Bombuscaro,4,15,N,PT-n-17,Pouteria torta,3,18,18,0.22,0.85,181.01,211.95,4.33,0.4,0.85,17.74266,0.761486572
+Bombuscaro,4,15,N,PT-n-18,Pouteria torta,7,23,23,3.05,0.71,133.7,225.41,0.58,0.34,0.59,20.58981,0.882826206
+Bombuscaro,4,16,NP,CR-np-16,Clarisia racemosa,3,30,30,1.83,0.05,26.25,374.29,0.13,0.08,0.07,34.01527,3.478151072
+Bombuscaro,4,16,NP,CR-np-17,Clarisia racemosa,3,18,18,1.64,0,19.36,484,0.12,0.08,0.04,40.16937,3.87893135
+Bombuscaro,4,16,NP,CR-np-18,Clarisia racemosa,5,24,26,2.04,0.06,77.39,322.21,NULL,0.26,0.24,31.22282,1.401915162
+Bombuscaro,4,16,NP,CR-np-19,Clarisia racemosa,5,17,19,1.41,0.39,43.69,481.11,0.08,0.05,0.09,32.85464,1.475065803
+Bombuscaro,4,16,NP,CR-np-20,Clarisia racemosa,3,24,27,2.42,0.13,44.47,277.13,0.37,0.21,0.16,31.61951,1.249533372
+Bombuscaro,4,16,NP,PT-np-16,Pouteria torta,3,31,31,3.47,0,69.42,239.38,0.52,0.46,0.29,19.85162,0.595093819
+Bombuscaro,4,16,NP,PT-np-17,Pouteria torta,6,25,25,2.6,2.51,89.18,222.23,0.28,0.44,0.39,20.58023,0.772289299
+Bombuscaro,4,16,NP,PT-np-18,Pouteria torta,13,43,43,4.9,15.41,877.33,173.77,4.05,2.94,4.96,18.67636,0.466113636
+Bombuscaro,4,16,NP,PT-np-19,Pouteria torta,9,54,54,4.86,8.71,691.9,216.89,3.12,3,3.15,18.5975,0.522754134
+Bombuscaro,4,16,NP,PT-np-20,Pouteria torta,3,19,19,2.13,3.75,86.37,258.19,0.51,0.25,0.32,19.76971,0.689705871
+Cajanuma,1,1,con,GH-con-01,Graffenrieda harlingii,14,23.5,23.5,2.16,4.378,68.2296,193.49,NULL,0.26,0.33,12.26902,0.527059055
+Cajanuma,1,1,con,GH-con-02,Graffenrieda harlingii,13,9,9,1.45,0.0624,38.6396,192.89,NULL,0.09,0.2,10.9656,0.531339243
+Cajanuma,1,1,con,GH-con-03,Graffenrieda harlingii,18,13.5,13.5,1.5,0.0444,31.1768,239.48,NULL,0.12,0.13,9.98263,0.622359631
+Cajanuma,1,1,con,GH-con-04,Graffenrieda harlingii,15,34.5,34.5,2.38,1.0147,58.9094,144.74,NULL,0.53,0.4,9.37949,0.393076597
+Cajanuma,1,1,con,GH-con-05,Graffenrieda harlingii,13,37,37,2.33,0.2855,59.8616,135.4,NULL,0.66,0.44,9.17797,0.380658047
+Cajanuma,1,1,con,HP-con-01,Hedyosmum purpuracens,8,14,14,1.52,0.5545,27.2158,222.18,0.06,0.12,0.12,19.87029,1.082188723
+Cajanuma,1,1,con,HP-con-02,Hedyosmum purpuracens,7,13,17,1.37,0.3629,38.2674,315.87,0.03,0.13,0.12,18.95731,1.096171723
+Cajanuma,1,1,con,HP-con-03,Hedyosmum purpuracens,5,20,23,4.35,0.0906,71.8726,170.91,0.4,0.73,0.42,21.41495,1.248687122
+Cajanuma,1,1,con,HP-con-04,Hedyosmum purpuracens,5,14,14,1.94,0.0023,39.6335,247.7,0.07,0.12,0.16,17.63395,0.945767979
+Cajanuma,1,1,con,HP-con-05,Hedyosmum purpuracens,7,13,16,1.09,1.9333,34.1651,358.13,0.08,0.06,0.09,15.39954,0.843030018
+Cajanuma,1,2,N,GH-n-01,Graffenrieda harlingii,10,28.5,28.5,4.07,4.78,241.06,222.91,0.89,0.87,1.06,18.84192,0.800387513
+Cajanuma,1,2,N,GH-n-02,Graffenrieda harlingii,5,22,26,4.33,8.3469,123.2906,229.89,0.46,1.04,0.5,19.36046,0.759672679
+Cajanuma,1,2,N,GH-n-03,Graffenrieda harlingii,6,16,16,2.8,0.0367,60.635,242.39,NULL,0.21,0.25,19.17556,0.765377664
+Cajanuma,1,2,N,GH-n-04,Graffenrieda harlingii,6,11,11,2.38,0.2933,36.3699,240.51,0.2,0.11,0.15,16.99498,0.620510756
+Cajanuma,1,2,N,GH-n-05,Graffenrieda harlingii,7,11,11,3.1,0.0943,96.0629,239.92,0.29,0.2,0.4,15.53247,0.821248597
+Cajanuma,1,2,N,HP-n-01,Hedyosmum purpuracens,7,16,18,2.89,5.1131,89.7197,248.84,0.31,0.3,0.34,15.82423,0.845902762
+Cajanuma,1,2,N,HP-n-02,Hedyosmum purpuracens,9,17,17,2.36,0.6624,82.9659,242.07,NULL,0.16,0.34,15.60606,0.742453619
+Cajanuma,1,2,N,HP-n-03,Hedyosmum purpuracens,4,16.5,16.5,3.71,0.187,38.5985,225.95,0.51,0.28,0.17,18.01628,0.918671932
+Cajanuma,1,2,N,HP-n-04,Hedyosmum purpuracens,7,10,11.5,1.77,0.0616,41.3099,217.1,0.06,0.09,0.19,15.9422,0.866293904
+Cajanuma,1,2,N,HP-n-05,Hedyosmum purpuracens,8,12,12,2.94,0.015,23.8728,198.82,NULL,0.1,0.12,16.86836,1.005519564
+Cajanuma,1,3,P,GH-p-01,Graffenrieda harlingii,8,21.5,21.5,3.73,3.153,112.7359,166.03,0.94,0.44,0.66,11.74932,1.744419843
+Cajanuma,1,3,P,GH-p-02,Graffenrieda harlingii,11,29.5,29.5,2.8,2.2875,97.1043,197.54,0.38,0.52,0.48,12.11825,3.03587468
+Cajanuma,1,3,P,GH-p-03,Graffenrieda harlingii,13,24,24,3.64,0.8449,84.8854,191,0.81,0.62,0.44,13.3928,2.206109307
+Cajanuma,1,3,P,GH-p-04,Graffenrieda harlingii,25,18,18,2.41,0.1561,96.8632,254.49,0.27,0.45,0.38,12.98846,1.281419361
+Cajanuma,1,3,P,GH-p-05,Graffenrieda harlingii,8,25,29,5.16,3.9589,144.5584,159.77,1.44,1.19,0.88,12.50771,1.562103187
+Cajanuma,1,3,P,HP-p-01,Hedyosmum purpuracens,10,24,24,3.37,0.0196,58.4317,216.34,0.2,0.32,0.27,14.72888,2.509407123
+Cajanuma,1,3,P,HP-p-02,Hedyosmum purpuracens,8,13,16,2.64,1.7656,37.7175,276.55,NULL,0.11,0.13,15.92747,2.195325049
+Cajanuma,1,3,P,HP-p-03,Hedyosmum purpuracens,7,9,12.5,1.59,0.0036,26.8942,384.15,0.13,0.04,0.07,18.91762,2.070904086
+Cajanuma,1,3,P,HP-p-04,Hedyosmum purpuracens,14,13,13,2.94,0.2217,58.1149,241.22,0.1,0.12,0.24,16.34031,0.93441644
+Cajanuma,1,3,P,HP-p-05,Hedyosmum purpuracens,9,15,15,2.32,3.7066,46.9905,196.75,NULL,0.16,0.22,16.18228,1.733627371
+Cajanuma,1,4,NP,GH-np-01,Graffenrieda harlingii,8,15,16,1.72,3.2465,58.2801,196.55,NULL,0.11,0.28,16.35,0.990325676
+Cajanuma,1,4,NP,GH-np-02,Graffenrieda harlingii,10,33,36.5,2.92,2.1006,87.3951,155.08,0.38,0.76,0.55,16.11356,1.527290774
+Cajanuma,1,4,NP,HP-np-01,Hedyosmum purpuracens,10,14.5,14.5,1.34,0.0452,74.4494,240.01,0.16,0.15,0.31,17.61228,1.529505862
+Cajanuma,1,4,NP,HP-np-02,Hedyosmum purpuracens,18,21,28.5,3.31,6.4022,102.0709,199.31,NULL,0.62,0.48,16.31309,1.270030209
+Cajanuma,1,4,NP,HP-np-03,Hedyosmum purpuracens,4,27,32.5,3.58,0.0013,46.4113,210.95,NULL,0.63,0.22,21.22745,1.463356338
+Cajanuma,1,4,NP,HP-np-04,Hedyosmum purpuracens,11,10,11,2.76,0.3915,37.6252,248.22,0.09,0.08,0.15,20.98974,1.510329042
+Cajanuma,1,4,NP,HP-np-05,Hedyosmum purpuracens,6,11.5,13,1.63,0.221,28.9461,130.57,0.15,0.14,0.22,23.79007,1.948728701
+Cajanuma,2,5,con,GH-con-06,Graffenrieda harlingii,5,25,26,3.41,1.7141,51.6139,172.07,2.08,0.55,0.29,10.61076,0.504299617
+Cajanuma,2,5,con,GH-con-07,Graffenrieda harlingii,11,17.5,17.5,4.56,2.1302,179.3612,129.37,NULL,0.91,1.37,10.52581,0.455019804
+Cajanuma,2,5,con,GH-con-08,Graffenrieda harlingii,10,17,17,2.59,1.0366,145.63,200.82,0.42,0.27,0.72,11.47208,0.519222373
+Cajanuma,2,5,con,GH-con-09,Graffenrieda harlingii,3,22,22,3.35,1.3188,62.6655,278.85,1.15,0.39,0.22,14.74884,0.561579017
+Cajanuma,2,5,con,GH-con-10,Graffenrieda harlingii,7,22,26,3.33,6.2471,37.2469,258.33,0.74,0.36,0.12,14.23343,0.66467966
+Cajanuma,2,5,con,HP-con-06,Hedyosmum purpuracens,9,14,14,3.31,4.4628,90.9904,163.26,NULL,0.2,0.53,14.09824,0.763087244
+Cajanuma,2,5,con,HP-con-07,Hedyosmum purpuracens,7,13,13,4.22,0.7875,73.601,134.84,0.24,0.27,0.54,11.59911,0.456566184
+Cajanuma,2,5,con,HP-con-08,Hedyosmum purpuracens,10,10,11,3.71,0.5451,60.0094,191.82,NULL,0.12,0.31,11.13722,0.533232493
+Cajanuma,2,5,con,HP-con-09,Hedyosmum purpuracens,20,14.5,14.5,4.63,0.95,169.82,118.09,0.4,0.37,1.43,11.38342,0.520918223
+Cajanuma,2,5,con,HP-con-10,Hedyosmum purpuracens,12,11,11,5.7,1.2966,127.0598,125.76,NULL,0.34,1,10.74766,0.530846916
+Cajanuma,2,6,P,GH-p-06,Graffenrieda harlingii,7,11.5,11.5,2.68,0.0037,41.3683,188.02,0.32,0.14,0.22,11.48188,0.537046536
+Cajanuma,2,6,P,GH-p-07,Graffenrieda harlingii,3,12,15.5,3.95,0.915,47.632,133.48,0.42,0.4,0.35,10.26075,6.500426927
+Cajanuma,2,6,P,GH-p-08,Graffenrieda harlingii,5,14.5,14.5,3.72,9.112,125.6546,114.26,0.66,0.48,1.02,9.214,2.254859009
+Cajanuma,2,6,P,GH-p-09,Graffenrieda harlingii,7,19.5,19.5,2.65,1.4969,56.8235,134.94,0.59,0.29,0.41,9.12593,1.445016611
+Cajanuma,2,6,P,GH-p-10,Graffenrieda harlingii,9,11.5,11.5,2.09,0.2064,41.5712,275.77,0.11,0.12,0.15,12.88544,2.733722477
+Cajanuma,2,6,P,HP-p-06,Hedyosmum purpuracens,10,15.5,15.5,2.37,0.4477,47.7142,196.94,0.26,0.14,0.24,15.11242,0.995287847
+Cajanuma,2,6,P,HP-p-07,Hedyosmum purpuracens,15,16,17,3.52,0.5616,101.8197,140.64,0.52,0.34,0.72,10.13072,0.956903271
+Cajanuma,2,6,P,HP-p-08,Hedyosmum purpuracens,10,9,9,2,0.007,47.5213,250.08,NULL,0.04,0.19,14.14919,1.141680599
+Cajanuma,2,6,P,HP-p-09,Hedyosmum purpuracens,14,15.5,15.5,2.91,0.6254,62.0465,198.13,0.09,0.12,0.31,13.62377,1.314034197
+Cajanuma,2,6,P,HP-p-10,Hedyosmum purpuracens,12,15,33,3.32,5.2974,90.1755,157.18,0.41,0.69,0.54,13.10004,0.639133076
+Cajanuma,2,7,N,GH-n-06,Graffenrieda harlingii,5,14,17.5,3.95,1.5002,61.654,546.85,0.06,0.1,0.11,14.93793,0.633324401
+Cajanuma,2,7,N,GH-n-07,Graffenrieda harlingii,8,13,14,2.36,5.1442,61.0778,164.51,0.17,0.13,0.34,10.53798,0.415268263
+Cajanuma,2,7,N,GH-n-08,Graffenrieda harlingii,6,13,13,2.4,2.4025,37.6667,220.4,0.11,0.13,0.16,13.24934,0.533469161
+Cajanuma,2,7,N,GH-n-09,Graffenrieda harlingii,3,23,23,3.76,0.4724,32.6308,119.11,0.58,0.43,0.27,14.7222,0.426518495
+Cajanuma,2,7,N,GH-n-10,Graffenrieda harlingii,8,21,24.5,3.26,4.1777,107.972,259.49,0.21,0.38,0.4,15.048,0.57163357
+Cajanuma,2,7,N,HP-n-06,Hedyosmum purpuracens,11,15,15,3.47,0.9,72.4627,162.64,0.45,0.2,0.44,13.47838,0.658967695
+Cajanuma,2,7,N,HP-n-07,Hedyosmum purpuracens,15,10,10,2.22,0.025,62.9303,179.73,NULL,0.41,0.35,12.77269,0.519266644
+Cajanuma,2,7,N,HP-n-08,Hedyosmum purpuracens,7,20,25,3.4,0.206,63.4361,218.03,0.38,0.34,0.29,13.2316,0.666397206
+Cajanuma,2,7,N,HP-n-09,Hedyosmum purpuracens,8,22,26,2.75,8.0617,62.8806,176.84,0.39,0.18,0.31,11.11352,0.501590437
+Cajanuma,2,7,N,HP-n-10,Hedyosmum purpuracens,8,11,11,3.37,0.0069,50.3315,264.87,0.45,0.24,0.19,15.06112,0.844018536
+Cajanuma,2,8,NP,GH-np-06,Graffenrieda harlingii,13,15,15,2.88,2.2784,63.2308,217.69,0.3,0.23,0.28,15.48548,0.648204844
+Cajanuma,2,8,NP,GH-np-07,Graffenrieda harlingii,7,11,11,2.91,3.0893,69.5747,221.62,0.32,0.31,0.3,14.10724,0.658204904
+Cajanuma,2,8,NP,GH-np-08,Graffenrieda harlingii,11,21.5,21.5,2.88,0.4939,119.3659,289.93,0.33,0.25,0.41,15.56292,0.480660779
+Cajanuma,2,8,NP,GH-np-09,Graffenrieda harlingii,6,11,11,1.94,0.0197,37.0385,284.76,0.1,0.07,0.13,13.99688,0.421571213
+Cajanuma,2,8,NP,GH-np-10,Graffenrieda harlingii,8,11,11,1.81,0.0593,54.4314,247.15,0.13,0.07,0.22,12.57982,0.782795415
+Cajanuma,2,8,NP,HP-np-06,Hedyosmum purpuracens,6,11,11,2.5,0.7471,46.3344,198.21,NULL,0.15,0.23,18.18535,1.101183048
+Cajanuma,2,8,NP,HP-np-07,Hedyosmum purpuracens,10,12.8,12.8,2.64,4.0232,80.8481,232.8,0.11,0.12,0.33,16.22648,0.976192128
+Cajanuma,2,8,NP,HP-np-08,Hedyosmum purpuracens,13,22.5,22.5,3.81,2.45,171.98,204.25,0.38,0.61,0.83,18.86787,0.931624753
+Cajanuma,2,8,NP,HP-np-09,Hedyosmum purpuracens,14,22,22,3.21,2.1853,84.8095,243.01,0.59,0.23,0.34,15.74057,0.769138703
+Cajanuma,2,8,NP,HP-np-10,Hedyosmum purpuracens,7,22.5,22.5,3.71,7.9863,90.2602,195.89,0.53,0.19,0.42,13.83093,0.750622435
+Cajanuma,3,9,N,GH-n-11,Graffenrieda harlingii,7,26,26,3.71,6.6464,119.329,131.03,1.03,0.7,0.86,9.16085,0.408613532
+Cajanuma,3,9,N,GH-n-12,Graffenrieda harlingii,3,22,26.5,2.57,0.068,14.9966,248.81,0.11,0.37,0.06,14.10254,0.63521908
+Cajanuma,3,9,N,GH-n-13,Graffenrieda harlingii,7,13,13,1.8,1.2659,34.8836,280.15,0.09,0.09,0.12,10.23173,0.516365885
+Cajanuma,3,9,N,GH-n-14,Graffenrieda harlingii,7,12.5,12.5,2.17,0.0962,57.2274,228.52,0.1,0.09,0.25,10.76891,0.54124436
+Cajanuma,3,9,N,GH-n-15,Graffenrieda harlingii,8,23.5,23.5,2.92,5.0037,62.8084,125.66,0.26,0.55,0.46,9.65048,0.452934099
+Cajanuma,3,9,N,HP-n-11,Hedyosmum purpuracens,8,24,24,4.15,0.6278,65.352,202.26,0.2,0.41,0.32,16.44444,0.906564878
+Cajanuma,3,9,N,HP-n-12,Hedyosmum purpuracens,12,20,29.5,3.74,2.2027,153.198,145.19,1.05,0.66,1.04,13.47248,0.743796279
+Cajanuma,3,9,N,HP-n-13,Hedyosmum purpuracens,11,12,13,2.32,1.6213,59.4556,186.56,0.14,0.11,0.31,11.15611,0.60248644
+Cajanuma,3,9,N,HP-n-14,Hedyosmum purpuracens,8,17,19.5,2.26,0.2208,37.562,196.53,0.31,0.2,0.19,16.54324,0.949157979
+Cajanuma,3,9,N,HP-n-15,Hedyosmum purpuracens,11,16,16,3.1,0.9797,73.8501,NULL,NULL,NULL,NULL,14.3439,0.679600854
+Cajanuma,3,10,con,GH-con-11,Graffenrieda harlingii,5,17.5,17.5,2.51,0.3482,40.4826,200.67,0.31,0.13,0.2,12.22862,0.541505359
+Cajanuma,3,10,con,GH-con-13,Graffenrieda harlingii,12,13,13,2.44,0.9076,75.0643,157.78,0.2,0.42,0.47,9.91302,0.391403728
+Cajanuma,3,10,con,GH-con-14,Graffenrieda harlingii,6,13,13,2.3,0.6381,33.4238,204.91,1.22,0.07,0.16,12.51743,0.577237015
+Cajanuma,3,10,con,GH-con-15,Graffenrieda harlingii,7,11,11.5,1,0.2358,28.2975,255.11,NULL,0.06,0.11,12.42802,0.57820925
+Cajanuma,3,10,con,HP-con-11,Hedyosmum purpuracens,15,15,15,2.87,3.6978,109.328,157.66,0.24,0.27,0.67,13.64992,0.714983883
+Cajanuma,3,10,con,HP-con-12,Hedyosmum purpuracens,8,15,15,2.35,0.0215,44.1845,200.74,0.14,0.11,0.22,12.50406,0.571837696
+Cajanuma,3,10,con,HP-con-13,Hedyosmum purpuracens,15,27,27,4.22,2.44,209.79,136.41,0.48,0.68,1.52,12.09188,0.534043435
+Cajanuma,3,10,con,HP-con-14,Hedyosmum purpuracens,13,30,30,4.92,8.87,230.7,131.26,1.02,1.53,1.69,12.59718,0.585307575
+Cajanuma,3,10,con,HP-con-15,Hedyosmum purpuracens,13,11,11,2.99,0.122,39.176,156.22,NULL,0.1,0.25,9.81454,0.510489983
+Cajanuma,3,11,NP,GH-np-11,Graffenrieda harlingii,8,13.5,15,1.56,0.0613,30.2941,302.33,0.06,0.11,0.1,17.26676,1.049253124
+Cajanuma,3,11,NP,GH-np-12,Graffenrieda harlingii,7,10,19,2.92,0.2784,53.949,198.78,0.59,0.1,0.27,13.8137,0.612930884
+Cajanuma,3,11,NP,GH-np-13,Graffenrieda harlingii,5,11.5,11.5,1.93,0.0064,29.7787,330.8,0.03,0.06,0.09,16.96638,1.064459101
+Cajanuma,3,11,NP,GH-np-14,Graffenrieda harlingii,6,11,11,1.65,0.4285,33.0855,326.57,0.04,0.07,0.1,14.92642,0.782921965
+Cajanuma,3,11,NP,GH-np-15,Graffenrieda harlingii,12,17,17,2.78,0.724,87.0333,101.54,NULL,0.59,0.85,8.39199,0.359069995
+Cajanuma,3,11,NP,HP-np-11,Hedyosmum purpuracens,9,26.5,26.5,2.39,0.7885,36.4222,274.11,0.36,0.17,0.13,17.89132,1.062482351
+Cajanuma,3,11,NP,HP-np-12,Hedyosmum purpuracens,6,12.5,21.5,2.32,0.3665,49.7683,260.01,0.16,0.26,0.19,15.99605,0.891528058
+Cajanuma,3,11,NP,HP-np-14,Hedyosmum purpuracens,10,12,12,3.17,0.0605,53.8079,223.95,0.09,0.15,0.24,13.03233,0.740842785
+Cajanuma,3,11,NP,HP-np-15,Hedyosmum purpuracens,5,24,24,2.87,0.0728,38.7289,175.71,0.21,0.28,0.22,13.8455,0.688146091
+Cajanuma,3,12,P,GH-p-11,Graffenrieda harlingii,8,22,22,2.08,2.1688,80.0966,299.72,0.14,0.17,0.26,13.16569,0.679473148
+Cajanuma,3,12,P,GH-p-12,Graffenrieda harlingii,18,21.5,29,4.05,3.5728,112.3969,231.54,0.91,0.73,0.47,12.029,1.214167965
+Cajanuma,3,12,P,GH-p-13,Graffenrieda harlingii,5,7.5,7.5,3.23,2.5692,76.5995,224.33,0.39,0.21,0.33,13.1993,2.215220001
+Cajanuma,3,12,P,GH-p-14,Graffenrieda harlingii,9,21,26,3.17,0.8033,43.803,226.31,0.46,0.37,0.19,12.94075,1.122198665
+Cajanuma,3,12,P,GH-p-15,Graffenrieda harlingii,8,11,13,2.04,0.3494,42.4836,280.89,NULL,0.15,0.15,15.15726,0.702095773
+Cajanuma,3,12,P,HP-p-11,Hedyosmum purpuracens,8,10,12.5,2.13,1.0905,42.2096,241.88,0.05,0.13,0.17,12.36891,1.832739197
+Cajanuma,3,12,P,HP-p-12,Hedyosmum purpuracens,7,18,18,3.11,0.371,65.5882,210.38,0.13,0.29,0.31,12.799,1.189595677
+Cajanuma,3,12,P,HP-p-13,Hedyosmum purpuracens,6,12,13.5,3.07,1.0225,23.36,203.07,0.12,0.07,0.11,16.08854,1.952650137
+Cajanuma,3,12,P,HP-p-14,Hedyosmum purpuracens,7,14,14,1.94,0.2341,36.3288,212.32,0.11,0.07,0.17,14.17682,0.923463017
+Cajanuma,3,12,P,HP-p-15,Hedyosmum purpuracens,10,17.5,17.5,4.37,9.415,163.4705,179.13,0.21,0.35,0.86,15.51983,0.785222345
+Cajanuma,4,13,P,GH-p-16,Graffenrieda harlingii,4,13,13,1,0.1112,22.1854,275.93,0.11,0.07,0.08,14.69515,0.964101401
+Cajanuma,4,13,P,GH-p-17,Graffenrieda harlingii,11,17,2.5,3,1.3258,67.7067,214.13,0.19,0.34,0.31,10.66663,2.317045543
+Cajanuma,4,13,P,GH-p-18,Graffenrieda harlingii,4,21,21,3,0.0028,18.6622,310.99,0.19,0.23,0.06,14.13928,1.979105451
+Cajanuma,4,13,P,GH-p-19,Graffenrieda harlingii,8,23,23,3,0.4943,58.7352,215.71,0.25,0.31,0.27,12.5015,0.531569122
+Cajanuma,4,13,P,GH-p-20,Graffenrieda harlingii,10,23.5,23.5,4,4.3969,130.4219,188.1,0.6,0.59,0.67,11.46589,0.607182371
+Cajanuma,4,13,P,HP-p-16,Hedyosmum purpuracens,20,13,17,3,3.3178,125.4274,230.4,0.17,0.28,0.53,14.75855,0.799326618
+Cajanuma,4,13,P,HP-p-17,Hedyosmum purpuracens,12,11,11,2,0.1696,65.6542,163.71,NULL,0.1,0.4,12.01433,0.54832855
+Cajanuma,4,13,P,HP-p-18,Hedyosmum purpuracens,13,11.5,12.5,3,9.4213,81.0737,166.63,0.11,0.14,0.43,12.52524,0.521149312
+Cajanuma,4,13,P,HP-p-19,Hedyosmum purpuracens,8,9,11,2,0.0551,17.8852,222.88,0.07,0.03,0.08,11.19749,0.863395581
+Cajanuma,4,13,P,HP-p-20,Hedyosmum purpuracens,12,9,10,1,0.0925,20.3334,184.01,NULL,0.04,0.11,10.77505,0.929187477
+Cajanuma,4,14,con,GH-con-16,Graffenrieda harlingii,6,10,10,1,0.2219,30.9557,341.49,0.24,0.04,0.09,12.90792,0.518227637
+Cajanuma,4,14,con,GH-con-17,Graffenrieda harlingii,7,12,25,3,3.5017,100.7441,143,0.88,0.38,0.68,12.33241,0.576787677
+Cajanuma,4,14,con,GH-con-18,Graffenrieda harlingii,7,12,12,2,0.5626,28.6373,280.75,0.1,0.06,0.1,13.18994,0.830354797
+Cajanuma,4,14,con,GH-con-19,Graffenrieda harlingii,10,11,11,2,0.2622,38.9299,175.76,0.23,0.12,0.22,14.09719,0.693118683
+Cajanuma,4,14,con,GH-con-20,Graffenrieda harlingii,13,9,12,2,0.4426,33.2383,182.2,0.37,0.12,0.18,10.98211,0.470478328
+Cajanuma,4,14,con,HP-con-16,Hedyosmum purpuracens,11,26,26,5,7.0268,202.2997,147.93,0.72,0.69,1.32,14.82905,0.571438094
+Cajanuma,4,14,con,HP-con-17,Hedyosmum purpuracens,8,10,11,2,0.7553,33.009,201.59,0.13,0.06,0.16,13.5781,0.608534669
+Cajanuma,4,14,con,HP-con-18,Hedyosmum purpuracens,7,17,23,3,0.3145,46.0204,152.35,1.26,0.38,0.3,14.16666,0.586004938
+Cajanuma,4,14,con,HP-con-19,Hedyosmum purpuracens,10,20,23,3,1.3903,62.1247,189.8,0.33,0.24,0.32,12.37578,0.506226753
+Cajanuma,4,14,con,HP-con-20,Hedyosmum purpuracens,8,14,14,4,0.0051,42.6552,185.44,NULL,0.17,0.23,13.11705,0.588897332
+Cajanuma,4,16,NP,GH-np-16,Graffenrieda harlingii,4,15.5,15.5,2,0.5858,23.0385,249.47,0.53,0.08,0.09,16.82564,0.701799064
+Cajanuma,4,16,NP,GH-np-17,Graffenrieda harlingii,10,26,49,3,0.4913,50.6039,294.78,0.56,0.17,0.17,18.93463,0.880647554
+Cajanuma,4,16,NP,GH-np-18,Graffenrieda harlingii,5,13,20,3,6.1389,74.282,272.57,0.34,0.26,0.25,19.13739,1.483301068
+San Francisco,1,1,con,GE-con-01,Graffenrieda emarginata,5,13.1,13.1,2.31,0.11,61.95,268.87,0.16,0.12,0.23,10.67986,0.509034938
+San Francisco,1,1,con,GE-con-02,Graffenrieda emarginata,5,12,12,1.62,1.13,76.02,234.03,0.11,0.13,0.32,11.29887,0.488277303
+San Francisco,1,1,con,GE-con-03,Graffenrieda emarginata,5,11,11.5,1.81,2.67,84.37,226.94,0.18,0.18,0.36,13.5923,0.636082043
+San Francisco,1,1,con,GE-con-04,Graffenrieda emarginata,6,14.5,14.5,1.5,3.76,78.49,298.92,NULL,0.13,0.25,12.98933,0.514819627
+San Francisco,1,1,con,GE-con-05,Graffenrieda emarginata,6,17.5,17.5,3.17,1.23,128.92,236.46,0.92,0.27,0.54,11.90275,0.502836561
+San Francisco,1,1,con,PSp-con-01,Palicourea angustifolia,14,14.5,15,1.32,0,22.67,226.7,NULL,0.06,0.1,16.31124,0.649629281
+San Francisco,1,1,con,PSp-con-02,Palicourea angustifolia,18,17.5,19,2.2,3.76,31.8,254.91,NULL,0.1,0.11,18.20382,0.641157363
+San Francisco,1,1,con,PSp-con-03,Palicourea angustifolia,22,30.5,30.5,2.47,4.78,105.87,206.31,0.39,0.38,0.49,20.36008,0.662438644
+San Francisco,1,1,con,PSp-con-04,Palicourea angustifolia,19,11.5,11.5,1.27,0.181,20.971,346.5,0.1,0.04,0.06,24.87873,0.708501033
+San Francisco,1,1,con,PSp-con-05,Palicourea angustifolia,11,13,13,1.1,0,19.32,276,0.08,0.06,0.07,22.2946,0.787515929
+San Francisco,1,2,P,GE-p-01,Graffenrieda emarginata,5,12,12,2.43,0,150.54,268.82,0.19,0.23,0.56,11.68578,0.62343929
+San Francisco,1,2,P,GE-p-02,Graffenrieda emarginata,8,13.5,13.5,2.23,7.79,119.25,232.21,0.2,0.21,0.48,13.75481,0.71756396
+San Francisco,1,2,P,GE-p-03,Graffenrieda emarginata,4,10.6,11.4,1.71,0.14,54.05,317.12,0.05,0.09,0.17,13.13997,1.19694329
+San Francisco,1,2,P,GE-p-04,Graffenrieda emarginata,8,10.6,10.7,1.77,0.05,67.16,319.57,0.08,0.08,0.21,13.20012,1.370142413
+San Francisco,1,2,P,GE-p-05,Graffenrieda emarginata,3,21,21,3.17,4.93,120.47,192.57,NULL,0.65,0.6,13.00683,0.853664088
+San Francisco,1,2,P,PSp-p-01,Palicourea angustifolia,16,28.5,28.5,1.27,1.8413,39.8327,292.24,0.1,0.15,0.13,18.61502,0.859974671
+San Francisco,1,2,P,PSp-p-02,Palicourea angustifolia,13,33,33,2.39,0.6613,76.0836,251.41,0.17,0.32,0.3,18.2942,0.764573038
+San Francisco,1,2,P,PSp-p-03,Palicourea angustifolia,9,18,18,0.89,0.045,15.9409,317.92,0.03,0.04,0.05,19.95409,0.734598105
+San Francisco,1,2,P,PSp-p-04,Palicourea angustifolia,7,13.5,13.5,1.41,0.6188,11.5203,363.38,0.34,0.21,0.03,23.02559,0.904068512
+San Francisco,1,2,P,PSp-p-05a,Palicourea angustifolia,12,15,15,1.41,0,7.0232,54.02,0.05,0.12,0.13,18.9404,0.77502652
+San Francisco,1,3,N,GE-n-01,Graffenrieda emarginata,4,13.5,13.5,1.49,2.41,58.25,265.9,0.09,0.12,0.21,16.33825,0.644082471
+San Francisco,1,3,N,GE-n-02,Graffenrieda emarginata,6,27,32,4.58,21.36,176.5,153.6,1.45,1.7,1.01,14.61508,0.522625006
+San Francisco,1,3,N,GE-n-03,Graffenrieda emarginata,6,12,12,1.95,1.46,112.42,217.57,0.18,0.17,0.51,13.5403,0.415456031
+San Francisco,1,3,N,GE-n-04,Graffenrieda emarginata,5,8.5,8.5,2.21,6.05,104.53,273.56,NULL,0.1,0.36,13.83774,0.510727134
+San Francisco,1,3,N,GE-n-05,Graffenrieda emarginata,4,10,10,3.02,10.35,92.42,241.38,0.17,0.16,0.34,13.80906,0.458813905
+San Francisco,1,3,N,PSp-n-01,Palicourea angustifolia,9,14,14,1,0,14.41,288.2,NULL,0.03,0.05,27.31406,0.518644563
+San Francisco,1,3,N,PSp-n-02,Palicourea angustifolia,15,13.5,14,1.58,0.23,27.11,336,0.07,0.12,0.08,23.97234,0.707824473
+San Francisco,1,3,N,PSp-n-03,Palicourea angustifolia,9,20,20,1.5,0.2,32.71,270.92,0.1,0.15,0.12,22.36662,0.72007704
+San Francisco,1,3,N,PSp-n-04,Palicourea angustifolia,16,9.5,15,1.11,0.44,16.91,329.4,0.04,0.07,0.05,22.56283,0.868615096
+San Francisco,1,3,N,PSp-n-05,Palicourea angustifolia,15,13,13,1.76,0,17.79,444.75,0.05,0.04,0.04,20.31771,0.631781734
+San Francisco,1,4,NP,GE-np-01,Graffenrieda emarginata,6,11.5,11.5,2.8,5.79,81,179.07,0.2,0.31,0.42,13.03841,1.376518567
+San Francisco,1,4,NP,GE-np-02,Graffenrieda emarginata,3,30.5,30.5,3.07,0.83,36.77,239.6,0.28,0.58,0.15,14.01968,1.755664928
+San Francisco,1,4,NP,GE-np-03,Graffenrieda emarginata,4,40,40,3.9,2.89,188.95,189.86,2.59,1.64,0.98,13.20489,0.551495638
+San Francisco,1,4,NP,GE-np-04,Graffenrieda emarginata,6,24,25,5.38,12.62,165.81,144.52,0.57,2.12,1.06,13.69992,1.572462819
+San Francisco,1,4,NP,GE-np-05,Graffenrieda emarginata,3,27.5,27.5,2.47,0.3,44.45,294.33,0.2,0.47,0.15,15.0556,0.696907717
+San Francisco,1,4,NP,PSp-np-01,Palicourea angustifolia,8,12,12,0.84,0.15,12.54,413,0.03,0.03,0.03,21.77569,0.475765192
+San Francisco,1,4,NP,PSp-np-02,Palicourea angustifolia,11,14.5,14.5,1.81,0.17,32.31,357.11,0.07,0.05,0.09,20.82307,0.718698264
+San Francisco,1,4,NP,PSp-np-03,Palicourea angustifolia,10,12,14.5,0.88,0.53,25.8,315.88,0.03,0.05,0.08,19.98556,0.696139486
+San Francisco,1,4,NP,PSp-np-04,Palicourea angustifolia,18,17,17,1.71,0.31,40.88,338.08,0.09,0.08,0.12,22.11503,0.680257951
+San Francisco,1,4,NP,PSp-np-05,Palicourea angustifolia,12,14,14,1.16,0.12,16.48,409,NULL,0.05,0.04,21.44222,0.710168577
+San Francisco,2,6,N,GE-n-06,Graffenrieda emarginata,6,19,19,3.02,0.01,143.06,170.3,0.37,0.55,0.84,10.90453,0.397824036
+San Francisco,2,6,N,GE-n-07,Graffenrieda emarginata,5,16.5,16.5,3.43,0.16,156.17,187.96,0.64,0.59,0.83,12.14661,0.440280841
+San Francisco,2,6,N,GE-n-08,Graffenrieda emarginata,6,11,11,2.84,0.64,109.89,179.1,0.11,0.27,0.61,22.41973,0.759025013
+San Francisco,2,6,N,GE-n-09,Graffenrieda emarginata,4,16,16,2.71,0.58,60.3,314.32,0.25,0.24,0.19,12.49433,0.492560711
+San Francisco,2,6,N,GE-n-10,Graffenrieda emarginata,6,19,19,4.26,5.69,160.13,148.5,0.61,0.74,1.04,12.65305,0.557275365
+San Francisco,2,6,N,PSp-n-06,Palicourea angustifolia,15,30.3,30.6,2.71,1.39,76.98,269.96,0.19,0.34,0.28,21.99794,0.780069585
+San Francisco,2,6,N,PSp-n-07,Palicourea angustifolia,16,29,29,1.99,0,49.04,245.2,0.18,0.19,0.2,20.50764,0.69473129
+San Francisco,2,6,N,PSp-n-08,Palicourea angustifolia,19,10,18,1.5,0.21,39.49,302.15,0.07,0.12,0.13,29.37959,0.798165608
+San Francisco,2,6,N,PSp-n-09,Palicourea angustifolia,18,37,37,2.63,2.45,101.16,229.56,0.38,0.39,0.43,25.01267,0.741569739
+San Francisco,2,6,N,PSp-n-10,Palicourea angustifolia,16,34,34,1.89,0.02,47.74,251.16,0.25,0.25,0.19,17.1964,0.624811212
+San Francisco,2,7,con,GE-con-06,Graffenrieda emarginata,5,10,10,3.11,2.97,75.74,207.91,0.26,0.1,0.35,13.91977,0.545752069
+San Francisco,2,7,con,GE-con-07,Graffenrieda emarginata,7,21,21,4.47,0,293.76,122.91,0.77,0.76,2.39,9.24918,0.362944088
+San Francisco,2,7,con,GE-con-08,Graffenrieda emarginata,4,19,21,5.73,0.01,116.82,114.52,2.53,0.51,1.02,10.6828,0.439309473
+San Francisco,2,7,con,GE-con-09,Graffenrieda emarginata,5,16,16,2.84,0,49.11,181.89,NULL,0.24,0.27,9.58747,0.354639466
+San Francisco,2,7,con,GE-con-10,Graffenrieda emarginata,4,13,14,1.98,0.28,48.88,186.92,NULL,0.21,0.26,8.68154,0.353140177
+San Francisco,2,7,con,PSp-con-06,Palicourea angustifolia,9,12.5,12.5,0.88,0,15.99,319.8,0.1,0.05,0.05,22.44505,1.180338834
+San Francisco,2,7,con,PSp-con-07,Palicourea angustifolia,10,21.5,21.5,1.66,0.23,24.88,352.14,0.14,0.13,0.07,19.13234,0.729785611
+San Francisco,2,7,con,PSp-con-08,Palicourea angustifolia,10,12.5,12.5,0.92,0,17.99,299.83,0.04,0.05,0.06,20.98337,0.62799211
+San Francisco,2,7,con,PSp-con-09,Palicourea angustifolia,8,14.1,14.1,1.39,0.13,11.32,373,0.04,0.05,0.03,18.53413,0.716673032
+San Francisco,2,7,con,PSp-con-10,Palicourea angustifolia,15,27.5,27.5,1.47,3.75,51.08,295.81,0.09,0.13,0.16,19.75655,0.68965384
+San Francisco,2,8,P,GE-p-06,Graffenrieda emarginata,6,13,13,2.59,0.1,65.61,218.37,0.32,0.2,0.3,10.91544,1.284971278
+San Francisco,2,8,P,GE-p-07,Graffenrieda emarginata,6,20,20,3.56,7.68,174.87,163.91,1.22,1,1.02,11.02177,0.853738646
+San Francisco,2,8,P,GE-p-08,Graffenrieda emarginata,3,23.5,23.5,3.42,0.1,47.2,235.5,0.53,0.36,0.2,12.08359,0.866460246
+San Francisco,2,8,P,GE-p-09,Graffenrieda emarginata,4,23,23,3.05,1.49,64.98,244.19,0.23,0.64,0.26,13.47019,0.605927824
+San Francisco,2,8,P,GE-p-10,Graffenrieda emarginata,7,9.5,9.5,1.97,1.18,81.58,259.35,0.17,0.11,0.31,13.92306,1.702597017
+San Francisco,2,8,P,PSp-p-06,Palicourea angustifolia,8,22,22,1.94,0.6931,50.2381,275.25,0.33,0.18,0.18,24.13195,0.683028676
+San Francisco,2,8,P,PSp-p-07,Palicourea angustifolia,14,12,12,1,0.0897,15.9797,NULL,0.05,NULL,NULL,NULL,NULL
+San Francisco,2,8,P,PSp-p-08,Palicourea angustifolia,21,25,30,1.5,0.7025,61.6458,290.21,0.23,0.2,0.21,18.65811,0.64828854
+San Francisco,2,8,P,PSp-p-09,Palicourea angustifolia,16,13,14,1,0.0515,20.3884,290.53,0.05,0.08,0.07,18.79551,0.624808914
+San Francisco,2,8,P,PSp-p-10,Palicourea angustifolia,19,39,39,2,7.538,79.1733,238.78,0.57,0.45,0.3,20.0016,0.603685451
+San Francisco,2,9,NP,GE-np-06,Graffenrieda emarginata,3,8,11,3,0,47.47,163.69,0.29,0.12,0.29,12.1708,0.693909135
+San Francisco,2,9,NP,GE-np-07,Graffenrieda emarginata,7,11,11,2,0.45,34.37,226.13,NULL,0.07,0.15,12.57509,0.651523162
+San Francisco,2,9,NP,GE-np-08,Graffenrieda emarginata,7,14,15,2,0.19,73.32,304.71,0.12,0.07,0.24,13.92913,0.670601565
+San Francisco,2,9,NP,GE-np-09,Graffenrieda emarginata,6,9,10,2,0.3,83.62,231.44,0.07,0.12,0.36,11.01513,1.055322201
+San Francisco,2,9,NP,GE-np-10,Graffenrieda emarginata,5,17,22,3,3.06,91.43,205.51,0.25,0.37,0.43,14.57369,0.827079359
+San Francisco,2,9,NP,PSp-np-06,Palicourea angustifolia,13,13,13,1,0.06,19.13,272.43,0.04,0.03,0.07,17.98551,0.456768137
+San Francisco,2,9,NP,PSp-np-07,Palicourea angustifolia,25,19,19,2,0.24,32.77,180.72,NULL,0.17,0.18,18.73813,1.085839558
+San Francisco,2,9,NP,PSp-np-08,Palicourea angustifolia,9,30,30,2,2.81,56.62,298.94,0.39,0.33,0.18,26.13504,0.765968646
+San Francisco,2,9,NP,PSp-np-09,Palicourea angustifolia,10,12,12,1,0.03,15.93,397.5,0.05,0.05,0.04,19.06423,NULL
+San Francisco,2,9,NP,PSp-np-10,Palicourea angustifolia,10,9,10,1,1.37,31.91,1018,0.03,0.01,0.03,21.09469,NULL
+San Francisco,3,11,P,GE-p-11,Graffenrieda emarginata,4,23,23.5,4.62,0.58,102.42,207.84,0.49,1.08,0.49,12.89418,1.067270499
+San Francisco,3,11,P,GE-p-12,Graffenrieda emarginata,4,32,32,5.03,21.49,285.9,156.46,1.39,1.49,1.69,10.57912,2.970211701
+San Francisco,3,11,P,GE-p-13,Graffenrieda emarginata,6,17,17,3.44,0.71,132.27,199.33,0.3,0.47,0.66,14.05608,0.599516064
+San Francisco,3,11,P,GE-p-14,Graffenrieda emarginata,4,16,20,4.3,4.01,127.4,173.79,0.5,0.77,0.71,12.80008,3.926380514
+San Francisco,3,11,P,GE-p-15,Graffenrieda emarginata,5,10,15,1.66,0.22,32.08,398.25,NULL,0.06,0.08,14.64301,0.713639825
+San Francisco,3,11,P,PSp-p-11,Palicourea angustifolia,9,16,16.5,1.44,1.0485,20.1987,212.78,NULL,0.07,0.09,15.92273,0.501812592
+San Francisco,3,11,P,PSp-p-12,Palicourea angustifolia,17,33,33,2.45,4.5264,105.6291,194.43,NULL,0.61,0.52,16.92736,0.785227987
+San Francisco,3,11,P,PSp-p-13,Palicourea angustifolia,12,14,14,1.62,2.8327,30.5818,346.86,0.11,0.05,0.08,18.3733,1.661558497
+San Francisco,3,11,P,PSp-p-14,Palicourea angustifolia,6,18,19.5,1.31,0.1013,30.0697,249.74,NULL,0.06,0.12,23.98268,0.650651875
+San Francisco,3,11,P,PSp-p-15,Palicourea angustifolia,10,18.5,18.5,2.35,0.0042,45.1249,237.48,0.34,0.12,0.19,15.02853,1.17311548
+San Francisco,3,12,con,GE-con-11,Graffenrieda emarginata,5,11,11,1.64,1.8,114.35,244.67,0.09,0.15,0.46,12.48357,0.5321631
+San Francisco,3,12,con,GE-con-12,Graffenrieda emarginata,5,8.5,8.5,1.73,0.04,54.33,285.74,NULL,0.04,0.19,13.13485,0.537040509
+San Francisco,3,12,con,GE-con-13,Graffenrieda emarginata,5,7.5,7.5,1.55,0.67,81.89,208.26,NULL,0.12,0.39,13.24387,0.652861346
+San Francisco,3,12,con,GE-con-14,Graffenrieda emarginata,7,9.5,9.5,1.8,0,98.12,245.3,NULL,0.1,0.4,12.38948,0.469978825
+San Francisco,3,12,con,GE-con-15,Graffenrieda emarginata,5,11,11,2.05,0.5,67.91,217.45,NULL,0.15,0.31,13.73775,0.613101051
+San Francisco,3,12,con,PSp-con-11,Palicourea angustifolia,12,12.5,12.5,1.29,0.18,18.05,223.38,NULL,0.04,0.08,20.88883,0.674996213
+San Francisco,3,12,con,PSp-con-12,Palicourea angustifolia,11,14.5,14.5,1.15,0.13,23.86,296.63,NULL,0.06,0.08,19.88942,0.644478909
+San Francisco,3,12,con,PSp-con-13,Palicourea angustifolia,11,18.5,18.5,1.67,0.37,22.97,205.45,0.11,0.1,0.11,20.11513,0.630936922
+San Francisco,3,12,con,PSp-con-14,Palicourea angustifolia,12,14,14,1.7,0.05,24.29,269.33,0.12,0.05,0.09,16.61456,0.555077809
+San Francisco,3,12,con,PSp-con-15,Palicourea angustifolia,12,18,18,2.16,0.13,38.14,316.75,0.08,0.06,0.12,19.6966,0.632070072
+San Francisco,3,13,N,GE-n-11,Graffenrieda emarginata,6,11,12.5,2.39,0.36,76.42,271.64,NULL,0.1,0.28,14.63178,0.449138562
+San Francisco,3,13,N,GE-n-12,Graffenrieda emarginata,6,12,12,1.18,0.1,74.67,298.28,0.06,0.11,0.25,13.92133,0.466883706
+San Francisco,3,13,N,GE-n-13,Graffenrieda emarginata,6,16,16,1.71,1.96,64.03,269.87,0.08,0.13,0.23,15.11096,0.581750746
+San Francisco,3,13,N,GE-n-14,Graffenrieda emarginata,4,10,11,1.62,0.16,41.69,276.87,0.08,0.11,0.15,15.19041,0.460960052
+San Francisco,3,13,N,GE-n-15,Graffenrieda emarginata,4,12.5,12.5,1.53,0.72,31.48,236.62,0.04,0.09,0.13,16.84117,0.454521565
+San Francisco,3,13,N,PSp-n-11,Palicourea angustifolia,14,26.5,26.5,2.07,4.43,71.92,232.72,0.11,0.24,0.29,24.45365,0.883481507
+San Francisco,3,13,N,PSp-n-12,Palicourea angustifolia,10,11,11,1.42,0.39,20.07,281.14,0.05,0.03,0.07,21.26399,0.629800392
+San Francisco,3,13,N,PSp-n-13,Palicourea angustifolia,11,23.5,23.5,2.37,0.5,68.92,213.81,0.22,0.22,0.32,18.0059,0.600328332
+San Francisco,3,13,N,PSp-n-14,Palicourea angustifolia,12,22,22,1.25,0.16,19.62,324.33,NULL,0.08,0.06,27.14005,0.580788196
+San Francisco,3,13,N,PSp-n-15,Palicourea angustifolia,21,29,29,2.05,0.93,83.77,223.89,0.2,0.25,0.37,20.39094,0.58581045
+San Francisco,3,14,NP,GE-np-11,Graffenrieda emarginata,4,23,23,3.5,2.09,200.67,194.69,0.57,0.77,1.02,14.30153,0.654369346
+San Francisco,3,14,NP,GE-np-12,Graffenrieda emarginata,5,20.5,20.5,2.52,0.94,74.51,282.96,NULL,0.32,0.26,14.41515,0.693745849
+San Francisco,3,14,NP,GE-np-13,Graffenrieda emarginata,4,13,13,2.56,0.3,48.56,201.08,0.2,0.17,0.24,13.71297,1.220638047
+San Francisco,3,14,NP,GE-np-14,Graffenrieda emarginata,4,12,12,2.34,8.52,180.24,225.95,0.19,0.33,0.76,15.9184,1.009742906
+San Francisco,3,14,NP,GE-np-15,Graffenrieda emarginata,8,14,14,1.29,0.19,87.92,313.32,0.06,0.1,0.28,16.3041,0.820863383
+San Francisco,3,14,NP,PSp-np-11,Palicourea angustifolia,12,12,12,1.74,0.44,18.14,295,0.04,0.05,0.06,20.79705,0.788254357
+San Francisco,3,14,NP,PSp-np-12,Palicourea angustifolia,7,12,12,1.53,1.1,16.2,302,0.04,0.03,0.05,22.37679,0.923076159
+San Francisco,3,14,NP,PSp-np-13,Palicourea angustifolia,13,20.5,20.5,1.73,0.73,48.45,340.86,0.12,0.09,0.14,20.38816,0.816580374
+San Francisco,3,14,NP,PSp-np-14,Palicourea angustifolia,11,15,15,1.4,0.84,38.78,291.85,NULL,0.06,0.13,25.53223,1.003055748
+San Francisco,3,14,NP,PSp-np-15,Palicourea angustifolia,9,15.5,15.5,1.71,0.04,29.77,270.27,0.09,0.08,0.11,16.41556,0.586910721
+San Francisco,4,16,P,GE-p-16,Graffenrieda emarginata,5,10,10,2.15,5.66,116.96,271.46,NULL,0.15,0.41,14.61741,4.053075035
+San Francisco,4,16,P,GE-p-17,Graffenrieda emarginata,7,9,9,1.52,1.12,82.63,247,0.2,0.1,0.33,13.0127,0.562795092
+San Francisco,4,16,P,GE-p-18,Graffenrieda emarginata,5,13,13,2.32,1.99,136.9,201.36,0.33,0.21,0.67,11.44736,0.532384035
+San Francisco,4,16,P,GE-p-19,Graffenrieda emarginata,4,10,10,1.42,1.7,48.04,201.48,NULL,0.11,0.23,11.92292,1.551683021
+San Francisco,4,16,P,GE-p-20,Graffenrieda emarginata,3,29,35,2.46,0.06,73.09,235.58,NULL,0.44,0.31,12.3355,0.535940983
+San Francisco,4,16,P,PSp-p-16,Palicourea angustifolia,7,18.7,18.7,1.53,0.0011,28.0453,254.95,0.12,0.13,0.11,19.97697,3.276215211
+San Francisco,4,16,P,PSp-p-17,Palicourea angustifolia,15,40,40,1.88,5.1141,93.0379,244.23,NULL,0.33,0.36,16.16649,0.691565156
+San Francisco,4,16,P,PSp-p-18,Palicourea angustifolia,16,16,16,1.02,1.3395,23.7862,280.58,NULL,0.03,0.08,16.43283,0.621134383
+San Francisco,4,16,P,PSp-p-19,Palicourea angustifolia,12,23.2,23.2,1.26,0.0547,32.9095,273.79,0.07,0.14,0.12,15.22389,1.162869849
+San Francisco,4,16,P,PSp-p-20,Palicourea angustifolia,12,14,14,1.06,0.8463,17.1881,272.36,0.07,0.03,0.06,17.97108,0.743908429
+San Francisco,4,17,con,GE-con-16,Graffenrieda emarginata,4,11,13,1.51,0.21,50.57,201.44,NULL,0.09,0.25,8.44363,0.348720906
+San Francisco,4,17,con,GE-con-17,Graffenrieda emarginata,5,9.6,9.6,3,0.05,45.72,190.29,NULL,0.12,0.24,10.16864,0.472365016
+San Francisco,4,17,con,GE-con-18,Graffenrieda emarginata,6,8.5,8.5,1.92,1.91,96.64,205.93,NULL,0.12,0.46,12.66112,0.497599021
+San Francisco,4,17,con,GE-con-19,Graffenrieda emarginata,8,10,11,1.34,0,58.23,253.17,0.07,0.08,0.23,12.37218,0.452973436
+San Francisco,4,17,con,GE-con-20,Graffenrieda emarginata,6,14,14,3.26,0.15,121.76,184.26,0.55,0.54,0.66,11.28436,0.464531008
+San Francisco,4,17,con,PSp-con-16,Palicourea angustifolia,11,14,14,1.78,0.15,26.53,329.75,NULL,0.07,0.08,23.04656,0.68768139
+San Francisco,4,17,con,PSp-con-17,Palicourea angustifolia,7,31,31,1.63,0.48,40.3,221.22,NULL,0.24,0.18,21.12026,0.589997227
+San Francisco,4,17,con,PSp-con-18,Palicourea angustifolia,13,16.5,16.5,1.02,0,14.97,249.5,NULL,0.04,0.06,17.03484,0.474972627
+San Francisco,4,17,con,PSp-con-19,Palicourea angustifolia,9,17,17.5,0.94,0.04,14.21,354.25,NULL,0.05,0.04,19.90333,0.530896856
+San Francisco,4,17,con,PSp-con-20,Palicourea angustifolia,12,23,23,1.8,0.13,51.96,259.15,NULL,0.11,0.2,19.60163,0.651072159
+San Francisco,4,18,NP,GE-np-16,Graffenrieda emarginata,10,14,14,1.96,0.7,100.4,231.86,0.1,0.2,0.43,14.81853,0.651289108
+San Francisco,4,18,NP,GE-np-17,Graffenrieda emarginata,5,10,13,1.43,3.23,79.24,253.37,0.09,0.09,0.3,15.49581,0.713911906
+San Francisco,4,18,NP,GE-np-18,Graffenrieda emarginata,8,8,14,2.19,19.9,141.08,252.46,0.22,0.15,0.48,16.94696,0.70237576
+San Francisco,4,18,NP,GE-np-19,Graffenrieda emarginata,4,10,10.5,1.61,2.03,53,231.68,NULL,0.11,0.22,15.35102,0.714258845
+San Francisco,4,18,NP,GE-np-20,Graffenrieda emarginata,4,14.2,16.2,2.36,0.15,70.45,319.55,NULL,0.12,0.22,14.42287,2.322077392
+San Francisco,4,18,NP,PSp-np-16,Palicourea angustifolia,8,12,12,1.06,0,19.11,477.75,NULL,0.09,0.04,26.11241,0.572293803
+San Francisco,4,18,NP,PSp-np-17,Palicourea angustifolia,12,18,18,1.42,0.06,54.71,496.82,NULL,0.05,0.11,19.51586,0.589439607
+San Francisco,4,18,NP,PSp-np-18,Palicourea angustifolia,9,22,22,1.99,0,55.97,310.94,NULL,0.2,0.18,11.40864,0.386879106
+San Francisco,4,18,NP,PSp-np-19,Palicourea angustifolia,16,10,12,1,0.26,13.25,259.8,0.04,0.02,0.05,20.18619,0.481701525
+San Francisco,4,18,NP,PSp-np-20,Palicourea angustifolia,11,16,16,1.64,0,9.41,67.21,0.13,0.12,0.14,20.73037,0.658423157
+San Francisco,4,19,N,GE-n-16,Graffenrieda emarginata,6,15.5,15.5,2.16,2.86,86.49,214.44,0.35,0.28,0.39,14.10404,0.46842485
+San Francisco,4,19,N,GE-n-17,Graffenrieda emarginata,10,14,15,1.81,2.63,162.86,216.53,NULL,0.26,0.74,15.39032,0.562252708
+San Francisco,4,19,N,GE-n-18,Graffenrieda emarginata,6,16,18,3.04,4.55,18.42,17.78,NULL,0.39,0.78,16.40823,0.561318639
+San Francisco,4,19,N,GE-n-19,Graffenrieda emarginata,4,6,11,2.36,1.66,41.35,264.6,NULL,0.08,0.15,13.62066,0.583227313
+San Francisco,4,19,N,GE-n-20,Graffenrieda emarginata,3,15,17,2.42,0.9,62.85,238.27,NULL,0.29,0.26,18.1015,0.466383139
+San Francisco,4,19,N,PSp-n-16,Palicourea angustifolia,12,17.5,17.5,1.6,0.06,25.48,282.44,NULL,0.01,0.09,18.8097,0.507254792
+San Francisco,4,19,N,PSp-n-17,Palicourea angustifolia,9,10,17,1.04,0.5,17.76,345.2,NULL,0.06,0.05,NULL,NULL
+San Francisco,4,19,N,PSp-n-18,Palicourea angustifolia,13,12,12,0.97,1.39,18.81,435.5,0.02,0.01,0.04,19.81533,0.387447391
+San Francisco,4,19,N,PSp-n-19,Palicourea angustifolia,13,40,43,2.04,0.74,40.63,284.93,NULL,0.43,0.14,26.13348,0.630167927
+San Francisco,4,19,N,PSp-n-20,Palicourea angustifolia,8,10,11.5,1.08,0,12.49,312.25,NULL,0.02,0.04,24.76164,0.576152181

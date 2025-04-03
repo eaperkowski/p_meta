@@ -5,7 +5,7 @@
 library(tidyverse)
 
 # Read data
-wang_data_summary <- read.csv("../raw_data/Wang_2019_summary_table_from_text.csv")
+wang_data_summary <- read.csv("../../raw_data/Wang_2019_summary_table_from_text.csv")
 head(wang_data_summary)
 
 # Prep for easy merge into compiled datasheet
