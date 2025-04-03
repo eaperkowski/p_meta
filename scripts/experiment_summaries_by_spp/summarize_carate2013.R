@@ -5,7 +5,7 @@
 library(tidyverse)
 
 # Read data
-carate_df <- read.csv("../raw_data/Carate_Tandalla_2013.csv") %>%
+carate_df <- read.csv("../../raw_data/Carate_Tandalla_2013.csv") %>%
   dplyr::select(Site_name, PlotID, trt = PlotTreat, Tree_species,
                 sla = specific_leaf_area, biomass_root:leaf_P)
 
@@ -160,7 +160,7 @@ carate_summary_control %>%
                 leafnp_sd_control, leafnp_sd_trt, 
                 leafnp_se_control, leafnp_se_trt, 
                 leafnp_n_control, leafnp_n_trt) %>%
-  pivot_longer(cols = nmass_mean_control:leafnp_n_trt,
+  pivot_longer(cols = agb_mean_control:leafnp_n_trt,
                names_to = c("trait", "stat", "treatment"), 
                names_sep = "_",
                values_to = "value") %>%
@@ -168,7 +168,7 @@ carate_summary_control %>%
               values_from = value) %>%
   mutate(trait = factor(trait, levels = c("agb", "bgb", "rootshoot", "rmf", 
                                           "sla", "nmass", "narea", "pmass",
-                                          "parea", "leaf_np")),
+                                          "parea", "leafnp")),
          trt = factor(trt, levels = c("N", "P", "NP")),
          Tree_species = gsub(tolower(Tree_species), pattern = " ", replacement = "_")) %>%
   group_by(Site_name, Tree_species, trait) %>%
