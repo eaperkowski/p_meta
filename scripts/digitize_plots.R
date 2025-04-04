@@ -173,12 +173,52 @@ cunha2024 <- metaDigitise(dir = "../plots_to_digitize/Cunha_2024/")
 # Yu 2022
 yu2022 <- metaDigitise(dir = "../plots_to_digitize/Yu_2022/")
 
-cunha2024  %>%
-  separate(group_id, into = c("spp", "trt")) %>%
-  mutate(trt = factor(trt, levels = c("control", "n", "p", "np")),
-         mean = round(mean, 2),
-         sd = round(sd, 2),
-         se = round(se, 2)) %>%
-  arrange(variable, spp, trt) %>%
-  dplyr::select(variable:mean, se)
+unique(test$variable)
+
+yu2022_cleaned <- yu2022  %>%
+  separate(variable, into = c("genera", "spp", "variable"), extra = "merge") %>%
+  unite("species", genera:spp) %>%
+  mutate(site = ifelse(grepl("secondary", variable), "secondary", "primary"),
+         site = ifelse(grepl("seconary", variable), "secondary", site),
+         variable = gsub(variable, pattern = "secondary_", replacement = ""),
+         variable = gsub(variable, pattern = "seconary_", replacement = ""),
+         variable = ifelse(variable == "structualP", "structuralP", variable),
+         group_id = factor(group_id, levels = c("control", "n", "p", "np")),
+         species = factor(species, levels = c("hancea_hookeriana",
+                                              "blastus_cochinchinensis",
+                                              "gironniera_subaequalis",
+                                              "calamus_tetradactyloides",
+                                              "cryptocarya_chinensis",
+                                              "psychotria_asiatica",
+                                              "nephelium_lappaceum",
+                                              "ampelocalamus_actinotrichus",
+                                              "rhapis_excelsa")),
+         variable = factor(variable, levels = c("asat", "wue", "pnue", "ppue",
+                                                "structuralP", "metabolicP",
+                                                "nucleicP", "residualP")),
+         mean = round(mean, 3),
+         sd = round(sd, 3),
+         se = round(se, 3)) %>%
+  arrange(site, variable, species, group_id) %>%
+  dplyr::select(site, variable, species, trt = group_id, mean, sd, n, se)
+  #write.csv("../data_summaries/species_level/Yu2022_summarized.csv", row.names = F)
+  
+# Prep for easy merge into compiled datasheet
+yu2022_data_summary_control <- yu2022_cleaned %>%
+  filter(trt == "control") %>%
+  select(-trt)
+names(yu2022_data_summary_control)[4:7] <- str_c(names(yu2022_data_summary_control)[4:7], "_control")
+
+yu2022_data_summary_treatment <- yu2022_cleaned %>%
+  filter(trt != "control")
+names(yu2022_data_summary_treatment)[5:8] <- str_c(names(yu2022_data_summary_treatment)[5:8], "_trt")
+
+yu2022_data_summary_control %>%
+  full_join(yu2022_data_summary_treatment, by = c("site", "variable", "species")) %>%
+  dplyr::select(site:species, trt, mean_control, mean_trt, sd_control, sd_trt, se_control, se_trt, n_control, n_trt) %>%
+  write.csv("../data_summaries/species_level/Yu2022_summarized.csv", row.names = F)
+
+
+
+
 
