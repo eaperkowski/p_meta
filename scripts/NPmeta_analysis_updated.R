@@ -10,6 +10,7 @@ library(metafor)
 library(MAd)
 library(ggpubr)
 library(forcats)
+library(patchwork)
 
 # Read data sources (MESI, NutNet, EAP manual compilation)
 mesi <- read.csv("../data/mesi_main_manual.csv")
@@ -293,6 +294,8 @@ meta_plot_all_leaf_nutrients <- ggplot(
         axis.title.x = element_text(face = "bold"))
 meta_plot_all_leaf_nutrients
 
+png("../plots/CNPmeta_leafNutrients_all")
+
 # Plot leaf phosphorus fractionation. Separating by trait type to avoid plot overwhelm
 meta_plot_all_phosFract <- ggplot(
   data = subset(fert_exp_responses_all, 
@@ -406,4 +409,32 @@ meta_plot_all_biomass <- ggplot(
         axis.title.x = element_text(face = "bold"))
 meta_plot_all_biomass
 
+
+
+png("../plots/CNPmeta_plot_all_combined_new.png", height = 12, width = 12, 
+    units = "in", res = 600)
+meta_plot_all_leaf_nutrients / meta_plot_all_photo / meta_plot_all_biomass +
+  plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
+  theme(plot.tag = element_text(size = 12, face = "bold"))
+dev.off()
+
+png("../plots/CNPmeta_plot_leafNutrients.png", height = 8, width = 12, 
+    units = "in", res = 600)
+meta_plot_all_leaf_nutrients
+dev.off()
+
+png("../plots/CNPmeta_plot_photo.png", height = 8, width = 12, 
+    units = "in", res = 600)
+meta_plot_all_photo
+dev.off()
+
+png("../plots/CNPmeta_phosFract.png", height = 4.5, width = 12, 
+    units = "in", res = 600)
+meta_plot_all_phosFract
+dev.off()
+
+png("../plots/CNPmeta_biomass.png", height = 8, width = 12, 
+    units = "in", res = 600)
+meta_plot_all_biomass
+dev.off()
 
