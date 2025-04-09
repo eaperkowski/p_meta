@@ -120,10 +120,10 @@ calc_intxn_effSize_meta <- function(x_a, s_a, n_a,
 }
 
 # Test fxn
-calc_effectSz_intxn(x_a = 2, s_a = 2, n_a = 9,
-                    x_b = 4, s_b = 2, n_b = 9,
-                    x_c = 1, s_c = 1, n_c = 9,
-                    x_ab = 8, s_ab = 4, n_ab = 4)
+# calc_effectSz_intxn(x_a = 2, s_a = 2, n_a = 9,
+#                     x_b = 4, s_b = 2, n_b = 9,
+#                     x_c = 1, s_c = 1, n_c = 9,
+#                     x_ab = 8, s_ab = 4, n_ab = 4)
 
 
 
