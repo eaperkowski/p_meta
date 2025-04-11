@@ -10,9 +10,8 @@
 
 # Libraries
 library(tidyverse)
-library(metafor)
-library(MAd)
 library(ggpubr)
+library(boot)
 library(forcats)
 library(patchwork)
 library(naniar) # to resolve NA/<NA> issue
@@ -25,6 +24,11 @@ eap <- read.csv("../data/eap_main.csv")
 # Load effect size function (calculates individual, main, and interaction
 # effect sizes)
 source("../helper_fxns/calc_intxn_effSize_meta.R")
+
+# Helper function to calculate weighted mean
+weighted_mean <- function(effect_size, weight) {
+  sum(effect_size * weight) / sum(weight)
+}
 
 ###############################################################################
 # Merge data sources, convert to wide format for easy effect size calculation
@@ -71,7 +75,7 @@ full_df_trt_long <- full_df %>%
 ###############################################################################
 # Calculate individual, main, and interaction effect sizes
 ###############################################################################
-effect_sizes <- data.frame(
+CNP_effect_sizes <- data.frame(
   unique_id = full_df_trt_long$unique_id,
   calc_intxn_effSize_meta(x_a = full_df_trt_long$x_n, 
                           s_a = full_df_trt_long$sd_n, 
@@ -106,11 +110,85 @@ effect_sizes <- data.frame(
                 
                 # Interaction effects
                 dNP = dAB, dvNP = v_ab_int, dwNP = w_ab_int) %>%
-  replace_with_na_all(~.x == "none")
+  replace_with_na_all(~.x == "none") 
 
 ###############################################################################
-# From effect size, variance, and weight, calculate weighted means
+# From effect size, variance, and weight, calculate the weighted means for the
+# individual effect size of N addition treatments. Values will be randomly
+# resampled to generate upper and lower confidence intervals of effect sizes
 ###############################################################################
+weighted_effSize_prep <- CNP_effect_sizes %>%
+  mutate(response = ifelse(response == "amax", 
+                      "asat", 
+                      response),
+         response = ifelse(response == "anet", 
+                      "asat", 
+                      response),
+         response = ifelse(response == "fine_root_biomass" | response == "bnpp", 
+                      "bgb", 
+                      response),
+         response = ifelse(response == "anpp", 
+                           "agb", 
+                           response),
+         response = ifelse(response == "total_leaf_area",
+                           "tla",
+                           response)) %>%
+  filter(response != "r_eco" & response != "nee" & 
+           response != "spad" & response != "tpu" &
+           response != "rd" & response != "stom_lim" &
+           response != "anet_mass")
+unique(weighted_effSize_prep$response)
+
+
+effect_sizes %>%
+  group_by(response) %>%
+  summarize(
+    
+    # Individual effects
+    wm_gN = weighted_mean(effect_size = gN, weight = wN),
+    wm_gP = weighted_mean(effect_size = gP, weight = wP),
+    wm_gNP = weighted_mean(effect_size = gNP, weight = wNP),
+    
+    # Main effects
+    wm_dN = weighted_mean(effect_size = dN, weight = dwN),
+    wm_dP = weighted_mean(effect_size = dP, weight = dwP),
+    
+    # Interaction effect
+    wm_dNP = weighted_mean(effect_size = dNP, weight = dwNP)
+  )
+  
+  
+effect_sizes %>%
+  group_by(response) %>%
+  summarize(wm = weighted_mean(effect_size = gP, weight = wP)) 
+ 
+effect_sizes %>%
+  group_by(response) %>%
+  summarize(wm = weighted_mean(effect_size = gP, weight = wP))
+  
+ 
+
+
+
+
+
+
+ effect_sizes %>%
+  group_by(response) %>%
+  group_modify( ~ {
+    boot_result <- boot(data = ., statistic = bootstrap_wm, R = 1000)
+    ci = boot.ci(boot_result)
+    
+    tibble(
+      weighted_mean = weighted_mean(.x$gN, .x$wN),
+      lower_ci = ci$percent[4],
+      upper_ci = ci$percent[5]
+    )
+  })
+
+
+
+
 
 
 
