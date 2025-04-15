@@ -24,11 +24,7 @@ eap <- read.csv("../data/eap_main.csv")
 # Load effect size function (calculates individual, main, and interaction
 # effect sizes)
 source("../helper_fxns/calc_intxn_effSize_meta.R")
-
-# Helper function to calculate weighted mean
-weighted_mean <- function(effect_size, weight) {
-  sum(effect_size * weight) / sum(weight)
-}
+source("../helper_fxns/analyse_meta.R")
 
 ###############################################################################
 # Merge data sources, convert to wide format for easy effect size calculation
@@ -100,92 +96,80 @@ CNP_effect_sizes <- data.frame(
                 species, response,
                 
                 # Individual effects
-                gN = g_a, vN = v_a, wN = w_a,
-                gP = g_b, vP = v_b, wP = w_b,
-                gNP = g_ab, vNP = v_ab, wNP = w_ab,
+                gNi = g_a, vNi = v_a, wNi = w_a,
+                gPi = g_b, vPi = v_b, wPi = w_b,
+                gNPi = g_ab, vNPi = v_ab, wNPi = w_ab,
                 
                 # Main effects
-                dN = dA, dvN = v_a_main, dwN = w_a_main,
-                dP = dB, dvP = v_b_main, dwP = w_b_main,
+                dNi = dA, dvNi = v_a_main, dwNi = w_a_main,
+                dPi = dB, dvPi = v_b_main, dwPi = w_b_main,
                 
                 # Interaction effects
-                dNP = dAB, dvNP = v_ab_int, dwNP = w_ab_int) %>%
+                dNPi = dAB, dvNPi = v_ab_int, dwNPi = w_ab_int) %>%
   replace_with_na_all(~.x == "none") 
 
 ###############################################################################
-# From effect size, variance, and weight, calculate the weighted means for the
-# individual effect size of N addition treatments. Values will be randomly
-# resampled to generate upper and lower confidence intervals of effect sizes
+# Clean CNP_effect_sizes to only include relevant traits. Also tidy up to
+# group similar traits without losing integrity of original trait value in
+# `response` column
 ###############################################################################
-weighted_effSize_prep <- CNP_effect_sizes %>%
-  mutate(response = ifelse(response == "amax", 
-                      "asat", 
-                      response),
-         response = ifelse(response == "anet", 
-                      "asat", 
-                      response),
-         response = ifelse(response == "fine_root_biomass" | response == "bnpp", 
-                      "bgb", 
-                      response),
-         response = ifelse(response == "anpp", 
-                           "agb", 
-                           response),
-         response = ifelse(response == "total_leaf_area",
-                           "tla",
-                           response)) %>%
-  filter(response != "r_eco" & response != "nee" & 
-           response != "spad" & response != "tpu" &
-           response != "rd" & response != "stom_lim" &
-           response != "anet_mass")
-unique(weighted_effSize_prep$response)
+CNP_effect_sizes_reduced <- CNP_effect_sizes %>%
+  mutate(var = response,
+         var = ifelse(var == "amax", "asat", var),
+         var = ifelse(var == "anet", "asat", var),
+         var = ifelse(var == "fine_root_biomass" | var == "bnpp", 
+                           "bgb", var),
+         var = ifelse(var == "anpp", "agb", var),
+         var = ifelse(var == "total_leaf_area", "tla", var)) %>%
+  filter(var != "r_eco" & var != "nee" & 
+           var != "spad" & var != "tpu" &
+           var != "rd" & var != "stom_lim" &
+           var != "anet_mass")
+unique(CNP_effect_sizes_reduced$var)
 
+###############################################################################
+###############################################################################
+# Let's put together some meta-regression models
+############################################################################### 
+###############################################################################
 
-effect_sizes %>%
-  group_by(response) %>%
-  summarize(
-    
-    # Individual effects
-    wm_gN = weighted_mean(effect_size = gN, weight = wN),
-    wm_gP = weighted_mean(effect_size = gP, weight = wP),
-    wm_gNP = weighted_mean(effect_size = gNP, weight = wNP),
-    
-    # Main effects
-    wm_dN = weighted_mean(effect_size = dN, weight = dwN),
-    wm_dP = weighted_mean(effect_size = dP, weight = dwP),
-    
-    # Interaction effect
-    wm_dNP = weighted_mean(effect_size = dNP, weight = dwNP)
-  )
-  
-  
-effect_sizes %>%
-  group_by(response) %>%
-  summarize(wm = weighted_mean(effect_size = gP, weight = wP)) 
- 
-effect_sizes %>%
-  group_by(response) %>%
-  summarize(wm = weighted_mean(effect_size = gP, weight = wP))
-  
- 
+#############################################
+# Aboveground biomass: Individual N effect
+#############################################
+# Model for individual N effect
+agb_model_N <- rma.mv(yi = dNPi,
+                    V = vNPi,
+                    W = wNPi,
+                    random = ~ 1 | exp,
+                    slab = exp,
+                    data = subset(CNP_effect_sizes_reduced, var == "leaf_residual_p"))
+summary(agb_model_N)
 
+# check for publication bias
+funnel(agb_model_N)
 
+# Start data frame
+summary_results <- data.frame(trait = "agb",
+                              type = "ind_n_effect",
+                              predict(agb_model_N))
 
+#############################################
+# Aboveground biomass: Individual P effect
+#############################################
 
+# Model for individual N effect
+agb_model <- rma.mv(yi = gNi,
+                    V = vNi,
+                    W = wNi,
+                    random = ~ 1 | exp,
+                    slab = exp,
+                    data = subset(CNP_effect_sizes_reduced, var == "agb"))
+summary(agb_model)
 
-
- effect_sizes %>%
-  group_by(response) %>%
-  group_modify( ~ {
-    boot_result <- boot(data = ., statistic = bootstrap_wm, R = 1000)
-    ci = boot.ci(boot_result)
-    
-    tibble(
-      weighted_mean = weighted_mean(.x$gN, .x$wN),
-      lower_ci = ci$percent[4],
-      upper_ci = ci$percent[5]
-    )
-  })
-
+# Start data frame
+summary_results <- data.frame(trait = "agb",
+                              type = "ind_n_effect",
+                              predict(agb_model))
 
 
 

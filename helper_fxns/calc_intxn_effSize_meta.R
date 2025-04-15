@@ -57,9 +57,9 @@ calc_intxn_effSize_meta <- function(x_a, s_a, n_a,
   g_ab = (x_ab - x_c) / s_ind_ab * j_ind_ab
   
   # Individual effect size variance (v)
-  v_a = ((n_a + n_c) / (n_a * n_c)) + (g_a / (2 * (n_a + n_c)))
-  v_b = ((n_b + n_c) / (n_b * n_c)) + (g_b / (2 * (n_b + n_c)))
-  v_ab = ((n_ab + n_c) / (n_ab * n_c)) + (g_ab / (2 * (n_ab + n_c)))
+  v_a = ((n_a + n_c) / (n_a * n_c)) + ((g_a)^2 / (2 * (n_a + n_c)))
+  v_b = ((n_b + n_c) / (n_b * n_c)) + ((g_b)^2 / (2 * (n_b + n_c)))
+  v_ab = ((n_ab + n_c) / (n_ab * n_c)) + ((g_ab)^2 / (2 * (n_ab + n_c)))
   
   # Individual effect size weight (w)
   w_a = 1 / v_a
