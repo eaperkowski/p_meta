@@ -138,11 +138,11 @@ unique(CNP_effect_sizes_reduced$var)
 #############################################
 # Model for individual N effect
 agb_model_N <- rma.mv(yi = dNPi,
-                    V = vNPi,
-                    W = wNPi,
-                    random = ~ 1 | exp,
-                    slab = exp,
-                    data = subset(CNP_effect_sizes_reduced, var == "leaf_residual_p"))
+                      V = vNPi,
+                      W = wNPi,
+                      random = ~ 1 | exp,
+                      slab = exp,
+                      data = subset(CNP_effect_sizes_reduced, var == "leaf_residual_p"))
 summary(agb_model_N)
 
 # check for publication bias

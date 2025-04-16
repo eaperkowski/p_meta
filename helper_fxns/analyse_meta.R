@@ -12,7 +12,7 @@ analyse_meta <- function(df, nam_target){
     df_box <- tibble()
     
   } else {
-   
+    
     # adjusted step size (see http://www.metafor-project.org/doku.php/tips:convergence_problems_rma)
     modl <- try(metafor::rma.mv( 
       logr, 
@@ -51,8 +51,9 @@ analyse_meta <- function(df, nam_target){
   return(list(df_box = df_box, modl = modl))  
 }
 
-# analyse_meta, modified by Evan Perkowski
-analyse_meta_weight_N <- function(df, nam_target){
+# analyse_meta_int, function adapted by Evan Perkowski
+# from analyse_meta from Beni Stocker above
+analyse_meta_int <- function(df, nam_target){
   
   ## df: data frame of the data, containing a column 'var' which holds the names of the target variable
   ## nam_target: a character string specifying the name of the target variable
@@ -68,8 +69,9 @@ analyse_meta_weight_N <- function(df, nam_target){
     
     # adjusted step size (see http://www.metafor-project.org/doku.php/tips:convergence_problems_rma)
     modl <- try(metafor::rma.mv( 
-      yi = logr, 
-      W = logr_var,
+      yi = dNPi,
+      V = vNPi,
+      W = wNPi,
       method = "REML", 
       random = ~ 1 | exp, 
       slab = exp,
@@ -103,3 +105,6 @@ analyse_meta_weight_N <- function(df, nam_target){
   
   return(list(df_box = df_box, modl = modl))  
 }
+
+
+
