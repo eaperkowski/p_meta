@@ -75,7 +75,6 @@ use_vars_n <- unique(nfert_responses$myvar)
 
 # Calculate log-response ratios using `escalc` in `metafor`
 nfert_lnRR <- nfert_responses %>% 
-  dplyr::select(-doi) %>%
   escalc(measure = "ROM",
          m1i = x_t, sd1i = sd_t, n1i = rep_t, 
          m2i = x_c, sd2i = sd_c, n2i = rep_c, 
@@ -138,7 +137,6 @@ use_vars_p <- unique(pfert_responses$myvar)
 
 # Calculate log-response ratios using `escalc` in `metafor`
 pfert_lnRR <- pfert_responses %>% 
-  dplyr::select(-doi) %>%
   escalc(measure = "ROM",
          m1i = x_t, sd1i = sd_t, n1i = rep_t, 
          m2i = x_c, sd2i = sd_c, n2i = rep_c, 
@@ -205,7 +203,6 @@ use_vars_np <- unique(npfert_responses$myvar)
 
 # Calculate log-response ratios using `escalc` in `metafor`
 npfert_lnRR <- npfert_responses %>% 
-  dplyr::select(-doi) %>%
   escalc(measure = "ROM",
          m1i = x_t, sd1i = sd_t, n1i = rep_t, 
          m2i = x_c, sd2i = sd_c, n2i = rep_c, 
@@ -429,32 +426,32 @@ meta_plot_all_biomass
 
 
 
-png("../plots/CNPmeta_plot_all_combined_new.png", height = 12, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_plot_all_combined_new.png", height = 12, width = 12, 
+#     units = "in", res = 600)
 meta_plot_all_leaf_nutrients / meta_plot_all_photo / meta_plot_all_biomass +
   plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
   theme(plot.tag = element_text(size = 12, face = "bold"))
-dev.off()
+# dev.off()
 
-png("../plots/CNPmeta_plot_leafNutrients.png", height = 8, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_plot_leafNutrients.png", height = 8, width = 12, 
+#     units = "in", res = 600)
 meta_plot_all_leaf_nutrients
-dev.off()
+# dev.off()
 
-png("../plots/CNPmeta_plot_photo.png", height = 8, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_plot_photo.png", height = 8, width = 12, 
+#     units = "in", res = 600)
 meta_plot_all_photo
-dev.off()
+# dev.off()
 
-png("../plots/CNPmeta_phosFract.png", height = 4.5, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_phosFract.png", height = 4.5, width = 12, 
+#     units = "in", res = 600)
 meta_plot_all_phosFract
-dev.off()
+# dev.off()
 
-png("../plots/CNPmeta_biomass.png", height = 8, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_biomass.png", height = 8, width = 12, 
+#     units = "in", res = 600)
 meta_plot_all_biomass
-dev.off()
+# dev.off()
 
 ##############################################################################
 # Some prep work for calculating nteraction effect sizes (need
@@ -555,7 +552,6 @@ unique(CNP_effect_sizes_reduced$myvar)
 # identity as grouping factor for random intercepts
 use_vars_int <- unique(CNP_effect_sizes_reduced$myvar)
 
-
 out_int <- purrr::map(as.list(use_vars_int),
                      ~analyse_meta_int(CNP_effect_sizes_reduced %>%
                                      rename(var = myvar), nam_target = .))
@@ -565,7 +561,7 @@ df_box_int <- purrr::map_dfr(out_int, "df_box") |>
   left_join(
     CNP_effect_sizes_reduced |> 
       group_by(myvar) |> 
-      summarise(intES_min = min(dNPi), logr_max = max(dNPi)) |> 
+      summarise(intES_min = min(dNPi), intES_max = max(dNPi)) |> 
       rename(var = myvar),
     by = "var")
 
@@ -595,7 +591,7 @@ df_box_int <- df_box_int %>%
                                    "leaf_n_area", "leaf_n_mass", "lma")))
 
 
-ggplot(
+meta_intPlot_leaf_nutrients <- ggplot(
   data = CNP_effect_sizes_reduced %>%
     filter(myvar %in% c("lma", "leaf_n_mass", "leaf_n_area", 
                         "leaf_p_mass", "leaf_p_area", "leaf_np")),
@@ -628,7 +624,7 @@ ggplot(
         axis.title.x = element_text(face = "bold"))
 
 # Plot leaf phosphorus fractionation. Separating by trait type to avoid plot overwhelm
-meta_Intplot_phosFract <- ggplot(
+meta_intPlot_phosFract <- ggplot(
   data = CNP_effect_sizes_reduced %>%
     filter(myvar %in%  c("leaf_residual_p", 
                          "leaf_structural_p", "leaf_nucleic_p", 
@@ -663,7 +659,7 @@ meta_Intplot_phosFract <- ggplot(
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"))
-meta_Intplot_phosFract
+meta_intPlot_phosFract
 
 # Plot photosynthetic traits. Separating by trait type to avoid plot overwhelm
 meta_intPlot_photo <- ggplot(
@@ -713,7 +709,7 @@ meta_intPlot_biomass <- ggplot(
                   filter(var %in% c("rootshoot", "rmf", "bgb", "agb", "agb_n", 
                                     "agb_p", "total_biomass")),
                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.6, fill = "blue",
+                alpha = 0.6, width = 0.4, fill = "blue",
                 position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
@@ -735,11 +731,56 @@ meta_intPlot_biomass <- ggplot(
         axis.title.x = element_text(face = "bold"))
 meta_intPlot_biomass
 
+png("../plots/CNPmeta_interaction_plot.png", height = 12, width = 12, 
+    units = "in", res = 600)
+meta_intPlot_leaf_nutrients / meta_intPlot_photo / meta_intPlot_biomass +
+  plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
+  theme(plot.tag = element_text(size = 12, face = "bold"))
+dev.off()
+
 
 ###############################################################################
 # Let's play with some bivariate relationships
 ###############################################################################
+nfert_lnRR_wide <- nfert_lnRR %>%
+  dplyr::select(citation, exp, myvar, logr, logr_se, manip_type) %>%
+  pivot_wider(names_from = myvar,
+              names_sep = "XXX",
+              values_from = c(logr, logr_se),
+              values_fn = mean)
 
-ggplot(data = CNP_effect_sizes_reduced,
-       aes(x = ))
+pfert_lnRR_wide <- pfert_lnRR %>%
+  dplyr::select(citation, exp, myvar, logr, logr_se, manip_type) %>%
+  pivot_wider(names_from = myvar,
+              names_sep = "XXX",
+              values_from = c(logr, logr_se),
+              values_fn = mean)
+
+npfert_lnRR_wide <- npfert_lnRR %>%
+  dplyr::select(citation, exp, myvar, logr, logr_se, manip_type) %>%
+  pivot_wider(names_from = myvar,
+              names_sep = "XXX",
+              values_from = c(logr, logr_se),
+              values_fn = mean)
+
+combined_lnRR_wide <- nfert_lnRR_wide %>%
+  full_join(pfert_lnRR_wide) %>%
+  full_join(npfert_lnRR_wide)
+
+
+ggplot(data = combined_lnRR_wide,
+       aes(x = logrXXXleaf_n_mass, y = logrXXXleaf_p_mass)) +
+  geom_point(aes(size = 1 / (logr_seXXXleaf_n_mass * logr_seXXXleaf_p_mass),
+                 color = manip_type)) +
+  geom_abline(slope = 1, linetype = "dashed") +
+  scale_x_continuous(limits = c(-0.5, 0.5)) +
+  scale_y_continuous(limits = c(-0.5, 0.5)) +
+  labs(x = expression("Log RR of N"["mass"]),
+       y = expression("Log RR of P"["mass"]),
+       size = "Weight") +
+  scale_color_manual(limits = c("n", "p", "np"),
+                    values = c("red", "blue", "magenta")) +
+  theme_classic(base_size = 18)
+
+
 
