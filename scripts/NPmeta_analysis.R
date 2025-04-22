@@ -14,17 +14,7 @@ library(patchwork)
 library(naniar) # to resolve NA/<NA> issue
 
 # Read data sources (MESI, NutNet, EAP manual compilation)
-mesi <- read.csv("../data/mesi_main_manual.csv")
-nutnet <- read.csv("../data/nutnet_main.csv")
-eap <- read.csv("../data/eap_main.csv")
-
-# Merge data sources into single data frame
-full_df <- mesi %>% full_join(nutnet) %>% full_join(eap) %>%
-  replace_with_na_all(~.x == "<NA>") %>%
-  dplyr::select(-doi, -x_units, -se_c, -se_t) %>%
-  mutate(fert = ifelse(npk == "_100", 
-                       "n", ifelse(npk == "_010",
-                                   "p", ifelse(npk == "_110", "np", NA))))
+full_df <- read.csv("../data/CNP_data_compiled.csv")
 
 # Create experiment metadata summary
 experiment_summary <- full_df %>%
@@ -44,7 +34,7 @@ source("../helper_fxns/calc_intxn_effSize_meta.R")
 #####################################################################
 
 # Subset `full_df` to include only N addition treatments
-nfert_only <- full_df %>% filter(npk == "_100")
+nfert_only <- full_df %>% filter(npk == "_100" & experiment_type == "field")
 head(nfert_only)
 
 # What traits are included?
@@ -104,7 +94,7 @@ df_box_n <- purrr::map_dfr(out_n, "df_box") |>
 #####################################################################
 
 # Subset `full_df` to include only P addition treatments
-pfert_only <- full_df %>% filter(npk == "_010")
+pfert_only <- full_df %>% filter(npk == "_010" & experiment_type == "field")
 head(pfert_only)
 
 # What traits are included?
@@ -164,7 +154,7 @@ df_box_p <- purrr::map_dfr(out_p, "df_box") |>
 #####################################################################
 
 # Subset `full_df` to include only N addition treatments
-npfert_only <- full_df %>% filter(npk == "_110")
+npfert_only <- full_df %>% filter(npk == "_110" & experiment_type == "field")
 head(npfert_only)
 
 # What traits are included?
@@ -274,7 +264,7 @@ meta_plot_all_leaf_nutrients <- ggplot(
   aes(x = myvar, y = logr, fill = manip_type)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
-              shape = 21, aes(size = 1/logr_se)) +
+              shape = 21, aes(size = 1/logr_var)) +
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
                   filter(var %in% c("sla", "lma", "leaf_n_mass", "leaf_n_area", 
                                     "leaf_p_mass", "leaf_p_area", "leaf_np")),
@@ -292,11 +282,11 @@ meta_plot_all_leaf_nutrients <- ggplot(
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
   scale_fill_manual(limits = c("n", "p", "np"),
                     values = c("red", "blue", "magenta")) +
-  scale_size(range = c(0.25, 4)) +
+  scale_size(range = c(0.25, 5)) +
   labs(x = "", 
        y = "Log response to N, P, or N+P addition",
        fill = "Nutrient addition",
-       size = expression(bold("Error"^"-1"))) +
+       size = "Weight") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -313,7 +303,7 @@ meta_plot_all_phosFract <- ggplot(
   aes(x = myvar, y = logr, fill = manip_type)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
-              shape = 21, aes(size = 1/logr_se)) +
+              shape = 21, aes(size = 1/logr_var)) +
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
                   filter(var %in% c("leaf_residual_p", 
                                     "leaf_structural_p", "leaf_nucleic_p", 
@@ -330,7 +320,7 @@ meta_plot_all_phosFract <- ggplot(
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
   scale_fill_manual(limits = c("n", "p", "np"),
                     values = c("red", "blue", "magenta")) +
-  scale_size(range = c(0.25, 4)) +
+  scale_size(range = c(0.25, 5)) +
   labs(x = "", 
        y = "Log response to N, P, or N+P addition",
        fill = "Nutrient addition",
@@ -350,7 +340,7 @@ meta_plot_all_photo <- ggplot(
   aes(x = myvar, y = logr, fill = manip_type)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
-              shape = 21, aes(size = 1/logr_se)) +
+              shape = 21, aes(size = 1/logr_var)) +
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
                   filter(var %in% c("asat", "vcmax", "jmax",
                                     "rd", "leaf_pnue", "leaf_ppue", "leaf_wue")),
@@ -367,7 +357,7 @@ meta_plot_all_photo <- ggplot(
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
   scale_fill_manual(limits = c("n", "p", "np"),
                     values = c("red", "blue", "magenta")) +
-  scale_size(range = c(0.25, 4)) +
+  scale_size(range = c(0.25, 5)) +
   labs(x = "", 
        y = "Log response to N, P, or N+P addition",
        fill = "Nutrient addition",
@@ -514,7 +504,8 @@ CNP_effect_sizes <- data.frame(
                 
                 # Interaction effects
                 dNPi = dAB, dvNPi = v_ab_int, dwNPi = w_ab_int) %>%
-  replace_with_na_all(~.x == "none") 
+  replace_with_na_all(~.x == "none") %>%
+  filter(experiment_type == "field")
 
 ###############################################################################
 # Clean CNP_effect_sizes to only include relevant traits. Also tidy up to
@@ -561,6 +552,7 @@ df_box_int <- purrr::map_dfr(out_int, "df_box") |>
 ###############################################################################
 # Let' make some plots!
 ###############################################################################
+# Factor variables to appear in plots in a certain order
 CNP_effect_sizes_reduced <- CNP_effect_sizes_reduced %>%
   mutate(myvar = factor(myvar, 
                levels = c("rootshoot", "rmf", "bgb", "agb_p", 
@@ -572,6 +564,7 @@ CNP_effect_sizes_reduced <- CNP_effect_sizes_reduced %>%
                           "leaf_np", "leaf_p_area", "leaf_p_mass", 
                           "leaf_n_area", "leaf_n_mass", "lma")))
 
+# Factor variables to appear in plots in a certain order
 df_box_int <- df_box_int %>%
   mutate(var = factor(var, 
                         levels = c("rootshoot", "rmf", "bgb", "agb_p", 
@@ -582,7 +575,6 @@ df_box_int <- df_box_int %>%
                                    "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
                                    "leaf_n_area", "leaf_n_mass", "lma")))
-
 
 meta_intPlot_leaf_nutrients <- ggplot(
   data = CNP_effect_sizes_reduced %>%
@@ -615,6 +607,8 @@ meta_intPlot_leaf_nutrients <- ggplot(
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"))
+meta_intPlot_leaf_nutrients
+
 
 # Plot leaf phosphorus fractionation. Separating by trait type to avoid plot overwhelm
 meta_intPlot_phosFract <- ggplot(
@@ -688,7 +682,6 @@ meta_intPlot_photo <- ggplot(
         axis.title.x = element_text(face = "bold"))
 meta_intPlot_photo
 
-
 # Plot biomass traits. Separating by trait type to avoid plot overwhelm
 meta_intPlot_biomass <- ggplot(
   data = subset(CNP_effect_sizes_reduced, 
@@ -724,12 +717,12 @@ meta_intPlot_biomass <- ggplot(
         axis.title.x = element_text(face = "bold"))
 meta_intPlot_biomass
 
-png("../plots/CNPmeta_interaction_plot.png", height = 12, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_interaction_plot.png", height = 12, width = 12, 
+#     units = "in", res = 600)
 meta_intPlot_leaf_nutrients / meta_intPlot_photo / meta_intPlot_biomass +
   plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
   theme(plot.tag = element_text(size = 12, face = "bold"))
-dev.off()
+# dev.off()
 
 
 ###############################################################################
@@ -778,25 +771,30 @@ ggplot(data = combined_lnRR_wide,
 
 table1_lnRR_summary <- data.frame(
   trait = df_box_all$var,
+  response = df_box_all$manip_type,
   lnRR = round(df_box_all$middle, digits = 3),
   ci_range = str_c("(", 
                    round(df_box_all$ymin, digits = 3), ", ", 
                    round(df_box_all$ymax, digits = 3), ")")) %>%
   mutate(trait = factor(trait, 
-                        levels = c("lma", "leaf_n_mass",
+                        levels = c("lma", "leaf_n_mass", "leaf_n_area",
+                                   "leaf_p_mass", "leaf_p_area", "leaf_np",
+                                   "leaf_pi", "leaf_sugar_p", "leaf_metabolic_p",
+                                   "leaf_nucleic_p", "leaf_structural_p", "asat", 
+                                   "vcmax", "jmax", "leaf_pnue", "leaf_ppue", 
+                                   "leaf_wue", "total_biomass", "agb", "agb_n", 
+                                   "agb_p", "bgb", "rmf", "rootshoot"))) %>%
+  arrange(trait)
                           
                           
                           
                           "rootshoot", "rmf", "bgb", "agb_p", 
                                    "agb_n", "agb", "total_biomass", 
                                    "leaf_wue", "leaf_ppue", "leaf_pnue", 
-                                   "jmax", "vcmax", "asat", "leaf_residual_p", 
+                                   "jmax", "vcmax", "asat", "leaf_structural_p", 
                                    "leaf_structural_p", "leaf_nucleic_p", 
                                    "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
                                    "leaf_n_area", "leaf_n_mass", "lma")))
   
 
-
-
-df_box_all
