@@ -173,7 +173,7 @@ cunha2024 <- metaDigitise(dir = "../plots_to_digitize/Cunha_2024/")
 # Yu 2022
 yu2022 <- metaDigitise(dir = "../plots_to_digitize/Yu_2022/")
 
-
+# Clean Yu et al. 2022
 yu2022_cleaned <- yu2022  %>%
   separate(variable, into = c("genera", "spp", "variable"), extra = "merge") %>%
   unite("species", genera:spp) %>%
@@ -218,13 +218,20 @@ yu2022_data_summary_control %>%
                 se_control, se_trt, n_control, n_trt) # %>%
 #  write.csv("../data_summaries/species_level/Yu2022_summarized.csv", row.names = F)
 
-# Wang 2024
-wang2024 <- metaDigitise(dir = "../plots_to_digitize/Wang_2024/")
 
-wang2024 %>%
-  select(spp = group_id, trait = variable, mean, sd, se, n) %>%
-  mutate(mean = round(mean, 3),
+# Wang 2018
+wang2018 <- metaDigitise(dir = "../plots_to_digitize/Wang_2018/")
+wang2018 %>%
+  separate(group_id, into = c("spp", "trt"), sep = "X") %>%
+  mutate(trt = factor(trt, levels = c("control", "n", "p", "np")),
+         variable = factor(variable, levels = c("nmass", "anet", "gsw", "iwue",
+                                                "vcmax", "jmax")),
+         mean = round(mean, 3),
          sd = round(sd, 3),
          se = round(se, 3)) %>%
-  write.csv("../data_summaries/species_level/Wang2024_leafPfractionation.csv", row.names = F)
+  dplyr::select(variable:mean, sd, n, se) %>%
+  arrange(variable, spp, trt) %>%
+  write.csv("../data_summaries/species_level/Wang2018_summarized.csv", row.names = F)
+
+
 
