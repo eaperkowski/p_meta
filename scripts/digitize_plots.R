@@ -230,8 +230,25 @@ wang2018 %>%
          sd = round(sd, 3),
          se = round(se, 3)) %>%
   dplyr::select(variable:mean, sd, n, se) %>%
-  arrange(variable, spp, trt) %>%
-  write.csv("../data_summaries/species_level/Wang2018_summarized.csv", row.names = F)
+  arrange(variable, spp, trt) #%>%
+#  write.csv("../data_summaries/species_level/Wang2018_summarized.csv", row.names = F)
 
 
+# Yu 2015
+yu2015 <- metaDigitise(dir = "../plots_to_digitize/Yu_2015/")
+
+# Ye 2022b
+ye2022b <- metaDigitise(dir = "../plots_to_digitize/Ye2022_forests/")
+
+
+
+
+ye2022b %>%
+  mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
+         mean = round(mean, 2),
+         sd = round(sd, 2),
+         se = round(se, 2)) %>%
+  arrange(variable, group_id) %>%
+  select(variable:sd, se, n) %>%
+  write.csv("../data_summaries/species_level/Ye2022_forests_summarized.csv", row.names = F)
 

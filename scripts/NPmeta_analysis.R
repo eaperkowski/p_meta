@@ -14,7 +14,17 @@ library(patchwork)
 library(naniar) # to resolve NA/<NA> issue
 
 # Read data sources (MESI, NutNet, EAP manual compilation)
-full_df <- read.csv("../data/CNP_data_compiled.csv")
+mesi <- read.csv("../data/mesi_main_manual.csv")
+nutnet <- read.csv("../data/nutnet_main.csv")
+eap <- read.csv("../data/eap_main.csv")
+
+# Merge data sources into single data frame
+full_df <- mesi %>% full_join(nutnet) %>% full_join(eap) %>%
+  replace_with_na_all(~.x == "<NA>") %>%
+  dplyr::select(-doi, -x_units, -se_c, -se_t) %>%
+  mutate(fert = ifelse(npk == "_100", 
+                       "n", ifelse(npk == "_010",
+                                   "p", ifelse(npk == "_110", "np", NA))))
 
 # Create experiment metadata summary
 experiment_summary <- full_df %>%
@@ -34,11 +44,14 @@ source("../helper_fxns/calc_intxn_effSize_meta.R")
 #####################################################################
 
 # Subset `full_df` to include only N addition treatments
-nfert_only <- full_df %>% filter(npk == "_100" & experiment_type == "field")
+nfert_only <- full_df %>% filter(npk == "_100")
 head(nfert_only)
 
 # What traits are included?
 unique(nfert_only$response)
+
+# Which experiments are included?
+unique(nfert_only$citation)
 
 # Select variables
 use_response_n <- c("agb_n", "agb_p", "agb", "anpp", "agb_n_mass",
@@ -94,7 +107,7 @@ df_box_n <- purrr::map_dfr(out_n, "df_box") |>
 #####################################################################
 
 # Subset `full_df` to include only P addition treatments
-pfert_only <- full_df %>% filter(npk == "_010" & experiment_type == "field")
+pfert_only <- full_df %>% filter(npk == "_010")
 head(pfert_only)
 
 # What traits are included?
@@ -154,7 +167,7 @@ df_box_p <- purrr::map_dfr(out_p, "df_box") |>
 #####################################################################
 
 # Subset `full_df` to include only N addition treatments
-npfert_only <- full_df %>% filter(npk == "_110" & experiment_type == "field")
+npfert_only <- full_df %>% filter(npk == "_110")
 head(npfert_only)
 
 # What traits are included?
@@ -324,7 +337,7 @@ meta_plot_all_phosFract <- ggplot(
   labs(x = "", 
        y = "Log response to N, P, or N+P addition",
        fill = "Nutrient addition",
-       size = expression(bold("Error"^"-1"))) +
+       size = "Weight") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -361,7 +374,7 @@ meta_plot_all_photo <- ggplot(
   labs(x = "", 
        y = "Log response to N, P, or N+P addition",
        fill = "Nutrient addition",
-       size = expression(bold("Error"^"-1"))) +
+       size = "Weight") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -377,7 +390,7 @@ meta_plot_all_biomass <- ggplot(
   aes(x = myvar, y = logr, fill = manip_type)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
-              shape = 21, aes(size = 1/logr_se)) +
+              shape = 21, aes(size = 1/logr_var)) +
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
                   filter(var %in% c("rootshoot", "rmf", "bgb", "agb", "agb_n", 
                                     "agb_p", "total_biomass")),
@@ -399,7 +412,7 @@ meta_plot_all_biomass <- ggplot(
   labs(x = "", 
        y = "Log response to N, P, or N+P addition",
        fill = "Nutrient addition",
-       size = expression(bold("Error"^"-1"))) +
+       size = "Weight") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -409,32 +422,32 @@ meta_plot_all_biomass
 
 
 
-# png("../plots/CNPmeta_plot_all_combined_new.png", height = 12, width = 12, 
-#     units = "in", res = 600)
+png("../plots/CNPmeta_plot_all_combined_new.png", height = 12, width = 12, 
+    units = "in", res = 600)
 meta_plot_all_leaf_nutrients / meta_plot_all_photo / meta_plot_all_biomass +
   plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
   theme(plot.tag = element_text(size = 12, face = "bold"))
-# dev.off()
+dev.off()
 
-# png("../plots/CNPmeta_plot_leafNutrients.png", height = 8, width = 12, 
-#     units = "in", res = 600)
+png("../plots/CNPmeta_plot_leafNutrients.png", height = 8, width = 12, 
+   units = "in", res = 600)
 meta_plot_all_leaf_nutrients
-# dev.off()
+dev.off()
 
-# png("../plots/CNPmeta_plot_photo.png", height = 8, width = 12, 
-#     units = "in", res = 600)
+png("../plots/CNPmeta_plot_photo.png", height = 8, width = 12, 
+    units = "in", res = 600)
 meta_plot_all_photo
-# dev.off()
+dev.off()
 
-# png("../plots/CNPmeta_phosFract.png", height = 4.5, width = 12, 
-#     units = "in", res = 600)
+png("../plots/CNPmeta_phosFract.png", height = 4.5, width = 12, 
+    units = "in", res = 600)
 meta_plot_all_phosFract
-# dev.off()
+dev.off()
 
-# png("../plots/CNPmeta_biomass.png", height = 8, width = 12, 
-#     units = "in", res = 600)
+png("../plots/CNPmeta_biomass.png", height = 8, width = 12, 
+    units = "in", res = 600)
 meta_plot_all_biomass
-# dev.off()
+dev.off()
 
 ##############################################################################
 # Some prep work for calculating nteraction effect sizes (need
@@ -504,8 +517,7 @@ CNP_effect_sizes <- data.frame(
                 
                 # Interaction effects
                 dNPi = dAB, dvNPi = v_ab_int, dwNPi = w_ab_int) %>%
-  replace_with_na_all(~.x == "none") %>%
-  filter(experiment_type == "field")
+  replace_with_na_all(~.x == "none")
 
 ###############################################################################
 # Clean CNP_effect_sizes to only include relevant traits. Also tidy up to
@@ -524,7 +536,6 @@ CNP_effect_sizes_reduced <- CNP_effect_sizes %>%
            myvar != "spad" & myvar != "tpu" &
            myvar != "rd" & myvar != "stom_lim" &
            myvar != "anet_mass")
-unique(CNP_effect_sizes_reduced$myvar)
 
 ###############################################################################
 # Use helper fxn from `analyse_meta.R` to iterate through traits and determine
@@ -562,7 +573,7 @@ CNP_effect_sizes_reduced <- CNP_effect_sizes_reduced %>%
                           "leaf_structural_p", "leaf_nucleic_p", 
                           "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
                           "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                          "leaf_n_area", "leaf_n_mass", "lma")))
+                          "leaf_n_area", "leaf_n_mass", "lma", "sla")))
 
 # Factor variables to appear in plots in a certain order
 df_box_int <- df_box_int %>%
@@ -574,18 +585,18 @@ df_box_int <- df_box_int %>%
                                    "leaf_structural_p", "leaf_nucleic_p", 
                                    "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                   "leaf_n_area", "leaf_n_mass", "lma")))
+                                   "leaf_n_area", "leaf_n_mass", "lma", "sla")))
 
 meta_intPlot_leaf_nutrients <- ggplot(
   data = CNP_effect_sizes_reduced %>%
-    filter(myvar %in% c("lma", "leaf_n_mass", "leaf_n_area", 
+    filter(myvar %in% c("sla", "lma", "leaf_n_mass", "leaf_n_area", 
                         "leaf_p_mass", "leaf_p_area", "leaf_np")),
   aes(x = myvar, y = dNPi)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
               shape = 21, aes(size = dwNPi)) +
   geom_crossbar(data = df_box_int %>% drop_na(var) %>%
-                  filter(var %in% c("lma", "leaf_n_mass", "leaf_n_area", 
+                  filter(var %in% c("sla", "lma", "leaf_n_mass", "leaf_n_area", 
                                     "leaf_p_mass", "leaf_p_area", "leaf_np")),
                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
                 alpha = 0.6, width = 0.4, fill = "blue",
@@ -596,7 +607,8 @@ meta_intPlot_leaf_nutrients <- ggplot(
                               expression("P"["mass"]), 
                               expression("N"["area"]),
                               expression("N"["mass"]), 
-                              expression("M"["area"]))) +
+                              expression("M"["area"]),
+                              "SLA")) +
   scale_y_continuous(limits = c(-4, 4), breaks = seq(-4, 4, 1)) +
   labs(x = "", 
        y = "Interaction effect size (Hedge's d)",
@@ -718,11 +730,37 @@ meta_intPlot_biomass <- ggplot(
 meta_intPlot_biomass
 
 # png("../plots/CNPmeta_interaction_plot.png", height = 12, width = 12, 
-#     units = "in", res = 600)
+#    units = "in", res = 600)
 meta_intPlot_leaf_nutrients / meta_intPlot_photo / meta_intPlot_biomass +
   plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
   theme(plot.tag = element_text(size = 12, face = "bold"))
 # dev.off()
+
+png("../plots/CNPmeta_intplot_leafNutrients.png", height = 8, width = 12, 
+    units = "in", res = 600)
+meta_intPlot_leaf_nutrients
+dev.off()
+
+png("../plots/CNPmeta_intplot_photo.png", height = 8, width = 12, 
+    units = "in", res = 600)
+meta_intPlot_photo
+dev.off()
+
+png("../plots/CNPmeta_intplot_phosFract.png", height = 4.5, width = 12, 
+    units = "in", res = 600)
+meta_intPlot_phosFract
+dev.off()
+
+png("../plots/CNPmeta_intplot_biomass.png", height = 8, width = 12, 
+    units = "in", res = 600)
+meta_intPlot_biomass
+dev.off()
+
+
+
+
+
+
 
 
 ###############################################################################
