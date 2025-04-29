@@ -28,15 +28,15 @@ full_df <- mesi %>% full_join(nutnet) %>% full_join(eap) %>%
                        "n", ifelse(npk == "_010",
                                    "p", ifelse(npk == "_110", "np", NA))))
 
+# Create data frame with only field experiments (since field experiments
+# only have latitude and longitude)
+full_df_field <- full_df %>%
+  filter(experiment_type == "field")
+
 # Create experiment metadata summary
 experiment_summary <- full_df %>%
   dplyr::select(citation, exp:experiment_type) %>%
   distinct(citation, exp, .keep_all = TRUE)
-
-# Reproject points to land on Robinson projection
-experiment_summary_map <- experiment_summary %>%
-  filter(!is.na(latitude) & !is.na(longitude)) %>%
-  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
 
 #####################################################################
 # Create map of all experiments included in meta-analysis
@@ -76,50 +76,53 @@ nc_vpd <- nc_open("../cru/cru_ts4.09.1901.2024.vap.dat.nc")
 # Convert CRU data to RasterBrick, then extract data from coordinates
 # of each site
 #####################################################################
-experiment_summary_noNA <- experiment_summary %>%
-  filter(!is.na(latitude) & !is.na(longitude))
+
+# Create file that includes the latitude and longitude of all unique
+# sites in meta-analysis
+experiment_summary_field <- distinct(full_df_field, exp, .keep_all = TRUE) %>%
+  filter(!is.na(latitude) & !is.na(longitude)) %>%
+  dplyr::select(exp, latitude, longitude)
 
 # Precipitation (mm/month)
 pre <- brick("../cru/cru_ts4.09.1901.2024.pre.dat.nc", varname = "pre")
 pre_extracted <- data.frame(
-  raster::extract(pre, experiment_summary_noNA[, c("longitude", "latitude")]))
+  raster::extract(pre, experiment_summary_field[, c("longitude", "latitude")]))
 names(pre_extracted)
 names(pre_extracted) <- str_c("pre", names(pre_extracted))
 
 # Temperature (degC/month)
 temp <- brick("../cru/cru_ts4.09.1901.2024.tmp.dat.nc", varname = "tmp")
 temp_extracted <- data.frame(
-  raster::extract(temp, experiment_summary_noNA[, c("longitude", "latitude")]))
+  raster::extract(temp, experiment_summary_field[, c("longitude", "latitude")]))
 names(temp_extracted)
 names(temp_extracted) <- str_c("temp", names(temp_extracted))
 
 # PET (mm/day)
 pet <- brick("../cru/cru_ts4.09.1901.2024.pet.dat.nc", varname = "pet")
 pet_extracted <- data.frame(
-  raster::extract(pet, experiment_summary_noNA[, c("longitude", "latitude")]))
+  raster::extract(pet, experiment_summary_field[, c("longitude", "latitude")]))
 names(pet_extracted)
 names(pet_extracted) <- str_c("pet", names(pet_extracted))
 
 # Vapor pressure (HPA/month)
-vpd <- brick("../cru/cru_ts4.09.1901.2024.vap.dat.nc", varname = "vap")
-vpd_extracted <- data.frame(
-  raster::extract(vpd, experiment_summary_noNA[, c("longitude", "latitude")]))
-names(vpd_extracted)
-names(vpd_extracted) <- str_c("vpd", names(vpd_extracted))
+vp <- brick("../cru/cru_ts4.09.1901.2024.vap.dat.nc", varname = "vap")
+vp_extracted <- data.frame(
+  raster::extract(vp, experiment_summary_field[, c("longitude", "latitude")]))
+names(vp_extracted)
+names(vp_extracted) <- str_c("vp", names(vp_extracted))
 
 #####################################################################
 # Combine extracted climate data into single data frame
 #####################################################################
-climate_all <- cbind(experiment_summary_noNA,
+climate_all <- cbind(experiment_summary_field,
                      pre_extracted, temp_extracted, 
-                     pet_extracted, vpd_extracted) %>%
-  dplyr::select(-map, -mat)
+                     pet_extracted, vp_extracted)
 names(climate_all)
 
 # Reshape dataframe into long format (i.e. one row per month for each trait
 # for each site)
 climate_long <- climate_all %>%
-  pivot_longer(cols = preX1901.01.16:vpdX2024.12.16,
+  pivot_longer(cols = preX1901.01.16:vpX2024.12.16,
                names_to = "variable", values_to = "value") %>%
   separate(variable, into = c("var", "date"), 
            sep = "X", extra = "merge") %>%
@@ -134,8 +137,7 @@ climate_long <- climate_all %>%
 # Mean annual precipitation
 map <- climate_long %>%
   filter(var == "pre" & year %in% c(1901:2024)) %>%
-  group_by(citation, exp, latitude, longitude, elevation,
-           ecosystem_type, experiment_type, year) %>%
+  group_by(exp, latitude, longitude, year) %>%
   summarize(annual_precip = sum(value)) %>%
   ungroup(year) %>%
   summarize(map = mean(annual_precip))
@@ -143,8 +145,7 @@ map <- climate_long %>%
 # Mean annual potential evapotranspiration
 mapet <- climate_long %>%
   filter(var == "pet" & year %in% c(1901:2024)) %>%
-  group_by(citation, exp, latitude, longitude, elevation,
-           ecosystem_type, experiment_type, year) %>%
+  group_by(exp, latitude, longitude, year) %>%
   summarize(annual_pet = sum(value * 30)) %>% # *30 to scale to mm/month
   ungroup(year) %>%
   summarize(mapet = mean(annual_pet))
@@ -152,17 +153,15 @@ mapet <- climate_long %>%
 # Mean annual temperature
 mat <- climate_long %>%
   filter(var == "temp" & year %in% c(1901:2024)) %>%
-  group_by(citation, exp, latitude, longitude, elevation,
-           ecosystem_type, experiment_type, year) %>%
+  group_by(exp, latitude, longitude, year) %>%
   summarize(annual_temp = mean(value)) %>%
   ungroup(year) %>%
   summarize(mat = mean(annual_temp))
 
 # Mean annual vapor pressure
 mavp <- climate_long %>%
-  filter(var == "vpd" & year %in% c(1901:2024)) %>%
-  group_by(citation, exp, latitude, longitude, elevation,
-           ecosystem_type, experiment_type, year) %>%
+  filter(var == "vp" & year %in% c(1901:2024)) %>%
+  group_by(exp, latitude, longitude, year) %>%
   summarize(annual_vaporPressure = mean(value)) %>%
   ungroup(year) %>%
   summarize(mavp = mean(annual_vaporPressure))
@@ -172,15 +171,13 @@ complete_climate_summary <- map %>%
   full_join(mat) %>%
   full_join(mapet) %>%
   full_join(mavp) %>%
-  mutate(ai = map / mapet,
-         biome = get_biome_type)
+  mutate(ai = map / mapet)
 
 # Merge climate summary with compiled dataset
 compiled_df <- full_df %>%
-  dplyr::select(-mat, -map) %>%
-  full_join(complete_climate_summary) %>%
+  full_join(complete_climate_summary, by = c("exp", "latitude", "longitude")) %>%
   dplyr::select(source:elevation, map:ai, ecosystem_type:npk, fert, n_c:rep_t)
-# write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
+write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
 
 #####################################################################
 # Some plots
@@ -189,7 +186,7 @@ compiled_df <- full_df %>%
 # png("../plots/CNPmeta_whittaker_plot.png",
 #     width = 5400, height = 3000, res = 600)
 whittaker_base_plot() +
-  geom_point(data = subset(complete_climate_summary, experiment_type == "field"),
+  geom_point(data = complete_climate_summary,
              aes(x = mat, y = map / 10)) +
   theme_bw(base_size = 18)
 #dev.off()
