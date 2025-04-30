@@ -21,6 +21,21 @@ experiment_summary <- full_df %>%
   dplyr::select(citation, exp:experiment_type) %>%
   distinct(citation, exp, .keep_all = TRUE)
 
+# How many experiments?
+unique(experiment_summary$citation)
+
+# How many sites?
+unique(experiment_summary$exp)
+
+# How many field experiments?
+unique(filter(experiment_summary, experiment_type == "field")$citation)
+unique(filter(experiment_summary, experiment_type == "greenhouse")$citation)
+unique(filter(experiment_summary, experiment_type == "chamber")$citation)
+
+# How many species?
+distinct(full_df, species)
+distinct(full_df, family)
+
 # Add helper function for aggregating lnRRs across experiments
 # (determines meta-analytic mean)
 source("../helper_fxns/analyse_meta.R")

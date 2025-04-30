@@ -45,17 +45,18 @@ experiment_summary_field <- distinct(full_df_field, exp, .keep_all = TRUE) %>%
 CNP_meta_experiment_map <- ggplot() +
   borders(database = "world", colour = "black", fill = "antiquewhite") +
   geom_point(data = experiment_summary_field,
-             aes(x = longitude, y = latitude), color = "red", size = 0.5) +
+             aes(x = longitude, y = latitude), 
+             color = "red", size = 0.5) +
   scale_x_continuous(limits = c(-180, 180), breaks = seq(-180, 180, 90)) +
   scale_y_continuous(limits = c(-80, 90), breaks = seq(-60, 90, 30)) +
   labs(x = expression("Longitude ("*degree*")"),
        y = expression("Latitutde ("*degree*")")) +
-  theme_bw(base_size = 18) +
+  theme_classic(base_size = 18) +
   theme(panel.grid = element_blank())
 
 # png("../plots/CNPmeta_site_map.png", width = 3600, height = 2400,
 #     res = 600)
-CNP_meta_experiment_map
+CNP_meta_experiment_map 
 # dev.off()
 
 #####################################################################
@@ -156,8 +157,9 @@ complete_climate_summary <- map %>%
 # Merge climate summary with compiled dataset
 compiled_df <- full_df %>%
   full_join(complete_climate_summary, by = c("exp", "latitude", "longitude")) %>%
-  dplyr::select(source:elevation, map:ai, ecosystem_type:npk, fert, n_c:rep_t)
-write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
+  dplyr::select(source:elevation, map:ai, ecosystem_type:npk, 
+                fert, n_c:rep_t)
+# write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
 
 #####################################################################
 # Some plots
@@ -165,11 +167,26 @@ write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
 # Whittaker plot
 # png("../plots/CNPmeta_whittaker_plot.png",
 #     width = 5400, height = 3000, res = 600)
-whittaker_base_plot() +
+biome_type_plot <- whittaker_base_plot() +
   geom_point(data = complete_climate_summary,
              aes(x = mat, y = map / 10)) +
-  theme_bw(base_size = 18)
+  scale_y_continuous(limits = c(0, 500),
+                     breaks = seq(0, 500, 100),
+                     labels = seq(0, 5000, 1000)) +
+  scale_x_continuous(limits = c(-17, 30),
+                     breaks = seq(-15, 30, 15)) +
+  labs(x = expression("MAT ("*degree*"C)"),
+       y = "MAP (mm)") +
+  theme_classic(base_size = 18) +
+  theme(legend.text = element_text(size = 12),
+        legend.title = element_text(size = 16),
+        legend.box.background = element_blank(),
+        legend.position = "bottom")
 #dev.off()
+biome_type_plot
 
-
+png("../drafts/plots/CNPmeta_sites.png", height = 12, width = 8,
+    units = "in", res = 600)
+CNP_meta_experiment_map / biome_type_plot
+dev.off()
 
