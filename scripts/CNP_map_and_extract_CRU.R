@@ -33,17 +33,18 @@ full_df <- mesi %>% full_join(nutnet) %>% full_join(eap) %>%
 full_df_field <- full_df %>%
   filter(experiment_type == "field")
 
-# Create experiment metadata summary
-experiment_summary <- full_df %>%
-  dplyr::select(citation, exp:experiment_type) %>%
-  distinct(citation, exp, .keep_all = TRUE)
+# Create file that includes the latitude and longitude of all unique
+# sites in meta-analysis
+experiment_summary_field <- distinct(full_df_field, exp, .keep_all = TRUE) %>%
+  filter(!is.na(latitude) & !is.na(longitude)) %>%
+  dplyr::select(exp, latitude, longitude)
 
 #####################################################################
 # Create map of all experiments included in meta-analysis
 #####################################################################
 CNP_meta_experiment_map <- ggplot() +
   borders(database = "world", colour = "black", fill = "antiquewhite") +
-  geom_point(data = experiment_summary,
+  geom_point(data = experiment_summary_field,
              aes(x = longitude, y = latitude), color = "red", size = 0.5) +
   scale_x_continuous(limits = c(-180, 180), breaks = seq(-180, 180, 90)) +
   scale_y_continuous(limits = c(-80, 90), breaks = seq(-60, 90, 30)) +
@@ -58,30 +59,9 @@ CNP_meta_experiment_map
 # dev.off()
 
 #####################################################################
-# Load CRU data
-#####################################################################
-# Load precipitation from CRU TS4 (1901-2024)
-nc_pre <- nc_open("../cru/cru_ts4.09.1901.2024.pre.dat.nc")
-
-# Load temperature from CRU TS4 (1901-2024)
-nc_temp <- nc_open("../cru/cru_ts4.09.1901.2024.tmp.dat.nc")
-
-# Load PET from CRU TS4 (1901-2024)
-nc_pet <- nc_open("../cru/cru_ts4.09.1901.2024.pet.dat.nc")
-
-# Load vpd from CRU TS4 (1901-2024)
-nc_vpd <- nc_open("../cru/cru_ts4.09.1901.2024.vap.dat.nc")
-
-#####################################################################
 # Convert CRU data to RasterBrick, then extract data from coordinates
 # of each site
 #####################################################################
-
-# Create file that includes the latitude and longitude of all unique
-# sites in meta-analysis
-experiment_summary_field <- distinct(full_df_field, exp, .keep_all = TRUE) %>%
-  filter(!is.na(latitude) & !is.na(longitude)) %>%
-  dplyr::select(exp, latitude, longitude)
 
 # Precipitation (mm/month)
 pre <- brick("../cru/cru_ts4.09.1901.2024.pre.dat.nc", varname = "pre")

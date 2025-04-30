@@ -7,24 +7,14 @@
 # Libraries
 library(tidyverse)
 library(metafor)
-library(MAd)
 library(ggpubr)
 library(forcats)
 library(patchwork)
 library(naniar) # to resolve NA/<NA> issue
 
-# Read data sources (MESI, NutNet, EAP manual compilation)
-mesi <- read.csv("../data/mesi_main_manual.csv")
-nutnet <- read.csv("../data/nutnet_main.csv")
-eap <- read.csv("../data/eap_main.csv")
-
-# Merge data sources into single data frame
-full_df <- mesi %>% full_join(nutnet) %>% full_join(eap) %>%
-  replace_with_na_all(~.x == "<NA>") %>%
-  dplyr::select(-doi, -x_units, -se_c, -se_t) %>%
-  mutate(fert = ifelse(npk == "_100", 
-                       "n", ifelse(npk == "_010",
-                                   "p", ifelse(npk == "_110", "np", NA))))
+# Read compiled dataset
+full_df <- read.csv("../data/CNP_data_compiled.csv") %>%
+  replace_with_na_all(~.x == "<NA>")
 
 # Create experiment metadata summary
 experiment_summary <- full_df %>%
@@ -421,33 +411,34 @@ meta_plot_all_biomass <- ggplot(
 meta_plot_all_biomass
 
 
+# Write plots
 
-png("../plots/CNPmeta_plot_all_combined_new.png", height = 12, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_plot_all_combined_new.png", height = 12, width = 12, 
+#     units = "in", res = 600)
 meta_plot_all_leaf_nutrients / meta_plot_all_photo / meta_plot_all_biomass +
   plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
   theme(plot.tag = element_text(size = 12, face = "bold"))
-dev.off()
+# dev.off()
 
-png("../plots/CNPmeta_plot_leafNutrients.png", height = 8, width = 12, 
-   units = "in", res = 600)
-meta_plot_all_leaf_nutrients
-dev.off()
-
-png("../plots/CNPmeta_plot_photo.png", height = 8, width = 12, 
-    units = "in", res = 600)
-meta_plot_all_photo
-dev.off()
-
-png("../plots/CNPmeta_phosFract.png", height = 4.5, width = 12, 
-    units = "in", res = 600)
-meta_plot_all_phosFract
-dev.off()
-
-png("../plots/CNPmeta_biomass.png", height = 8, width = 12, 
-    units = "in", res = 600)
-meta_plot_all_biomass
-dev.off()
+# png("../plots/CNPmeta_plot_leafNutrients.png", height = 8, width = 12, 
+#    units = "in", res = 600)
+# meta_plot_all_leaf_nutrients
+# dev.off()
+# 
+# png("../plots/CNPmeta_plot_photo.png", height = 8, width = 12, 
+#     units = "in", res = 600)
+# meta_plot_all_photo
+# dev.off()
+# 
+# png("../plots/CNPmeta_phosFract.png", height = 4.5, width = 12, 
+#     units = "in", res = 600)
+# meta_plot_all_phosFract
+# dev.off()
+# 
+# png("../plots/CNPmeta_biomass.png", height = 8, width = 12, 
+#     units = "in", res = 600)
+# meta_plot_all_biomass
+# dev.off()
 
 ##############################################################################
 # Some prep work for calculating nteraction effect sizes (need
@@ -585,7 +576,12 @@ df_box_int <- df_box_int %>%
                                    "leaf_structural_p", "leaf_nucleic_p", 
                                    "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                   "leaf_n_area", "leaf_n_mass", "lma", "sla")))
+                                   "leaf_n_area", "leaf_n_mass", "lma", "sla")),
+         int_type = ifelse(var == "leaf_np", 
+                           "synergistic",
+                           ifelse(var == "agb", 
+                                  "synergistic",
+                                  "additive")))
 
 meta_intPlot_leaf_nutrients <- ggplot(
   data = CNP_effect_sizes_reduced %>%
@@ -598,8 +594,9 @@ meta_intPlot_leaf_nutrients <- ggplot(
   geom_crossbar(data = df_box_int %>% drop_na(var) %>%
                   filter(var %in% c("sla", "lma", "leaf_n_mass", "leaf_n_area", 
                                     "leaf_p_mass", "leaf_p_area", "leaf_np")),
-                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.4, fill = "blue",
+                aes(x = var, y = middle, ymin = ymin, 
+                    ymax = ymax, fill = int_type),
+                alpha = 0.6, width = 0.4,
                 position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Leaf N:P",
@@ -612,7 +609,8 @@ meta_intPlot_leaf_nutrients <- ggplot(
   scale_y_continuous(limits = c(-4, 4), breaks = seq(-4, 4, 1)) +
   labs(x = "", 
        y = "Interaction effect size (Hedge's d)",
-       size = expression(bold("Error"^"-1"))) +
+       size = "Weight",
+       fill = "Interaction type") +
   scale_size(range = c(0.25, 4)) +
   coord_flip() +
   theme_classic(base_size = 18) +
@@ -636,8 +634,9 @@ meta_intPlot_phosFract <- ggplot(
                   filter(var %in% c("leaf_residual_p", 
                                     "leaf_structural_p", "leaf_nucleic_p", 
                                     "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi")),
-                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.4, fill = "blue",
+                aes(x = var, y = middle, ymin = ymin, 
+                    ymax = ymax, fill = int_type),
+                alpha = 0.6, width = 0.4,
                 position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Leaf residual P",
@@ -646,13 +645,11 @@ meta_intPlot_phosFract <- ggplot(
                               "Leaf metabolic P",
                               "Leaf Pi")) +
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  scale_fill_manual(limits = c("n", "p", "np"),
-                    values = c("red", "blue", "magenta")) +
   scale_size(range = c(0.25, 4)) +
   labs(x = "", 
        y = "Interaction effect size (Hedge's d)",
-       fill = "Nutrient addition",
-       size = expression(bold("Error"^"-1"))) +
+       size = "Weight",
+       fill = "Interaction type") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -672,8 +669,9 @@ meta_intPlot_photo <- ggplot(
   geom_crossbar(data = df_box_int %>% drop_na(var) %>%
                   filter(var %in% c("asat", "vcmax", "jmax",
                                     "rd", "leaf_pnue", "leaf_ppue", "leaf_wue")),
-                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.4, fill = "blue",
+                aes(x = var, y = middle, ymin = ymin, 
+                    ymax = ymax, fill = int_type),
+                alpha = 0.6, width = 0.4, 
                 position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("iWUE",
@@ -686,7 +684,8 @@ meta_intPlot_photo <- ggplot(
   scale_size(range = c(0.25, 4)) +
   labs(x = NULL, 
        y = "Interaction effect size (Hedge's d)",
-       size = expression(bold("Error"^"-1"))) +
+       fill = "Interaction type",
+       size = "Weight") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -706,8 +705,9 @@ meta_intPlot_biomass <- ggplot(
   geom_crossbar(data = df_box_int %>% drop_na(var) %>%
                   filter(var %in% c("rootshoot", "rmf", "bgb", "agb", "agb_n", 
                                     "agb_p", "total_biomass")),
-                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.4, fill = "blue",
+                aes(x = var, y = middle, ymin = ymin, 
+                    ymax = ymax, fill = int_type),
+                alpha = 0.6, width = 0.4,
                 position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
@@ -721,7 +721,8 @@ meta_intPlot_biomass <- ggplot(
   scale_size(range = c(0.25, 4)) +
   labs(x = "", 
        y = "Interaction effect size (Hedge's d)",
-       size = expression(bold("Error"^"-1"))) +
+       fill = "Interaction type",
+       size = "Weight") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -729,12 +730,12 @@ meta_intPlot_biomass <- ggplot(
         axis.title.x = element_text(face = "bold"))
 meta_intPlot_biomass
 
-# png("../plots/CNPmeta_interaction_plot.png", height = 12, width = 12, 
-#    units = "in", res = 600)
+png("../plots/CNPmeta_interaction_plot.png", height = 12, width = 12, 
+   units = "in", res = 600)
 meta_intPlot_leaf_nutrients / meta_intPlot_photo / meta_intPlot_biomass +
   plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
   theme(plot.tag = element_text(size = 12, face = "bold"))
-# dev.off()
+dev.off()
 
 png("../plots/CNPmeta_intplot_leafNutrients.png", height = 8, width = 12, 
     units = "in", res = 600)
