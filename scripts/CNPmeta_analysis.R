@@ -6,6 +6,8 @@
 
 # Libraries
 library(tidyverse)
+library(lme4)
+library(car)
 library(metafor)
 library(ggpubr)
 library(forcats)
@@ -772,13 +774,6 @@ png("../plots/CNPmeta_intplot_biomass.png", height = 8, width = 12,
 meta_intPlot_biomass
 dev.off()
 
-
-
-
-
-
-
-
 ###############################################################################
 # Let's play with some bivariate relationships
 ###############################################################################
@@ -822,7 +817,6 @@ ggplot(data = combined_lnRR_wide,
                     values = c("red", "blue", "magenta")) +
   theme_classic(base_size = 18)
 
-
 table1_lnRR_summary <- data.frame(
   trait = df_box_all$var,
   response = df_box_all$manip_type,
@@ -839,16 +833,34 @@ table1_lnRR_summary <- data.frame(
                                    "leaf_wue", "total_biomass", "agb", "agb_n", 
                                    "agb_p", "bgb", "rmf", "rootshoot"))) %>%
   arrange(trait)
-                          
-                          
-                          
-                          "rootshoot", "rmf", "bgb", "agb_p", 
-                                   "agb_n", "agb", "total_biomass", 
-                                   "leaf_wue", "leaf_ppue", "leaf_pnue", 
-                                   "jmax", "vcmax", "asat", "leaf_structural_p", 
-                                   "leaf_structural_p", "leaf_nucleic_p", 
-                                   "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
-                                   "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                   "leaf_n_area", "leaf_n_mass", "lma")))
   
+###############################################################################
+# Re-run models but include species identity traits as moderator variables
+# Note: this will only include measurements collected from experiments where
+# data are aggregated at the species level (ignoring community aggregation)
+###############################################################################
+library(orchaRd)
 
+# First, let's modify the analyse_meta function
+head(nfert_lnRR)
+
+
+
+help <- try(metafor::rma.mv( 
+  logr, 
+  logr_var,
+  method = "REML", 
+  random = ~ 1 | exp,
+  mods = ~ n_fixer + myc_assoc + photo_path,
+  slab = exp,
+  control = list(stepadj = 0.3), 
+  data = nfert_lnRR %>% 
+    filter(myvar == "vcmax" & aggregation == "species")))
+
+mod_results(help, group = "myc_assoc")
+
+orchard_plot(help, mod = "n_fixer", group = "exp", xlab = "lnRR")
+caterpillars(help, mod = "1", group = "exp", xlab = "lnRR")
+
+
+orchard_plot()
