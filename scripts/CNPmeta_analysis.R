@@ -8,11 +8,13 @@
 library(tidyverse)
 library(lme4)
 library(car)
+library(emmeans)
 library(metafor)
 library(ggpubr)
 library(forcats)
 library(patchwork)
 library(naniar) # to resolve NA/<NA> issue
+library(orchaRd)
 
 # Read compiled dataset
 full_df <- read.csv("../data/CNP_data_compiled.csv") %>%
@@ -841,25 +843,42 @@ table1_lnRR_summary <- data.frame(
 ###############################################################################
 library(orchaRd)
 
-# First, let's modify the analyse_meta function
-head(nfert_lnRR)
+nfert_nmass_myc <- rma.mv(logr, logr_var, method = "REML", 
+                          random = ~ 1 | exp, mods = ~ n_fixer + myc_assoc,
+                          slab = exp, control = list(stepadj = 0.3), 
+                          data = nfert_lnRR %>% 
+                            filter(myvar == "leaf_n_mass" & aggregation == "species"))
+data.frame(mod_results(nfert_nmass_myc, group = "exp"))
 
 
 
-help <- try(metafor::rma.mv( 
+
+help <- metafor::rma.mv( 
   logr, 
   logr_var,
   method = "REML", 
   random = ~ 1 | exp,
-  mods = ~ n_fixer + myc_assoc + photo_path,
+  mods = ~ n_fixer + myc_assoc,
   slab = exp,
   control = list(stepadj = 0.3), 
   data = nfert_lnRR %>% 
-    filter(myvar == "vcmax" & aggregation == "species")))
+    filter(myvar == "leaf_n_mass" & aggregation == "species"))
+summary(help)
 
-mod_results(help, group = "myc_assoc")
+mod_results(help, group = "exp")
 
-orchard_plot(help, mod = "n_fixer", group = "exp", xlab = "lnRR")
+orchard_plot(help, mod = "myc_assoc", group = "exp", xlab = "Log response to N addition")
+
+
+
+         
+
+
+
+library(emmeans)
+
+
+orchard_plot(help, mod = "myc_assoc", group = "exp", xlab = "Log response to N addition")
 caterpillars(help, mod = "1", group = "exp", xlab = "lnRR")
 
 
