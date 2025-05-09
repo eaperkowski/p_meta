@@ -18,7 +18,11 @@ library(orchaRd)
 
 # Read compiled dataset
 full_df <- read.csv("../data/CNP_data_compiled.csv") %>%
-  replace_with_na_all(~.x == "<NA>")
+  replace_with_na_all(~.x == "<NA>") %>%
+  mutate(growth_form = ifelse(growth_form == "tree" | growth_form == "shrub", 
+                              "tree_shrub",
+                              ifelse(growth_form == "forb",
+                                     "herb", growth_form)))
 
 # Create experiment metadata summary
 experiment_summary <- full_df %>%
@@ -460,7 +464,7 @@ meta_plot_all_leaf_nutrients / meta_plot_all_photo / meta_plot_all_biomass +
 # dev.off()
 
 ##############################################################################
-# Some prep work for calculating nteraction effect sizes (need
+# Some prep work for calculating interaction effect sizes (need
 # to turn summary statistics into long format)
 ##############################################################################
 
@@ -545,7 +549,8 @@ CNP_effect_sizes_reduced <- CNP_effect_sizes %>%
   filter(myvar != "r_eco" & myvar != "nee" & 
            myvar != "spad" & myvar != "tpu" &
            myvar != "rd" & myvar != "stom_lim" &
-           myvar != "anet_mass")
+           myvar != "anet_mass" & myvar!= "lai" & myvar != "agb_np" &
+           myvar != "leaf_sugar_p" & myvar != "gpp")
 
 ###############################################################################
 # Use helper fxn from `analyse_meta.R` to iterate through traits and determine
@@ -569,6 +574,22 @@ df_box_int <- purrr::map_dfr(out_int, "df_box") |>
       summarise(intES_min = min(dNPi), intES_max = max(dNPi)) |> 
       rename(var = myvar),
     by = "var")
+
+# Determine main effect size across multiple experiments. 
+# Takes into account experiment variance and uses experiment 
+# identity as grouping factor for random intercepts
+
+out_mainN <- purrr::map(as.list(use_vars_int),
+                        ~analyse_meta_int(CNP_effect_sizes_reduced %>%
+                                            rename(var = myvar), nam_target = .))
+names(out_int) <- use_vars_int
+
+df_box_int <- purrr::map_dfr(out_int, "df_box") |> 
+  left_join(
+    CNP_effect_sizes_reduced |> 
+      group_by(myvar) |> 
+      summarise(intES_min = min(dNPi), intES_max = max(dNPi)))
+
 
 ###############################################################################
 # Let' make some plots!
@@ -823,9 +844,18 @@ table1_lnRR_summary <- data.frame(
   trait = df_box_all$var,
   response = df_box_all$manip_type,
   lnRR = round(df_box_all$middle, digits = 3),
+  lowerCI = round(df_box_all$ymin, digits = 3),
+  upperCI = round(df_box_all$ymax, digits = 3),
   ci_range = str_c("(", 
                    round(df_box_all$ymin, digits = 3), ", ", 
                    round(df_box_all$ymax, digits = 3), ")")) %>%
+  filter(trait %in% c("lma", "leaf_n_mass", "leaf_n_area",
+                      "leaf_p_mass", "leaf_p_area", "leaf_np",
+                      "leaf_pi", "leaf_sugar_p", "leaf_metabolic_p",
+                      "leaf_nucleic_p", "leaf_structural_p", "asat", 
+                      "vcmax", "jmax", "leaf_pnue", "leaf_ppue", 
+                      "leaf_wue", "total_biomass", "agb", "agb_n", 
+                      "agb_p", "bgb", "rmf", "rootshoot")) %>%
   mutate(trait = factor(trait, 
                         levels = c("lma", "leaf_n_mass", "leaf_n_area",
                                    "leaf_p_mass", "leaf_p_area", "leaf_np",
@@ -833,8 +863,13 @@ table1_lnRR_summary <- data.frame(
                                    "leaf_nucleic_p", "leaf_structural_p", "asat", 
                                    "vcmax", "jmax", "leaf_pnue", "leaf_ppue", 
                                    "leaf_wue", "total_biomass", "agb", "agb_n", 
-                                   "agb_p", "bgb", "rmf", "rootshoot"))) %>%
+                                   "agb_p", "bgb", "rmf", "rootshoot")),
+         sig = ifelse((lowerCI > 0 & upperCI > 0) |
+                        (lowerCI < 0 & upperCI < 0), "***",
+                      "NS")) %>%
   arrange(trait)
+
+filter(table1_lnRR_summary, response == "np")
   
 ###############################################################################
 # Re-run models but include species identity traits as moderator variables
@@ -844,30 +879,32 @@ table1_lnRR_summary <- data.frame(
 library(orchaRd)
 
 nfert_nmass_myc <- rma.mv(logr, logr_var, method = "REML", 
-                          random = ~ 1 | exp, mods = ~ n_fixer + myc_assoc,
+                          random = ~ 1 | exp, 
+                          mods = ~ ai,
                           slab = exp, control = list(stepadj = 0.3), 
-                          data = nfert_lnRR %>% 
-                            filter(myvar == "leaf_n_mass" & aggregation == "species"))
-data.frame(mod_results(nfert_nmass_myc, group = "exp"))
+                          data = npfert_lnRR %>% 
+                            filter(myvar == "agb"))
+
+mod_results(nfert_nmass_myc, 
+            mod = "ai", 
+            group = "exp")$mod_table %>%
+ggplot(aes(x = moderator, y = estimate)) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3) +
+  geom_smooth(method = "loess") +
+  labs(x = "Temperature",
+       y = "ln RR to P addition") +
+  theme_bw()
+
+colnames(mod_results(nfert_nmass_myc, mod = "ai", group = "exp"))
 
 
 
 
-help <- metafor::rma.mv( 
-  logr, 
-  logr_var,
-  method = "REML", 
-  random = ~ 1 | exp,
-  mods = ~ n_fixer + myc_assoc,
-  slab = exp,
-  control = list(stepadj = 0.3), 
-  data = nfert_lnRR %>% 
-    filter(myvar == "leaf_n_mass" & aggregation == "species"))
-summary(help)
-
-mod_results(help, group = "exp")
-
-orchard_plot(help, mod = "myc_assoc", group = "exp", xlab = "Log response to N addition")
+orchard_plot(nfert_nmass_myc, 
+             mod = "ai", 
+             group = "exp",
+             xlab = "Log response to N addition")
 
 
 
