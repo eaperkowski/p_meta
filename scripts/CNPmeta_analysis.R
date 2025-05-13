@@ -884,20 +884,20 @@ nfert_nmass_clim <- rma.mv(logr,
                            mods = ~ ai + mat,
                            slab = exp, control = list(stepadj = 0.3), 
                            data = pfert_lnRR %>% 
-                             filter(myvar == "leaf_p_area"))
+                             filter(myvar == "leaf_n_mass"))
 summary(nfert_nmass_clim)
 
 mod_results(nfert_nmass_clim, 
             mod = "mat", 
             group = "exp")$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
-  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_mass"),
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass"),
              aes(x = mat, y = logr, size = 1/logr_se)) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3) +
   geom_smooth(method = "loess") +
   labs(x = "Temperature",
-       y = "lnRR of Nmass to N addition") +
+       y = "lnRR of Nmass to P addition") +
   theme_bw()
 
 colnames(mod_results(nfert_nmass_myc, mod = "ai", group = "exp"))
