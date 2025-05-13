@@ -15,6 +15,9 @@ library(rnaturalearth)
 library(naniar)
 library(lubridate)
 
+# Read PAR dataset
+par <- read.csv("../cru/cru_par_climExtract_growingseason_globe.csv")
+
 # Read data sources (MESI, NutNet, EAP manual compilation)
 mesi <- read.csv("../data/mesi_main_manual.csv")
 nutnet <- read.csv("../data/nutnet_main.csv")
@@ -85,13 +88,6 @@ pet_extracted <- data.frame(
 names(pet_extracted)
 names(pet_extracted) <- str_c("pet", names(pet_extracted))
 
-# Vapor pressure (HPA/month)
-vp <- brick("../cru/cru_ts4.09.1901.2024.vap.dat.nc", varname = "vap")
-vp_extracted <- data.frame(
-  raster::extract(vp, experiment_summary_field[, c("longitude", "latitude")]))
-names(vp_extracted)
-names(vp_extracted) <- str_c("vp", names(vp_extracted))
-
 #####################################################################
 # Combine extracted climate data into single data frame
 #####################################################################
@@ -139,19 +135,10 @@ mat <- climate_long %>%
   ungroup(year) %>%
   summarize(mat = mean(annual_temp))
 
-# Mean annual vapor pressure
-mavp <- climate_long %>%
-  filter(var == "vp" & year %in% c(1901:2024)) %>%
-  group_by(exp, latitude, longitude, year) %>%
-  summarize(annual_vaporPressure = mean(value)) %>%
-  ungroup(year) %>%
-  summarize(mavp = mean(annual_vaporPressure))
-
 # Merge summary statistics and calculate aridity index (P/PET)
 complete_climate_summary <- map %>%
   full_join(mat) %>%
   full_join(mapet) %>%
-  full_join(mavp) %>%
   mutate(ai = map / mapet)
 
 # Merge climate summary with compiled dataset

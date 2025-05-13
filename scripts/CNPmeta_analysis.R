@@ -659,7 +659,6 @@ meta_intPlot_leaf_nutrients <- ggplot(
         axis.title.x = element_text(face = "bold"))
 meta_intPlot_leaf_nutrients
 
-
 # Plot leaf phosphorus fractionation. Separating by trait type to avoid plot overwhelm
 meta_intPlot_phosFract <- ggplot(
   data = CNP_effect_sizes_reduced %>%
@@ -876,24 +875,29 @@ filter(table1_lnRR_summary, response == "np")
 # Note: this will only include measurements collected from experiments where
 # data are aggregated at the species level (ignoring community aggregation)
 ###############################################################################
-library(orchaRd)
 
-nfert_nmass_myc <- rma.mv(logr, logr_var, method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ ai,
-                          slab = exp, control = list(stepadj = 0.3), 
-                          data = npfert_lnRR %>% 
-                            filter(myvar == "agb"))
+# Nitrogen addition effect on Nmass - climate moderators
+nfert_nmass_clim <- rma.mv(logr, 
+                           logr_var,
+                           method = "REML", 
+                           random = ~ 1 | exp, 
+                           mods = ~ ai + mat,
+                           slab = exp, control = list(stepadj = 0.3), 
+                           data = pfert_lnRR %>% 
+                             filter(myvar == "leaf_p_area"))
+summary(nfert_nmass_clim)
 
-mod_results(nfert_nmass_myc, 
-            mod = "ai", 
+mod_results(nfert_nmass_clim, 
+            mod = "mat", 
             group = "exp")$mod_table %>%
-ggplot(aes(x = moderator, y = estimate)) +
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_mass"),
+             aes(x = mat, y = logr, size = 1/logr_se)) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3) +
   geom_smooth(method = "loess") +
   labs(x = "Temperature",
-       y = "ln RR to P addition") +
+       y = "lnRR of Nmass to N addition") +
   theme_bw()
 
 colnames(mod_results(nfert_nmass_myc, mod = "ai", group = "exp"))
@@ -901,8 +905,8 @@ colnames(mod_results(nfert_nmass_myc, mod = "ai", group = "exp"))
 
 
 
-orchard_plot(nfert_nmass_myc, 
-             mod = "ai", 
+orchard_plot(nfert_nmass_clim, 
+             mod = "photo_path", 
              group = "exp",
              xlab = "Log response to N addition")
 
