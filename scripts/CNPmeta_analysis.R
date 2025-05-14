@@ -18,16 +18,19 @@ library(orchaRd)
 
 # Read compiled dataset
 full_df <- read.csv("../data/CNP_data_compiled.csv") %>%
-  replace_with_na_all(~.x == "<NA>") %>%
-  mutate(growth_form = ifelse(growth_form == "tree" | growth_form == "shrub", 
-                              "tree_shrub",
-                              ifelse(growth_form == "forb",
-                                     "herb", growth_form)))
+  replace_with_na_all(~.x == "<NA>")
 
 # Create experiment metadata summary
 experiment_summary <- full_df %>%
   dplyr::select(citation, exp:experiment_type) %>%
   distinct(citation, exp, .keep_all = TRUE)
+
+# Species identity summary
+species_summary <- full_df %>% 
+  distinct(species, family, growth_form, growth_duration,
+           photo_path, n_fixer, myc_assoc, .keep_all = TRUE) %>%
+  dplyr::select(species:myc_assoc) %>%
+  slice(-1)
 
 # How many experiments?
 unique(experiment_summary$citation)
@@ -584,12 +587,6 @@ out_mainN <- purrr::map(as.list(use_vars_int),
                                             rename(var = myvar), nam_target = .))
 names(out_int) <- use_vars_int
 
-df_box_int <- purrr::map_dfr(out_int, "df_box") |> 
-  left_join(
-    CNP_effect_sizes_reduced |> 
-      group_by(myvar) |> 
-      summarise(intES_min = min(dNPi), intES_max = max(dNPi)))
-
 
 ###############################################################################
 # Let' make some plots!
@@ -769,77 +766,37 @@ meta_intPlot_biomass <- ggplot(
         axis.title.x = element_text(face = "bold"))
 meta_intPlot_biomass
 
-png("../plots/CNPmeta_interaction_plot.png", height = 12, width = 12, 
-   units = "in", res = 600)
+# png("../plots/CNPmeta_interaction_plot.png", height = 12, width = 12, 
+#    units = "in", res = 600)
 meta_intPlot_leaf_nutrients / meta_intPlot_photo / meta_intPlot_biomass +
   plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
   theme(plot.tag = element_text(size = 12, face = "bold"))
-dev.off()
+# dev.off()
 
-png("../plots/CNPmeta_intplot_leafNutrients.png", height = 8, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_intplot_leafNutrients.png", height = 8, width = 12, 
+#     units = "in", res = 600)
 meta_intPlot_leaf_nutrients
-dev.off()
+# dev.off()
 
-png("../plots/CNPmeta_intplot_photo.png", height = 8, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_intplot_photo.png", height = 8, width = 12, 
+#     units = "in", res = 600)
 meta_intPlot_photo
-dev.off()
+# dev.off()
 
-png("../plots/CNPmeta_intplot_phosFract.png", height = 4.5, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_intplot_phosFract.png", height = 4.5, width = 12, 
+#     units = "in", res = 600)
 meta_intPlot_phosFract
-dev.off()
+# dev.off()
 
-png("../plots/CNPmeta_intplot_biomass.png", height = 8, width = 12, 
-    units = "in", res = 600)
+# png("../plots/CNPmeta_intplot_biomass.png", height = 8, width = 12, 
+#     units = "in", res = 600)
 meta_intPlot_biomass
-dev.off()
+# dev.off()
 
 ###############################################################################
-# Let's play with some bivariate relationships
+# lnRR trait summaries
 ###############################################################################
-nfert_lnRR_wide <- nfert_lnRR %>%
-  dplyr::select(citation, exp, myvar, logr, logr_se, manip_type) %>%
-  pivot_wider(names_from = myvar,
-              names_sep = "XXX",
-              values_from = c(logr, logr_se),
-              values_fn = mean)
-
-pfert_lnRR_wide <- pfert_lnRR %>%
-  dplyr::select(citation, exp, myvar, logr, logr_se, manip_type) %>%
-  pivot_wider(names_from = myvar,
-              names_sep = "XXX",
-              values_from = c(logr, logr_se),
-              values_fn = mean)
-
-npfert_lnRR_wide <- npfert_lnRR %>%
-  dplyr::select(citation, exp, myvar, logr, logr_se, manip_type) %>%
-  pivot_wider(names_from = myvar,
-              names_sep = "XXX",
-              values_from = c(logr, logr_se),
-              values_fn = mean)
-
-combined_lnRR_wide <- nfert_lnRR_wide %>%
-  full_join(pfert_lnRR_wide) %>%
-  full_join(npfert_lnRR_wide)
-
-
-ggplot(data = combined_lnRR_wide,
-       aes(x = logrXXXagb, y = logrXXXbgb)) +
-  geom_point(aes(size = 1 / (logr_seXXXagb * logr_seXXXbgb),
-                 color = manip_type)) +
-  geom_abline(slope = 1, linetype = "dashed") +
-  scale_x_continuous(limits = c(-0.5, 0.5)) +
-  scale_y_continuous(limits = c(-0.5, 0.5)) +
-  labs(x = expression("Log RR of N"["mass"]),
-       y = expression("Log RR of P"["mass"]),
-       size = expression("Error"^"-1")) +
-  scale_color_manual(limits = c("n", "p", "np"),
-                    values = c("red", "blue", "magenta")) +
-  theme_classic(base_size = 18)
-
-table1_lnRR_summary <- data.frame(
+tableXX_lnRR_summary <- data.frame(
   trait = df_box_all$var,
   response = df_box_all$manip_type,
   lnRR = round(df_box_all$middle, digits = 3),
@@ -871,56 +828,212 @@ table1_lnRR_summary <- data.frame(
 filter(table1_lnRR_summary, response == "np")
   
 ###############################################################################
-# Re-run models but include species identity traits as moderator variables
-# Note: this will only include measurements collected from experiments where
-# data are aggregated at the species level (ignoring community aggregation)
+# Re-run models but include moderator variables
 ###############################################################################
 
-# Nitrogen addition effect on Nmass - climate moderators
-nfert_nmass_clim <- rma.mv(logr, 
-                           logr_var,
-                           method = "REML", 
-                           random = ~ 1 | exp, 
-                           mods = ~ ai + mat,
-                           slab = exp, control = list(stepadj = 0.3), 
-                           data = pfert_lnRR %>% 
-                             filter(myvar == "leaf_n_mass"))
-summary(nfert_nmass_clim)
+# Nitrogen addition effect on Nmass - full model
+nfert_nmass_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = nfert_lnRR %>% 
+                                  filter(myvar == "leaf_n_mass"))
+summary(nfert_nmass_fullModel)
 
-mod_results(nfert_nmass_clim, 
-            mod = "mat", 
-            group = "exp")$mod_table %>%
+# Nmass - MAT plot
+nfert_nmass_mat_plot <- mod_results(nfert_nmass_fullModel, 
+                              mod = "mat", 
+                              group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass"),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "red") +
+  geom_smooth(method = "loess", linewidth = 2, color = "red") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(-5, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of N"["mass"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18)
+
+# Nmass - AI plot
+nfert_nmass_ai_plot <- ggplot() +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of N"["mass"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Nmass - PAR plot
+nfert_nmass_par_plot <- ggplot() +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass"),
+             aes(x = par, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(500, 1100), breaks = seq(500, 1100, 200)) +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*"s"^"-1"*")")),
+       y = expression(bold("ln RR of N"["mass"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+
+# Phosphorus addition effect on Nmass - full model
+pfert_nmass_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = pfert_lnRR %>% 
+                                  filter(myvar == "leaf_n_mass"))
+summary(pfert_nmass_fullModel)
+
+# Pfert: Nmass - MAT plot
+pfert_nmass_mat_plot <- mod_results(pfert_nmass_fullModel, 
+                                    mod = "mat", 
+                                    group = "exp")$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
   geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass"),
-             aes(x = mat, y = logr, size = 1/logr_se)) +
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3) +
-  geom_smooth(method = "loess") +
-  labs(x = "Temperature",
-       y = "lnRR of Nmass to P addition") +
-  theme_bw()
+              alpha = 0.3, fill = "blue") +
+  geom_smooth(method = "loess", linewidth = 2, color = "blue") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(-5, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of N"["mass"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18)
 
-colnames(mod_results(nfert_nmass_myc, mod = "ai", group = "exp"))
+# Pfert: Nmass - AI plot
+pfert_nmass_ai_plot <- ggplot() +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of N"["mass"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Pfert: Nmass - PAR plot
+pfert_nmass_par_plot <- ggplot() +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass"),
+             aes(x = par, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(500, 1100), breaks = seq(500, 1100, 200)) +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*"s"^"-1"*")")),
+       y = expression(bold("ln RR of N"["mass"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+
+# N+P addition effect on Nmass - full model
+npfert_nmass_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = npfert_lnRR %>% 
+                                  filter(myvar == "leaf_n_mass"))
+summary(npfert_nmass_fullModel)
+
+# Pfert: Nmass - MAT plot
+npfert_nmass_mat_plot <- mod_results(npfert_nmass_fullModel, 
+                                     mod = "mat", 
+                                     group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass"),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "magenta") +
+  geom_smooth(method = "loess", linewidth = 2, color = "magenta") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(-5, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of N"["mass"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18)
+
+# Pfert: Nmass - AI plot
+npfert_nmass_ai_plot <- ggplot() +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of N"["mass"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Pfert: Nmass - PAR plot
+npfert_nmass_par_plot <- ggplot() +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass"),
+             aes(x = par, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(500, 1100), breaks = seq(500, 1100, 200)) +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*"s"^"-1"*")")),
+       y = expression(bold("ln RR of N"["mass"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# N+P interaction effect on Nmass - full model
+int_nmass_fullModel <- rma.mv(yi = dNPi,
+                                 V = dvNPi,
+                                 W = dwNPi,
+                                 method = "REML", 
+                                 random = ~ 1 | exp, 
+                                 mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                                 slab = exp, control = list(stepadj = 0.3), 
+                                 data = CNP_effect_sizes_reduced %>% 
+                                   filter(myvar == "leaf_n_mass"))
+summary(npfert_nmass_fullModel)
 
 
 
 
-orchard_plot(nfert_nmass_clim, 
-             mod = "photo_path", 
-             group = "exp",
-             xlab = "Log response to N addition")
 
 
 
-         
 
 
 
-library(emmeans)
+png("../plots/CNPmeta_Nmass_clim_moderators.png", units = "in",
+    height = 14, width = 16, res = 600)
+ggarrange(nfert_nmass_mat_plot, nfert_nmass_ai_plot, nfert_nmass_par_plot,
+          pfert_nmass_mat_plot, pfert_nmass_ai_plot, pfert_nmass_par_plot,
+          npfert_nmass_mat_plot, npfert_nmass_ai_plot, npfert_nmass_par_plot,
+          nrow = 3, ncol = 3, common.legend = TRUE, hjust = 0, vjust = 0,
+          labels = c("(a)", "(b)", "(c)", 
+                     "(d)", "(e)", "(f)",
+                     "(g)", "(h)", "(i)"),
+          font.label = list(size = 18))
+dev.off()
 
-
-orchard_plot(help, mod = "myc_assoc", group = "exp", xlab = "Log response to N addition")
-caterpillars(help, mod = "1", group = "exp", xlab = "lnRR")
-
-
-orchard_plot()
