@@ -833,7 +833,7 @@ nfert_nmass_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ mat + ai + par + myc_assoc*mat + photo_path*mat + n_fixer*mat,
+                                mods = ~ mat + ai + par + myc_assoc + photo_path + n_fixer,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = nfert_lnRR %>% 
                                   filter(myvar == "leaf_n_mass"))
@@ -841,8 +841,9 @@ summary(nfert_nmass_fullModel)
 
 # Nfert: Nmass - MAT plot
 nfert_nmass_mat_plot <- mod_results(nfert_nmass_fullModel, 
-                              mod = "mat", 
-                              group = "exp")$mod_table %>%
+                              mod = "mat",
+                              group = "exp", subset = TRUE
+                              )$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
   geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass"),
              aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
@@ -1015,7 +1016,7 @@ nfert_pmass_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ mat + ai + par,
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = nfert_lnRR %>% 
                                   filter(myvar == "leaf_p_mass"))
@@ -1066,22 +1067,16 @@ pfert_pmass_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = pfert_lnRR %>% 
-                                  filter(myvar == "leaf_p_mass" & experiment_type == "field"))
+                                  filter(myvar == "leaf_p_mass"))
 summary(pfert_pmass_fullModel)
 
 # Pfert: Pmass - MAT plot
-pfert_pmass_mat_plot <- mod_results(pfert_pmass_fullModel, 
-                                    mod = "mat", 
-                                    group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
+pfert_pmass_mat_plot <- ggplot() +
   geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_mass" & experiment_type == "field"),
              aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
-  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "blue") +
-  geom_smooth(method = "loess", linewidth = 2, color = "blue") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
   scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
@@ -1124,22 +1119,16 @@ npfert_pmass_fullModel <- rma.mv(logr,
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                                 mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = npfert_lnRR %>% 
                                    filter(myvar == "leaf_p_mass"))
 summary(npfert_pmass_fullModel)
 
 # N+P fert: Pmass - MAT plot
-npfert_pmass_mat_plot <- mod_results(npfert_pmass_fullModel, 
-                                     mod = "mat", 
-                                     group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
+npfert_pmass_mat_plot <- ggplot() +
   geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_mass"),
              aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
-  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "magenta") +
-  geom_smooth(method = "loess", linewidth = 2, color = "magenta") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
   scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
@@ -1162,16 +1151,9 @@ npfert_pmass_ai_plot <- ggplot() +
   theme(axis.title = element_text(face = "bold"))
 
 # N+P fert: Pmass - PAR plot
-npfert_pmass_par_plot <- mod_results(npfert_pmass_fullModel, 
-                                     mod = "par", 
-                                     group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
+npfert_pmass_par_plot <- ggplot() +
   geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_mass"),
              aes(x = par, y = logr, size = 1/logr_se), alpha = 0.75) +
-  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "magenta") +
-  geom_smooth(method = "loess", linewidth = 2, 
-              color = "magenta", linetype = "dashed") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
@@ -1181,82 +1163,16 @@ npfert_pmass_par_plot <- mod_results(npfert_pmass_fullModel,
   theme_classic(base_size = 18) + 
   theme(axis.title = element_text(face = "bold"))
 
-# Interaction effect on Pmass - full model
-int_pmass_fullModel <- rma.mv(yi = dNPi,
-                              V = dvNPi,
-                              W = dwNPi,
-                              method = "REML", 
-                              random = ~ 1 | exp, 
-                              mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
-                              slab = exp, control = list(stepadj = 0.3), 
-                              data = CNP_effect_sizes_reduced %>% 
-                                filter(myvar == "leaf_p_mass"))
-summary(int_pmass_fullModel)
-
-# Interaction: Pmass - MAT plot
-interaction_pmass_mat_plot <- ggplot() +
-  geom_point(data = subset(CNP_effect_sizes_reduced, myvar == "leaf_p_mass"),
-             aes(x = mat, y = dNPi, size = 1/dvNPi), alpha = 0.75) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
-       y = expression(bold("Interaction effect size of P"["mass"])),
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 18)
-
-# Interaction: Pmass - AI plot
-interaction_pmass_ai_plot <- mod_results(int_pmass_fullModel, 
-                                         mod = "ai", 
-                                         group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
-  geom_point(data = subset(CNP_effect_sizes_reduced, myvar == "leaf_p_mass"),
-             aes(x = ai, y = dNPi, size = 1/dvNPi), alpha = 0.75) +
-  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "black") +
-  geom_smooth(method = "loess", linewidth = 2, 
-              color = "black", linetype = "dashed") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +  
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  labs(x = "Aridity Index",
-       y = expression(bold("Interaction effect size of P"["mass"])),
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 18) +
-  theme(axis.title = element_text(face = "bold"))
-
-# Interaction: Pmass - PAR plot
-interaction_pmass_par_plot <- mod_results(int_pmass_fullModel, 
-                                          mod = "par", 
-                                          group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
-  geom_point(data = subset(CNP_effect_sizes_reduced, myvar == "leaf_p_mass"),
-             aes(x = par, y = dNPi, size = 1/dvNPi), alpha = 0.75) +
-  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "black") +
-  geom_smooth(method = "loess", linewidth = 2, 
-              color = "black", linetype = "dashed") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
-       y = expression(bold("Interaction effect size of P"["mass"])),       
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 18) + 
-  theme(axis.title = element_text(face = "bold"))
-
 # Make plot
 png("../plots/CNPmeta_Pmass_clim_moderators.png", units = "in",
-    height = 20, width = 20, res = 600)
+    height = 14, width = 16, res = 600)
 ggarrange(nfert_pmass_mat_plot, nfert_pmass_ai_plot, nfert_pmass_par_plot,
           pfert_pmass_mat_plot, pfert_pmass_ai_plot, pfert_pmass_par_plot,
           npfert_pmass_mat_plot, npfert_pmass_ai_plot, npfert_pmass_par_plot,
-          interaction_pmass_mat_plot, interaction_pmass_ai_plot, interaction_pmass_par_plot,
-          nrow = 4, ncol = 3, common.legend = TRUE, hjust = 0, vjust = 0,
+          nrow = 3, ncol = 3, common.legend = TRUE, hjust = 0, vjust = 0,
           labels = c("(a)", "(b)", "(c)", 
                      "(d)", "(e)", "(f)",
-                     "(g)", "(h)", "(i)",
-                     "(j)", "(k)", "(l)"),
+                     "(g)", "(h)", "(i)"),
           font.label = list(size = 18))
 dev.off()
 
@@ -1269,7 +1185,7 @@ nfert_leafnp_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = nfert_lnRR %>% 
                                   filter(myvar == "leaf_np"))
@@ -1332,23 +1248,16 @@ pfert_leafnp_fullModel <- rma.mv(logr,
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                                 mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = pfert_lnRR %>% 
                                    filter(myvar == "leaf_np"))
 summary(pfert_leafnp_fullModel)
 
 # Pfert: Leaf N:P - MAT plot
-pfert_leafnp_mat_plot <- mod_results(pfert_leafnp_fullModel, 
-                                     mod = "mat", 
-                                     group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
+pfert_leafnp_mat_plot <- ggplot() +
   geom_point(data = subset(pfert_lnRR, myvar == "leaf_np"),
              aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
-  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "blue") +
-  geom_smooth(method = "loess", linewidth = 2, 
-              color = "blue", linetype = "dashed") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
   scale_y_continuous(limits = c(-2, 1), breaks = seq(-2, 1, 1)) +
@@ -1392,7 +1301,7 @@ npfert_leafnp_fullModel <- rma.mv(logr,
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                                 mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = npfert_lnRR %>% 
                                    filter(myvar == "leaf_np"))
@@ -1443,16 +1352,22 @@ int_leafnp_fullModel <- rma.mv(yi = dNPi,
                                W = dwNPi,
                                method = "REML", 
                                random = ~ 1 | exp, 
-                               mods = ~ mat + ai + par + photo_path + myc_assoc + growth_form + growth_duration,
+                               mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
                                slab = exp, control = list(stepadj = 0.3), 
                                data = CNP_effect_sizes_reduced %>% 
                                  filter(myvar == "leaf_np"))
 summary(int_leafnp_fullModel)
 
 # Interaction: Pmass - MAT plot
-interaction_leafnp_mat_plot <- ggplot() +
+interaction_leafnp_mat_plot <- mod_results(int_leafnp_fullModel,
+                                           mod = "mat",
+                                           group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
   geom_point(data = subset(CNP_effect_sizes_reduced, myvar == "leaf_np"),
              aes(x = mat, y = dNPi, size = 1/dvNPi), alpha = 0.75) +
+  geom_ribbon(aes(ymin = lowerCL, ymax = upperCL),
+              alpha = 0.3, fill = "black") +
+  geom_smooth(method = "loess", color = "black", linewidth = 2) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
@@ -1495,8 +1410,8 @@ interaction_leafnp_par_plot <- mod_results(int_pmass_fullModel,
   theme(axis.title = element_text(face = "bold"))
 
 # Make plot
-png("../plots/CNPmeta_leafNP_clim_moderators.png", units = "in",
-    height = 20, width = 20, res = 600)
+# png("../plots/CNPmeta_leafNP_clim_moderators.png", units = "in",
+#     height = 20, width = 20, res = 600)
 ggarrange(nfert_leafnp_mat_plot, nfert_leafnp_ai_plot, nfert_leafnp_par_plot,
           pfert_leafnp_mat_plot, pfert_leafnp_ai_plot, pfert_leafnp_par_plot,
           npfert_leafnp_mat_plot, npfert_leafnp_ai_plot, npfert_leafnp_par_plot,
@@ -1507,4 +1422,20 @@ ggarrange(nfert_leafnp_mat_plot, nfert_leafnp_ai_plot, nfert_leafnp_par_plot,
                      "(g)", "(h)", "(i)",
                      "(j)", "(k)", "(l)"),
           font.label = list(size = 18))
-dev.off()
+# dev.off()
+
+###############################################################################
+# Re-run leaf_np models, but include moderator variables
+###############################################################################
+
+
+
+
+
+
+
+
+
+
+
+
