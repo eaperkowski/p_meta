@@ -89,7 +89,9 @@ nfert_responses <- nfert_only %>%
 
 use_vars_n <- unique(nfert_responses$myvar)
 
-# Calculate log-response ratios using `escalc` in `metafor`
+# Calculate log-response ratios using `escalc` in `metafor`. Also, convert SLA 
+# to Marea (logr = opposite sign, stdev/error/variance remains the same)
+
 nfert_lnRR <- nfert_responses %>% 
   escalc(measure = "ROM",
          m1i = x_t, sd1i = sd_t, n1i = rep_t, 
@@ -97,7 +99,9 @@ nfert_lnRR <- nfert_responses %>%
          data = ., 
          append = TRUE, 
          var.names = c("logr", "logr_var")) %>%
-  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t))
+  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t))  %>%
+  mutate(logr = ifelse(myvar == "sla", logr * -1, logr), 
+         myvar = ifelse(myvar == "sla", "lma", myvar))
 
 # Determine lnRR across multiple experiments. Takes into account
 # experiment variance and uses experiment identity as grouping
@@ -107,7 +111,20 @@ out_n <- purrr::map(as.list(use_vars_n),
                                     rename(var = myvar), nam_target = .))
 names(out_n) <- use_vars_n
 
+df_box_n_k <- data.frame(var = use_vars_n,
+                          k = c("(18)", "(12)", "(125)", "(30)", "(23)", "(139)",
+                                "(133)", "(85)", "(42)", "(63)", "(40)",
+                                NA, "(37)", "(43)", "(115)", "(113)", "(37)", 
+                                "(84)", "(79)", "(42)", "(40)", "(58)", "(59)", 
+                                "(20)", "(21)", "(21)", "(20)", "(5)"),
+                         sig.level = c("***", "***", "***", "***", "***", "***",
+                                       "*. ", "ns ", "ns ", "ns ", "***", 
+                                       NA, "***", "ns ", "** ", "*. ", "ns ", 
+                                       "** ", "ns ", "ns ", "ns ", "ns ", "ns ", 
+                                       "ns ", "ns ", "ns ", "ns ", "ns "))
+
 df_box_n <- purrr::map_dfr(out_n, "df_box") |> 
+  full_join(df_box_n_k) |>
   left_join(
     nfert_lnRR |> 
       group_by(myvar) |> 
@@ -157,7 +174,9 @@ pfert_lnRR <- pfert_responses %>%
          data = ., 
          append = TRUE, 
          var.names = c("logr", "logr_var")) %>%
-  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t))
+  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t)) %>%
+  mutate(logr = ifelse(myvar == "sla", logr * -1, logr), 
+         myvar = ifelse(myvar == "sla", "lma", myvar))
 
 # Determine lnRR across multiple experiments. Takes into account
 # experiment variance and uses experiment identity as grouping
@@ -167,7 +186,21 @@ out_p <- purrr::map(as.list(use_vars_p),
                                     rename(var = myvar), nam_target = .))
 names(out_p) <- use_vars_p
 
+df_box_p_k <- data.frame(var = use_vars_p,
+                         k = c("(18)", "(12)", "(125)", "(30)", "(23)", "(139)",
+                               "(133)", "(85)", "(42)", "(63)", "(40)", NA,
+                               "(37)", "(43)", "(115)", "(113)", "(37)", "(84)", 
+                               "(79)", "(42)", "(40)", "(58)", "(59)", "(20)",
+                               "(21)", "(21)", "(20)", "(5)"),
+                         sig.level = c(".  ", "***", "***", "***", "***", "ns ",
+                                       "***", "ns ", "* ", "ns ", "*. ", NA,
+                                       ".  ", ".  ", "***", "ns ", "ns ", "ns ", 
+                                       "***", "ns ", "*. ", "ns ", "ns ", "ns ",
+                                       "*. ", "ns ", "ns ", "**"))
+
+
 df_box_p <- purrr::map_dfr(out_p, "df_box") |> 
+  full_join(df_box_p_k) |>
   left_join(
     pfert_lnRR |> 
       group_by(myvar) |> 
@@ -221,7 +254,9 @@ npfert_lnRR <- npfert_responses %>%
          data = ., 
          append = TRUE, 
          var.names = c("logr", "logr_var")) %>%
-  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t))
+  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t)) %>%
+  mutate(logr = ifelse(myvar == "sla", logr * -1, logr), 
+         myvar = ifelse(myvar == "sla", "lma", myvar))
 
 # Determine lnRR across multiple experiments. Takes into account
 # experiment variance and uses experiment identity as grouping
@@ -231,7 +266,20 @@ out_np <- purrr::map(as.list(use_vars_np),
                                     rename(var = myvar), nam_target = .))
 names(out_np) <- use_vars_np
 
+df_box_np_k <- data.frame(var = use_vars_np,
+                          k = c("(18)", "(12)", "(125)", "(30)", "(23)", "(139)",
+                                "(133)", "(85)", "(42)", "(63)", "(40)", NA,
+                                "(37)", "(43)", "(115)", "(113)", "(37)", "(84)", 
+                                "(79)", "(42)", "(40)", "(58)", "(59)", "(20)",
+                                "(21)", "(21)", "(20)", "(5)"),
+                          sig.level = c("***", "***", "***", "** ", "*  ", "***",
+                                        "***", "*  ", "***", "ns ", "***", NA,
+                                        "** ", "*  ", "***", "** ", ".  ", "***", 
+                                        "***", ".  ", "***", "ns ", "ns ", "ns ",
+                                        "*  ", "ns ", "ns ", "** "))
+
 df_box_np <- purrr::map_dfr(out_np, "df_box") |> 
+  full_join(df_box_np_k) %>%
   left_join(
     npfert_lnRR |> 
       group_by(myvar) |> 
@@ -239,6 +287,7 @@ df_box_np <- purrr::map_dfr(out_np, "df_box") |>
       rename(var = myvar),
     by = "var")
 
+df_box_np$sig.level
 ##############################################################################
 # Let's put together some plots
 ##############################################################################
@@ -252,37 +301,54 @@ npfert_lnRR$manip_type <- "np"
 pfert_lnRR$manip_type <- "p"
 nfert_lnRR$manip_type <- "n"
 
-# Merge P and NP meta results
+# Merge N, P, and NP meta results
 df_box_all <- df_box_n %>%
   full_join(df_box_p) %>%
   full_join(df_box_np) %>%
+  filter(!is.na(middle)) %>%
   mutate(manip_type = factor(manip_type, levels = c("np", "p", "n")),
          var = factor(var, 
                         levels = c("rootshoot", "rmf", "bgb", "agb_p", 
-                                   "agb_n", "agb", "total_biomass", 
+                                   "agb_p_mass", "agb_n", "agb_n_mass",
+                                   "agb", "total_biomass", 
                                    "leaf_wue", "leaf_ppue", "leaf_pnue", 
-                                   "jmax", "vcmax", "asat", "leaf_residual_p", 
+                                   "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
                                    "leaf_structural_p", "leaf_nucleic_p", 
-                                   "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
+                                   "leaf_metabolic_p", "leaf_pi", 
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                   "leaf_n_area", "leaf_n_mass", "lma", "sla")))
+                                   "leaf_n_area", "leaf_n_mass", "lma"))) %>%
+  mutate(middle_fixed = ifelse(middle >= 0,
+                               sprintf(" %.3f", middle),
+                               sprintf("%.3f", middle)),
+         plot_label = paste0("paste('", middle_fixed, "'^'", sig.level, "')"),
+         bold_yn = ifelse(sig.level %in% c("*", "**", "***"),
+                          "bold", "plain"))
 
+# Check that all vars are incorporated
+unique(df_box_all$var)
+## Yes
+
+df_box_all$plot_label
+
+# Merge N, P, and NP lnRR values
 fert_exp_responses_all <- nfert_lnRR %>%
   full_join(pfert_lnRR) %>%
   full_join(npfert_lnRR) %>%
   mutate(manip_type = factor(manip_type, levels = c("np", "p", "n")),
          myvar = factor(myvar, 
                         levels = c("rootshoot", "rmf", "bgb", "agb_p", 
-                                   "agb_n", "agb", "total_biomass", 
+                                   "agb_p_mass", "agb_n", "agb_n_mass",
+                                   "agb", "total_biomass", 
                                    "leaf_wue", "leaf_ppue", "leaf_pnue", 
-                                   "jmax", "vcmax", "asat", "leaf_residual_p", 
+                                   "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
                                    "leaf_structural_p", "leaf_nucleic_p", 
-                                   "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
+                                   "leaf_metabolic_p", "leaf_pi", 
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                   "leaf_n_area", "leaf_n_mass", "lma", "sla")))
-head(fert_exp_responses_all)
+                                   "leaf_n_area", "leaf_n_mass", "lma")))
+unique(fert_exp_responses_all$myvar)
 
-# Plot nutrients. Separating by trait type to avoid plot overwhelm
+# Plot nonphotosynthetic leaf traits. Separating by trait type to avoid 
+# plot overwhelm
 meta_plot_all_leaf_nutrients <- ggplot(
   data = subset(fert_exp_responses_all, 
                 myvar %in% c("sla", "lma", "leaf_n_mass", "leaf_n_area", "leaf_p_mass",
@@ -319,6 +385,52 @@ meta_plot_all_leaf_nutrients <- ggplot(
         legend.title = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"))
 meta_plot_all_leaf_nutrients
+
+# Plot nonphotosynthetic leaf traits WITHOUT individual data points. Separating 
+# by trait type to avoid plot overwhelm
+meta_leaftraits_plot_noPoints <- ggplot(
+  data = df_box_all %>% filter(var %in% c("lma", "leaf_n_mass", 
+                                          "leaf_n_area", "leaf_p_mass", 
+                                          "leaf_p_area", "leaf_np"))) +
+  geom_crossbar(data = df_box_all %>%
+                  filter(var %in% c("lma", "leaf_n_mass", "leaf_n_area",
+                                    "leaf_p_mass", "leaf_p_area", "leaf_np")),
+                aes(x = var, y = middle, ymin = ymin,
+                    ymax = ymax, fill = manip_type),
+                alpha = 0.6, width = 0.6,
+                position = position_dodge(width = 0.75)) +
+  geom_text(aes(x = var, y = 0.8, 
+                label = plot_label, 
+                group = manip_type,
+                fontface = bold_yn),
+            position = position_dodge(width = 0.75),
+            parse = TRUE, hjust = 0) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("Leaf N:P",
+                              expression("P"["area"]), 
+                              expression("P"["mass"]), 
+                              expression("N"["area"]),
+                              expression("N"["mass"]), 
+                              expression("M"["area"]))) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  scale_fill_manual(limits = c("n", "p", "np"),
+                    values = c("red", "blue", "magenta")) +
+  scale_size(range = c(0.25, 5)) +
+  labs(x = "", 
+       y = "Log response to N, P, or N+P addition",
+       fill = "Nutrient addition") +
+  coord_flip() +
+  theme_bw(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        panel.border = element_rect(size = 1.25))
+meta_leaftraits_plot_noPoints
+
+
+
+
+
 
 # Plot leaf phosphorus fractionation. Separating by trait type to avoid plot overwhelm
 meta_plot_all_phosFract <- ggplot(
@@ -1079,7 +1191,7 @@ pfert_pmass_mat_plot <- ggplot() +
              aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
-  scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
        y = expression(bold("ln RR of P"["mass"]*" to P addition")),
        size = expression(bold("Error"^"-1"))) +
@@ -1092,8 +1204,7 @@ pfert_pmass_ai_plot <- ggplot() +
              alpha = 0.75) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
-  scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
-  labs(x = "Aridity Index",
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +  labs(x = "Aridity Index",
        y = expression(bold("ln RR of P"["mass"]*" to P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1106,8 +1217,7 @@ pfert_pmass_par_plot <- ggplot() +
              alpha = 0.75) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
-  scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
-  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
        y = expression(bold("ln RR of P"["mass"]*" to P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1126,12 +1236,18 @@ npfert_pmass_fullModel <- rma.mv(logr,
 summary(npfert_pmass_fullModel)
 
 # N+P fert: Pmass - MAT plot
-npfert_pmass_mat_plot <- ggplot() +
+npfert_pmass_mat_plot <- mod_results(npfert_pmass_fullModel,
+                                     mod = "mat", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
   geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_mass"),
              aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "magenta") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "magenta", linetype = "dashed") +
   scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
-  scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
        y = expression(bold("ln RR of P"["mass"]*" to N+P addition")),
        size = expression(bold("Error"^"-1"))) +
@@ -1143,7 +1259,7 @@ npfert_pmass_ai_plot <- ggplot() +
              aes(x = par, y = logr, size = 1/logr_se), alpha = 0.75) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(500, 1100), breaks = seq(500, 1100, 200)) +
-  scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   labs(x = "Aridity Index",
        y = expression(bold("ln RR of P"["mass"]*" to N+P addition")),
        size = expression(bold("Error"^"-1"))) +
@@ -1156,7 +1272,7 @@ npfert_pmass_par_plot <- ggplot() +
              aes(x = par, y = logr, size = 1/logr_se), alpha = 0.75) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
-  scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
        y = expression(bold("ln RR of P"["mass"]*" to N+P addition")),
        size = expression(bold("Error"^"-1"))) +
@@ -1425,17 +1541,568 @@ ggarrange(nfert_leafnp_mat_plot, nfert_leafnp_ai_plot, nfert_leafnp_par_plot,
 # dev.off()
 
 ###############################################################################
-# Re-run leaf_np models, but include moderator variables
+# Re-run Narea models, but include moderator variables
 ###############################################################################
 
+# Nitrogen addition effect on Narea - full model
+nfert_narea_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = nfert_lnRR %>% 
+                                  filter(myvar == "leaf_n_area"))
+summary(nfert_narea_fullModel)
 
+# Nfert: Narea - MAT plot
+nfert_narea_mat_plot <- mod_results(nfert_narea_fullModel,
+                                    mod = "mat", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_area"),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "red") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "red") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of N"["area"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) +
+  theme(axis.title = element_text(face = "bold"))
 
+# Nfert: Narea - AI plot
+nfert_narea_ai_plot <- ggplot() +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_area"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of N"["area"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
 
+# Nfert: Narea - PAR plot
+nfert_narea_par_plot <- ggplot() +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_area"),
+             aes(x = par, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*"s"^"-1"*")")),
+       y = expression(bold("ln RR of N"["area"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
 
+# Phosphorus addition effect on Narea - full model
+pfert_narea_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = pfert_lnRR %>% 
+                                  filter(myvar == "leaf_n_area"))
+summary(pfert_narea_fullModel)
 
+# Pfert: Narea - MAT plot
+pfert_narea_mat_plot <- ggplot() +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_area"),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of N"["area"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) +
+  theme(axis.title = element_text(face = "bold"))
 
+# Pfert: Narea - AI plot
+pfert_narea_ai_plot <- ggplot() +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_area"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of N"["area"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
 
+# Pfert: Narea - PAR plot
+pfert_narea_par_plot <- ggplot() +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_area"),
+             aes(x = par, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*"s"^"-1"*")")),
+       y = expression(bold("ln RR of N"["area"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
 
+# N+P addition effect on Narea - full model
+npfert_narea_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = npfert_lnRR %>% 
+                                  filter(myvar == "leaf_n_area"))
+summary(npfert_narea_fullModel)
 
+# N+Pfert: Narea - MAT plot
+npfert_narea_mat_plot <- ggplot() +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_area"),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of N"["area"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) +
+  theme(axis.title = element_text(face = "bold"))
 
+# N+Pfert: Narea - AI plot
+npfert_narea_ai_plot <- ggplot() +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_area"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of N"["area"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
 
+# N+Pfert: Narea - PAR plot
+npfert_narea_par_plot <- ggplot() +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_area"),
+             aes(x = par, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
+  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*"s"^"-1"*")")),
+       y = expression(bold("ln RR of N"["area"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Make plot
+png("../plots/CNPmeta_Narea_clim_moderators.png", units = "in",
+    height = 14, width = 16, res = 600)
+ggarrange(nfert_narea_mat_plot, nfert_narea_ai_plot, nfert_narea_par_plot,
+          pfert_narea_mat_plot, pfert_narea_ai_plot, pfert_narea_par_plot,
+          npfert_narea_mat_plot, npfert_narea_ai_plot, npfert_narea_par_plot,
+          nrow = 3, ncol = 3, common.legend = TRUE, hjust = 0, vjust = 0,
+          labels = c("(a)", "(b)", "(c)", 
+                     "(d)", "(e)", "(f)",
+                     "(g)", "(h)", "(i)"),
+          font.label = list(size = 18))
+dev.off()
+
+###############################################################################
+# Re-run Parea models, but include moderator variables
+###############################################################################
+
+# Nitrogen addition effect on Parea - full model
+nfert_parea_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = nfert_lnRR %>% 
+                                  filter(myvar == "leaf_p_area"))
+summary(nfert_parea_fullModel)
+
+# Nfert: Parea - MAT plot
+nfert_parea_mat_plot <- ggplot() +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of P"["area"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) +
+  theme(axis.title = element_text(face = "bold"))
+
+# NPfert: Parea - AI plot
+nfert_parea_ai_plot <- ggplot() +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of P"["area"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Nfert: Parea - PAR plot
+nfert_parea_par_plot <- mod_results(nfert_parea_fullModel,
+                                    mod = "par", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = par, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "red") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "red") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+       y = expression(bold("ln RR of P"["area"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Phosphorus addition effect on Parea - full model
+pfert_parea_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = pfert_lnRR %>% 
+                                  filter(myvar == "leaf_p_area" & logr > -0.5))
+summary(pfert_parea_fullModel)
+
+# Pfert: Parea - MAT plot
+pfert_parea_mat_plot <- mod_results(pfert_parea_fullModel,
+                                    mod = "mat", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_area" & logr > -0.5),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "blue") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "blue") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of P"["area"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) +
+  theme(axis.title = element_text(face = "bold"))
+
+# Pfert: Parea - AI plot
+pfert_parea_ai_plot <- ggplot() +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of P"["area"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Pfert: Parea - PAR plot
+pfert_parea_par_plot <- mod_results(pfert_parea_fullModel,
+                                    mod = "par", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_area" & logr > -0.5),
+             aes(x = par, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "blue") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "blue", linetype = "dashed") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
+  scale_y_continuous(limits = c(-0.6, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+       y = expression(bold("ln RR of P"["area"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# N+P addition effect on Parea - full model
+npfert_parea_fullModel <- rma.mv(logr, 
+                                 logr_var,
+                                 method = "REML", 
+                                 random = ~ 1 | exp, 
+                                 mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
+                                 slab = exp, control = list(stepadj = 0.3), 
+                                 data = npfert_lnRR %>% 
+                                   filter(myvar == "leaf_p_area" & logr > -0.5))
+summary(npfert_parea_fullModel)
+
+# N+Pfert: Parea - MAT plot
+npfert_parea_mat_plot <- ggplot() +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_area" & logr > -0.5),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of P"["area"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) +
+  theme(axis.title = element_text(face = "bold"))
+
+# N+Pfert: Parea - AI plot
+npfert_parea_ai_plot <- ggplot() +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of P"["area"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# N+Pfert: Parea - PAR plot
+npfert_parea_par_plot <- mod_results(npfert_parea_fullModel,
+                                    mod = "par", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = par, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "magenta") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "magenta") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
+  scale_y_continuous(limits = c(-0.6, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+       y = expression(bold("ln RR of P"["area"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Make plot
+png("../plots/CNPmeta_Parea_clim_moderators.png", units = "in",
+    height = 14, width = 16, res = 600)
+ggarrange(nfert_parea_mat_plot, nfert_parea_ai_plot, nfert_parea_par_plot,
+          pfert_parea_mat_plot, pfert_parea_ai_plot, pfert_parea_par_plot,
+          npfert_parea_mat_plot, npfert_parea_ai_plot, npfert_parea_par_plot,
+          nrow = 3, ncol = 3, common.legend = TRUE, hjust = 0, vjust = 0,
+          labels = c("(a)", "(b)", "(c)", 
+                     "(d)", "(e)", "(f)",
+                     "(g)", "(h)", "(i)"),
+          font.label = list(size = 18))
+dev.off()
+
+###############################################################################
+# Re-run Marea models, but include moderator variables
+###############################################################################
+
+# Nitrogen addition effect on Marea - full model
+nfert_marea_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = pfert_lnRR %>% 
+                                  filter(myvar == "sla" & logr > -0.5))
+summary(nfert_marea_fullModel)
+
+# Nfert: Parea - MAT plot
+ggplot() +
+  geom_point(data = subset(pfert_lnRR, myvar == "sla"),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of P"["area"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) +
+  theme(axis.title = element_text(face = "bold"))
+
+# NPfert: Parea - AI plot
+nfert_parea_ai_plot <- ggplot() +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of P"["area"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Nfert: Parea - PAR plot
+nfert_parea_par_plot <- mod_results(nfert_parea_fullModel,
+                                    mod = "par", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = par, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "red") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "red") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+       y = expression(bold("ln RR of P"["area"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Phosphorus addition effect on Parea - full model
+pfert_parea_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = pfert_lnRR %>% 
+                                  filter(myvar == "leaf_p_area" & logr > -0.5))
+summary(pfert_parea_fullModel)
+
+# Pfert: Parea - MAT plot
+pfert_parea_mat_plot <- mod_results(pfert_parea_fullModel,
+                                    mod = "mat", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_area" & logr > -0.5),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "blue") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "blue") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of P"["area"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) +
+  theme(axis.title = element_text(face = "bold"))
+
+# Pfert: Parea - AI plot
+pfert_parea_ai_plot <- ggplot() +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of P"["area"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Pfert: Parea - PAR plot
+pfert_parea_par_plot <- mod_results(pfert_parea_fullModel,
+                                    mod = "par", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_area" & logr > -0.5),
+             aes(x = par, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "blue") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "blue", linetype = "dashed") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
+  scale_y_continuous(limits = c(-0.6, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+       y = expression(bold("ln RR of P"["area"]*" to P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# N+P addition effect on Parea - full model
+npfert_parea_fullModel <- rma.mv(logr, 
+                                 logr_var,
+                                 method = "REML", 
+                                 random = ~ 1 | exp, 
+                                 mods = ~ mat + ai + par + photo_path + myc_assoc + n_fixer,
+                                 slab = exp, control = list(stepadj = 0.3), 
+                                 data = npfert_lnRR %>% 
+                                   filter(myvar == "leaf_p_area" & logr > -0.5))
+summary(npfert_parea_fullModel)
+
+# N+Pfert: Parea - MAT plot
+npfert_parea_mat_plot <- ggplot() +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_area" & logr > -0.5),
+             aes(x = mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+       y = expression(bold("ln RR of P"["area"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) +
+  theme(axis.title = element_text(face = "bold"))
+
+# N+Pfert: Parea - AI plot
+npfert_parea_ai_plot <- ggplot() +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = ai, y = logr, size = 1/logr_se), 
+             alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = "Aridity Index",
+       y = expression(bold("ln RR of P"["area"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# N+Pfert: Parea - PAR plot
+npfert_parea_par_plot <- mod_results(npfert_parea_fullModel,
+                                     mod = "par", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_area"),
+             aes(x = par, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "magenta") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "magenta") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
+  scale_y_continuous(limits = c(-0.6, 2), breaks = seq(-0.5, 2, 0.5)) +
+  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+       y = expression(bold("ln RR of P"["area"]*" to N+P addition")),
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 18) + 
+  theme(axis.title = element_text(face = "bold"))
+
+# Make plot
+png("../plots/CNPmeta_Parea_clim_moderators.png", units = "in",
+    height = 14, width = 16, res = 600)
+ggarrange(nfert_parea_mat_plot, nfert_parea_ai_plot, nfert_parea_par_plot,
+          pfert_parea_mat_plot, pfert_parea_ai_plot, pfert_parea_par_plot,
+          npfert_parea_mat_plot, npfert_parea_ai_plot, npfert_parea_par_plot,
+          nrow = 3, ncol = 3, common.legend = TRUE, hjust = 0, vjust = 0,
+          labels = c("(a)", "(b)", "(c)", 
+                     "(d)", "(e)", "(f)",
+                     "(g)", "(h)", "(i)"),
+          font.label = list(size = 18))
+dev.off()
