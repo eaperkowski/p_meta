@@ -15,10 +15,11 @@ library(rnaturalearth)
 library(naniar)
 library(lubridate)
 library(sf)
+library(rsofun)
 
 # Read PAR dataset
 par <- read.csv("../cru/cru_par_climExtract_growingseason_globe.csv") %>%
-  select(-X)
+  dplyr::select(-X)
 
 # Read data sources (MESI, NutNet, EAP manual compilation)
 mesi <- read.csv("../data/mesi_main_manual.csv")
@@ -67,6 +68,25 @@ CNP_meta_experiment_map
 # dev.off()
 
 #####################################################################
+# Extract PAR values and merge with climate_long
+#####################################################################
+# Convert experiment coordinates and CRU PAR coordinates into sf objects
+site_coords_sf <- st_as_sf(experiment_summary_field, 
+                           coords = c("longitude", "latitude"),
+                           crs = 4326)
+par_coords_sf <- st_as_sf(par, coords = c("lon", "lat"), crs = 4326)
+
+# Find nearest gridded point for each site
+site_coords_sf$nearest_point <- st_nearest_feature(site_coords_sf, par_coords_sf)
+
+# Extract the closest points, merge into experiment_summary_field
+experiment_summary_field <- site_coords_sf %>%
+  mutate(nearest_PAR = par_coords_sf$par[nearest_point]) %>%
+  data.frame() %>%
+  full_join(experiment_summary_field) %>%
+  dplyr::select(exp, latitude, longitude, par = nearest_PAR)
+
+#####################################################################
 # Convert CRU data to RasterBrick, then extract data from coordinates
 # of each site
 #####################################################################
@@ -93,26 +113,6 @@ names(pet_extracted)
 names(pet_extracted) <- str_c("pet", names(pet_extracted))
 
 #####################################################################
-# Extract PAR values and merge with climate_long
-#####################################################################
-# Convert experiment coordinates and CRU PAR coordinates into sf objects
-site_coords_sf <- st_as_sf(experiment_summary_field, 
-                           coords = c("longitude", "latitude"),
-                           crs = 4326)
-par_coords_sf <- st_as_sf(par, coords = c("lon", "lat"), crs = 4326)
-
-# Find nearest gridded point for each site
-site_coords_sf$nearest_point <- st_nearest_feature(site_coords_sf, par_coords_sf)
-
-# Extract the closest points, merge into experiment_summary_field
-experiment_summary_field <- site_coords_sf %>%
-  mutate(nearest_PAR = par_coords_sf$par[nearest_point]) %>%
-  data.frame() %>%
-  full_join(experiment_summary_field) %>%
-  dplyr::select(exp, latitude, longitude, par = nearest_PAR)
-
-
-#####################################################################
 # Combine extracted climate data into single data frame
 #####################################################################
 climate_all <- cbind(experiment_summary_field,
@@ -127,64 +127,60 @@ climate_long <- climate_all %>%
                names_to = "variable", values_to = "value") %>%
   separate(variable, into = c("var", "date"), 
            sep = "X", extra = "merge") %>%
-  mutate(year = year(ymd(date)))
+  mutate(month = month(ymd(date)),
+         day = day(ymd(date)),
+         year = year(ymd(date)))
 
 #####################################################################
-# Let's calculate summary statistics! First, calculate total
-# precipitation and PET, mean temperature, mean vapor pressure 
-# every year, then calculate mean annual values of each variable
+# Let's calculate summary statistics! First, define the growing
+# season, then calculate mean annual growing season temperature, 
+# precipitation, pet
 #####################################################################
 
-# Mean annual precipitation
-map <- climate_long %>%
-  filter(var == "pre" & year %in% c(1901:2024)) %>%
+# Define growing season (where monthly temp > 0)
+growing_szn <- climate_long %>%
+  filter(var == "temp" & year %in% c(1901:2024) & value > 0) %>%
+  dplyr::select(exp, latitude, longitude, date)
+
+# Filter climate_long to only include months of the growing 
+# season for each experiment
+climate_gs_long <- climate_long %>%
+  semi_join(growing_szn, by = c("exp", "date")) %>%
+  pivot_wider(names_from = var, values_from = value) %>%
+  mutate(pet = pet * 30, # scale to mm/month
+         ai = pre / pet) %>%
+  dplyr::select(exp:date, month, year, pre:ai, par)
+
+# Mean precipitation, potential evapotranspiration, and AI
+climate_means <- climate_gs_long %>%
   group_by(exp, latitude, longitude, year, par) %>%
-  summarize(annual_precip = sum(value)) %>%
+  summarize(annual_gs_pre = sum(pre, na.rm = TRUE),
+            annual_gs_pet = sum(pet, na.rm = TRUE),
+            annual_gs_temp = mean(temp, na.rm = TRUE),
+            annual_gs_ai = annual_gs_pre / annual_gs_pet) %>%
   ungroup() %>%
   group_by(exp, latitude, longitude, par) %>%
-  summarize(map = mean(annual_precip))
-
-# Mean annual potential evapotranspiration
-mapet <- climate_long %>%
-  filter(var == "pet" & year %in% c(1901:2024)) %>%
-  group_by(exp, latitude, longitude, year, par) %>%
-  summarize(annual_pet = sum(value * 30)) %>% # *30 to scale to mm/month
-  ungroup() %>%
-  group_by(exp, latitude, longitude, par) %>%
-  summarize(mapet = mean(annual_pet))
-
-# Mean annual temperature
-mat <- climate_long %>%
-  filter(var == "temp" & year %in% c(1901:2024)) %>%
-  group_by(exp, latitude, longitude, year, par) %>%
-  summarize(annual_temp = mean(value)) %>%
-  ungroup() %>%
-  group_by(exp, latitude, longitude, par) %>%
-  summarize(mat = mean(annual_temp))
-
-# Merge summary statistics and calculate aridity index (P/PET)
-complete_climate_summary <- map %>%
-  full_join(mat) %>%
-  full_join(mapet) %>%
-  mutate(ai = map / mapet)
-
+  summarize(gs_map = mean(annual_gs_pre, na.rm = TRUE),
+            gs_mapet = mean(annual_gs_pet, na.rm = TRUE),
+            gs_mat = mean(annual_gs_temp, na.rm = TRUE),
+            gs_ai = mean(annual_gs_ai, na.rm = TRUE))
 
 # Merge climate summary with compiled dataset
 compiled_df <- full_df %>%
-  full_join(complete_climate_summary, by = c("exp", "latitude", "longitude")) %>%
-  dplyr::select(source:elevation, par, map:ai, ecosystem_type:npk, 
+  full_join(climate_means, by = c("exp", "latitude", "longitude")) %>%
+  dplyr::select(source:elevation, gs_map:gs_ai, gs_par = par, ecosystem_type:npk, 
                 fert, n_c:rep_t)
-# write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
+write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
 
 #####################################################################
 # Some plots
 #####################################################################
 # Whittaker plot
-# png("../plots/CNPmeta_whittaker_plot.png",
-#     width = 5400, height = 3000, res = 600)
+png("../plots/CNPmeta_whittaker_plot.png",
+    width = 5400, height = 3000, res = 600)
 biome_type_plot <- whittaker_base_plot() +
-  geom_point(data = complete_climate_summary,
-             aes(x = mat, y = map / 10)) +
+  geom_point(data = climate_means,
+             aes(x = gs_mat, y = gs_map / 10)) +
   scale_y_continuous(limits = c(0, 500),
                      breaks = seq(0, 500, 100),
                      labels = seq(0, 5000, 1000)) +
