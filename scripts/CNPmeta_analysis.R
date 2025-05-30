@@ -289,285 +289,6 @@ df_box_np <- purrr::map_dfr(out_np, "df_box") |>
     by = "var")
 
 ##############################################################################
-# Let's put together some plots
-##############################################################################
-
-# Add exp type to all data frames to merge together
-df_box_np$manip_type <- "np"
-df_box_p$manip_type <- "p"
-df_box_n$manip_type <- "n"
-
-npfert_lnRR$manip_type <- "np"
-pfert_lnRR$manip_type <- "p"
-nfert_lnRR$manip_type <- "n"
-
-# Merge N, P, and NP meta results
-df_box_all <- df_box_n %>%
-  full_join(df_box_p) %>%
-  full_join(df_box_np) %>%
-  filter(!is.na(middle)) %>%
-  mutate(manip_type = factor(manip_type, levels = c("np", "p", "n")),
-         var = factor(var, 
-                        levels = c("rootshoot", "rmf", "bgb", "agb_p", 
-                                   "agb_p_mass", "agb_n", "agb_n_mass",
-                                   "agb", "total_biomass", 
-                                   "leaf_wue", "leaf_ppue", "leaf_pnue", 
-                                   "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
-                                   "leaf_structural_p", "leaf_nucleic_p", 
-                                   "leaf_metabolic_p", "leaf_pi", 
-                                   "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                   "leaf_n_area", "leaf_n_mass", "lma"))) %>%
-  mutate(middle_fixed = ifelse(middle >= 0,
-                               sprintf(" %.3f", middle),
-                               sprintf("%.3f", middle)),
-         plot_label = paste0("paste('", middle_fixed, "'^'", sig.level, "')"),
-         bold_yn = ifelse(sig.level %in% c("*", "**", "***"),
-                          "bold", "plain"))
-
-# Check that all vars are incorporated
-unique(df_box_all$var)
-## Yes
-
-# Merge N, P, and NP lnRR values
-fert_exp_responses_all <- nfert_lnRR %>%
-  full_join(pfert_lnRR) %>%
-  full_join(npfert_lnRR) %>%
-  mutate(manip_type = factor(manip_type, levels = c("np", "p", "n")),
-         myvar = factor(myvar, 
-                        levels = c("rootshoot", "rmf", "bgb", "agb_p", 
-                                   "agb_p_mass", "agb_n", "agb_n_mass",
-                                   "agb", "total_biomass", 
-                                   "leaf_wue", "leaf_ppue", "leaf_pnue", 
-                                   "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
-                                   "leaf_structural_p", "leaf_nucleic_p", 
-                                   "leaf_metabolic_p", "leaf_pi", 
-                                   "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                   "leaf_n_area", "leaf_n_mass", "lma")))
-unique(fert_exp_responses_all$myvar)
-
-# Plot nonphotosynthetic leaf traits. Separating by trait type to avoid 
-# plot overwhelm
-meta_plot_all_leaf_nutrients <- ggplot(
-  data = subset(fert_exp_responses_all, 
-                myvar %in% c("sla", "lma", "leaf_n_mass", "leaf_n_area", "leaf_p_mass",
-                             "leaf_p_area", "leaf_np")),
-  aes(x = myvar, y = logr, fill = manip_type)) +
-  geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
-                                              dodge.width = 0.75),
-              shape = 21, aes(size = 1/logr_var)) +
-  geom_crossbar(data = df_box_all %>% drop_na(var) %>%
-                  filter(var %in% c("sla", "lma", "leaf_n_mass", "leaf_n_area", 
-                                    "leaf_p_mass", "leaf_p_area", "leaf_np")),
-                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.6,
-                position = position_dodge(width = 0.8)) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("Leaf N:P",
-                              expression("P"["area"]), 
-                              expression("P"["mass"]), 
-                              expression("N"["area"]),
-                              expression("N"["mass"]), 
-                              expression("M"["area"]),
-                              "SLA")) +
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  scale_fill_manual(limits = c("n", "p", "np"),
-                    values = c("red", "blue", "magenta")) +
-  scale_size(range = c(0.25, 5)) +
-  labs(x = "", 
-       y = "Log response to N, P, or N+P addition",
-       fill = "Nutrient addition",
-       size = "Weight") +
-  coord_flip() +
-  theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"))
-meta_plot_all_leaf_nutrients
-
-# Plot nonphotosynthetic leaf traits WITHOUT individual data points. Separating 
-# by trait type to avoid plot overwhelm
-meta_leaftraits_plot_noPoints <- ggplot(
-  data = df_box_all %>% filter(var %in% c("lma", "leaf_n_mass", 
-                                          "leaf_n_area", "leaf_p_mass", 
-                                          "leaf_p_area", "leaf_np"))) +
-  geom_crossbar(data = df_box_all %>%
-                  filter(var %in% c("lma", "leaf_n_mass", "leaf_n_area",
-                                    "leaf_p_mass", "leaf_p_area", "leaf_np")),
-                aes(x = var, y = middle, ymin = ymin,
-                    ymax = ymax, fill = manip_type),
-                alpha = 0.6, width = 0.6,
-                position = position_dodge(width = 0.75)) +
-  geom_text(aes(x = var, y = 0.8, 
-                label = plot_label, 
-                group = manip_type,
-                fontface = bold_yn),
-            position = position_dodge(width = 0.75),
-            parse = TRUE, hjust = 0) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("Leaf N:P",
-                              expression("P"["area"]), 
-                              expression("P"["mass"]), 
-                              expression("N"["area"]),
-                              expression("N"["mass"]), 
-                              expression("M"["area"]))) +
-  scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
-  scale_fill_manual(limits = c("n", "p", "np"),
-                    values = c("red", "blue", "magenta")) +
-  scale_size(range = c(0.25, 5)) +
-  labs(x = "", 
-       y = "Log response to N, P, or N+P addition",
-       fill = "Nutrient addition") +
-  coord_flip() +
-  theme_bw(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"),
-        panel.border = element_rect(size = 1.25))
-meta_leaftraits_plot_noPoints
-
-# Plot leaf phosphorus fractionation. Separating by trait type to avoid plot overwhelm
-meta_plot_all_phosFract <- ggplot(
-  data = subset(fert_exp_responses_all, 
-                myvar %in% c("leaf_residual_p", 
-                             "leaf_structural_p", "leaf_nucleic_p", 
-                             "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi")),
-  aes(x = myvar, y = logr, fill = manip_type)) +
-  geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
-                                              dodge.width = 0.75),
-              shape = 21, aes(size = 1/logr_var)) +
-  geom_crossbar(data = df_box_all %>% drop_na(var) %>%
-                  filter(var %in% c("leaf_residual_p", 
-                                    "leaf_structural_p", "leaf_nucleic_p", 
-                                    "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi")),
-                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.6,
-                position = position_dodge(width = 0.8)) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("Leaf residual P",
-                              "Leaf structural P",
-                              "Leaf nucleic acid P",
-                              "Leaf metabolic P",
-                              "Leaf Pi")) +
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  scale_fill_manual(limits = c("n", "p", "np"),
-                    values = c("red", "blue", "magenta")) +
-  scale_size(range = c(0.25, 5)) +
-  labs(x = "", 
-       y = "Log response to N, P, or N+P addition",
-       fill = "Nutrient addition",
-       size = "Weight") +
-  coord_flip() +
-  theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"))
-meta_plot_all_phosFract
-
-# Plot photosynthetic traits. Separating by trait type to avoid plot overwhelm
-meta_plot_all_photo <- ggplot(
-  data = subset(fert_exp_responses_all, 
-                myvar %in% c("asat", "vcmax", "jmax",
-                             "rd", "leaf_pnue", "leaf_ppue", "leaf_wue")),
-  aes(x = myvar, y = logr, fill = manip_type)) +
-  geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
-                                              dodge.width = 0.75),
-              shape = 21, aes(size = 1/logr_var)) +
-  geom_crossbar(data = df_box_all %>% drop_na(var) %>%
-                  filter(var %in% c("asat", "vcmax", "jmax",
-                                    "rd", "leaf_pnue", "leaf_ppue", "leaf_wue")),
-                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.6,
-                position = position_dodge(width = 0.8)) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("iWUE",
-                              "PPUE",
-                              "PNUE",
-                              expression("J"["max"]),
-                              expression("V"["cmax"]),
-                              expression("A"["sat"]))) +
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  scale_fill_manual(limits = c("n", "p", "np"),
-                    values = c("red", "blue", "magenta")) +
-  scale_size(range = c(0.25, 5)) +
-  labs(x = "", 
-       y = "Log response to N, P, or N+P addition",
-       fill = "Nutrient addition",
-       size = "Weight") +
-  coord_flip() +
-  theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"))
-meta_plot_all_photo
-
-# Plot biomass traits. Separating by trait type to avoid plot overwhelm
-meta_plot_all_biomass <- ggplot(
-  data = subset(fert_exp_responses_all, 
-                myvar %in% c("rootshoot", "rmf", "bgb", "agb", "agb_n", 
-                             "agb_p", "total_biomass")),
-  aes(x = myvar, y = logr, fill = manip_type)) +
-  geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
-                                              dodge.width = 0.75),
-              shape = 21, aes(size = 1/logr_var)) +
-  geom_crossbar(data = df_box_all %>% drop_na(var) %>%
-                  filter(var %in% c("rootshoot", "rmf", "bgb", "agb", "agb_n", 
-                                    "agb_p", "total_biomass")),
-                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
-                alpha = 0.6, width = 0.6,
-                position = position_dodge(width = 0.8)) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("Root:shoot",
-                              "RMF",
-                              "Belowground biomass",
-                              "Aboveground P standing stock",
-                              "Aboveground N standing stock",
-                              "Aboveground biomass",
-                              "Total biomass")) +
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  scale_fill_manual(limits = c("n", "p", "np"),
-                    values = c("red", "blue", "magenta")) +
-  scale_size(range = c(0.25, 4)) +
-  labs(x = "", 
-       y = "Log response to N, P, or N+P addition",
-       fill = "Nutrient addition",
-       size = "Weight") +
-  coord_flip() +
-  theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"))
-meta_plot_all_biomass
-
-
-# Write plots
-# png("../plots/CNPmeta_plot_all_combined_new.png", height = 12, width = 12, 
-#     units = "in", res = 600)
-meta_plot_all_leaf_nutrients / meta_plot_all_photo / meta_plot_all_biomass +
-  plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
-  theme(plot.tag = element_text(size = 12, face = "bold"))
-# dev.off()
-
-# png("../plots/CNPmeta_plot_leafNutrients.png", height = 8, width = 12, 
-#    units = "in", res = 600)
-# meta_plot_all_leaf_nutrients
-# dev.off()
-# 
-# png("../plots/CNPmeta_plot_photo.png", height = 8, width = 12, 
-#     units = "in", res = 600)
-# meta_plot_all_photo
-# dev.off()
-# 
-# png("../plots/CNPmeta_phosFract.png", height = 4.5, width = 12, 
-#     units = "in", res = 600)
-# meta_plot_all_phosFract
-# dev.off()
-# 
-# png("../plots/CNPmeta_biomass.png", height = 8, width = 12, 
-#     units = "in", res = 600)
-# meta_plot_all_biomass
-# dev.off()
-
-##############################################################################
 # Some prep work for calculating interaction effect sizes (need
 # to turn summary statistics into long format)
 ##############################################################################
@@ -601,7 +322,7 @@ full_df_trt_long <- full_df %>%
 # Calculate individual, main, and interaction effect sizes
 ###############################################################################
 CNP_effect_sizes <- data.frame(
-  unique_id = full_df_trt_long$unique_id,
+  full_df_trt_long,
   calc_intxn_effSize_meta(x_a = full_df_trt_long$x_n, 
                           s_a = full_df_trt_long$sd_n, 
                           n_a = full_df_trt_long$rep_n,
@@ -623,7 +344,8 @@ CNP_effect_sizes <- data.frame(
   full_join(experiment_summary, by = c("citation", "exp")) %>%
   replace_with_na_all(~.x == "none") %>%
   full_join(species_summary, by = "species") %>%
-  mutate(pft = str_c(photo_path, n_fixer, myc_assoc, sep = "_")) %>%
+  mutate(pft = str_c(photo_path, n_fixer, myc_assoc, sep = "_"),
+         dAB_se = sqrt(v_ab_int) / sqrt(rep_np)) %>%
   dplyr::select(citation, exp, latitude:experiment_type, 
                 species, family:myc_assoc, pft, response,
                 
@@ -637,7 +359,8 @@ CNP_effect_sizes <- data.frame(
                 dPi = dB, dvPi = v_b_main, dwPi = w_b_main,
                 
                 # Interaction effects
-                dNPi = dAB, dvNPi = v_ab_int, dwNPi = w_ab_int)
+                dNPi = dAB, dvNPi = v_ab_int, dwNPi = w_ab_int,
+                dNPi_se = dAB_se)
 
 ###############################################################################
 # Clean CNP_effect_sizes to only include relevant traits. Also tidy up to
@@ -649,7 +372,7 @@ CNP_effect_sizes_reduced <- CNP_effect_sizes %>%
          myvar = ifelse(myvar == "amax", "asat", myvar),
          myvar = ifelse(myvar == "anet", "asat", myvar),
          myvar = ifelse(myvar == "fine_root_biomass" | myvar == "bnpp", 
-                      "bgb", myvar),
+                        "bgb", myvar),
          myvar = ifelse(myvar == "anpp", "agb", myvar),
          myvar = ifelse(myvar == "total_leaf_area", "tla", myvar)) %>%
   filter(myvar != "r_eco" & myvar != "nee" & 
@@ -669,8 +392,8 @@ CNP_effect_sizes_reduced <- CNP_effect_sizes %>%
 use_vars_int <- unique(CNP_effect_sizes_reduced$myvar)
 
 out_int <- purrr::map(as.list(use_vars_int),
-                     ~analyse_meta_int(CNP_effect_sizes_reduced %>%
-                                     rename(var = myvar), nam_target = .))
+                      ~analyse_meta_int(CNP_effect_sizes_reduced %>%
+                                          rename(var = myvar), nam_target = .))
 names(out_int) <- use_vars_int
 
 df_box_int <- purrr::map_dfr(out_int, "df_box") |> 
@@ -681,24 +404,61 @@ df_box_int <- purrr::map_dfr(out_int, "df_box") |>
       rename(var = myvar),
     by = "var")
 
-###############################################################################
-# Let' make some plots!
-###############################################################################
-# Factor variables to appear in plots in a certain order
+
+##############################################################################
+# Plot prep
+##############################################################################
+# Add exp type to all data frames to merge together
+df_box_np$manip_type <- "np"
+df_box_p$manip_type <- "p"
+df_box_n$manip_type <- "n"
+
+npfert_lnRR$manip_type <- "np"
+pfert_lnRR$manip_type <- "p"
+nfert_lnRR$manip_type <- "n"
+
+# Merge N, P, and NP meta results
+df_box_all <- df_box_n %>%
+  full_join(df_box_p) %>%
+  full_join(df_box_np) %>%
+  filter(!is.na(middle)) %>%
+  mutate(manip_type = factor(manip_type, levels = c("np", "p", "n")),
+         var = factor(var, 
+                        levels = c("rootshoot", "rmf", "bgb", "agb_p", 
+                                   "agb_p_mass", "agb_n", "agb_n_mass",
+                                   "agb", "total_biomass", 
+                                   "leaf_wue", "leaf_ppue", "leaf_pnue", 
+                                   "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
+                                   "leaf_structural_p", "leaf_nucleic_p", 
+                                   "leaf_metabolic_p", "leaf_pi", 
+                                   "leaf_np", "leaf_p_area", "leaf_p_mass", 
+                                   "leaf_n_area", "leaf_n_mass", "lma"))) %>%
+  mutate(middle_fixed = ifelse(middle >= 0,
+                               sprintf(" %.3f", middle),
+                               sprintf("%.3f", middle)),
+         plot_label = paste0("paste('", middle_fixed, "'^'", sig.level, "')"),
+         bold_yn = ifelse(sig.level %in% c("*", "**", "***"),
+                          "bold", "plain"))
+
+# Merge N, P, and NP lnRR values
+fert_exp_responses_all <- nfert_lnRR %>%
+  full_join(pfert_lnRR) %>%
+  full_join(npfert_lnRR) %>%
+  mutate(manip_type = factor(manip_type, levels = c("np", "p", "n")),
+         myvar = factor(myvar, 
+                        levels = c("rootshoot", "rmf", "bgb", "agb_p", 
+                                   "agb_p_mass", "agb_n", "agb_n_mass",
+                                   "agb", "total_biomass", 
+                                   "leaf_wue", "leaf_ppue", "leaf_pnue", 
+                                   "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
+                                   "leaf_structural_p", "leaf_nucleic_p", 
+                                   "leaf_metabolic_p", "leaf_pi", 
+                                   "leaf_np", "leaf_p_area", "leaf_p_mass", 
+                                   "leaf_n_area", "leaf_n_mass", "lma")))
+
+# Factor interaction effect size variables to appear in a certain order
 CNP_effect_sizes_reduced <- CNP_effect_sizes_reduced %>%
   mutate(myvar = factor(myvar, 
-               levels = c("rootshoot", "rmf", "bgb", "agb_p", 
-                          "agb_n", "agb", "total_biomass", 
-                          "leaf_wue", "leaf_ppue", "leaf_pnue", 
-                          "jmax", "vcmax", "asat", "leaf_residual_p", 
-                          "leaf_structural_p", "leaf_nucleic_p", 
-                          "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
-                          "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                          "leaf_n_area", "leaf_n_mass", "lma", "sla")))
-
-# Factor variables to appear in plots in a certain order
-df_box_int <- df_box_int %>%
-  mutate(var = factor(var, 
                         levels = c("rootshoot", "rmf", "bgb", "agb_p", 
                                    "agb_n", "agb", "total_biomass", 
                                    "leaf_wue", "leaf_ppue", "leaf_pnue", 
@@ -706,23 +466,80 @@ df_box_int <- df_box_int %>%
                                    "leaf_structural_p", "leaf_nucleic_p", 
                                    "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                   "leaf_n_area", "leaf_n_mass", "lma", "sla")),
+                                   "leaf_n_area", "leaf_n_mass", "lma", "sla")))
+
+# Factor interaction effect size variables in a certain order
+df_box_int <- df_box_int %>%
+  mutate(var = factor(var, 
+                      levels = c("rootshoot", "rmf", "bgb", "agb_p", 
+                                 "agb_n", "agb", "total_biomass", 
+                                 "leaf_wue", "leaf_ppue", "leaf_pnue", 
+                                 "jmax", "vcmax", "asat", "leaf_residual_p", 
+                                 "leaf_structural_p", "leaf_nucleic_p", 
+                                 "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
+                                 "leaf_np", "leaf_p_area", "leaf_p_mass", 
+                                 "leaf_n_area", "leaf_n_mass", "lma", "sla")),
          int_type = ifelse(var == "leaf_np", 
                            "synergistic",
                            ifelse(var == "agb", 
                                   "synergistic",
                                   "additive")))
 
+##############################################################################
+# Leaf nutrient plots
+##############################################################################
+# Individual leaf nutrient responses
+meta_plot_all_leaf_nutrients <- ggplot(
+  data = subset(fert_exp_responses_all, 
+                myvar %in% c("lma", "leaf_n_mass", "leaf_n_area", "leaf_p_mass",
+                             "leaf_p_area", "leaf_np")),
+  aes(x = myvar, y = logr, fill = manip_type)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
+                                              dodge.width = 0.75),
+              shape = 21, aes(size = 1/logr_se), alpha = 0.3) +
+  geom_crossbar(data = df_box_all %>% drop_na(var) %>%
+                  filter(var %in% c("lma", "leaf_n_mass", "leaf_n_area", 
+                                    "leaf_p_mass", "leaf_p_area", "leaf_np")),
+                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
+                alpha = 0.6, width = 0.6,
+                position = position_dodge(width = 0.8)) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("Leaf N:P",
+                              expression("P"["area"]), 
+                              expression("P"["mass"]), 
+                              expression("N"["area"]),
+                              expression("N"["mass"]), 
+                              expression("M"["area"]),
+                              "SLA")) +
+  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
+  scale_fill_manual(limits = c("n", "p", "np"),
+                    values = c("red", "blue", "magenta")) +
+  scale_size_continuous(limits = c(0, 224), range = c(0.2, 4)) +
+  labs(x = "", 
+       y = "Log response to N, P, or N+P addition",
+       fill = "Nutrient addition",
+       size = expression(bold("Error"^"-1"))) +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"))+
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+meta_plot_all_leaf_nutrients
+
+# Interaction effect sizes for leaf nutrients
 meta_intPlot_leaf_nutrients <- ggplot(
   data = CNP_effect_sizes_reduced %>%
-    filter(myvar %in% c("sla", "lma", "leaf_n_mass", "leaf_n_area", 
+    filter(myvar %in% c("lma", "leaf_n_mass", "leaf_n_area", 
                         "leaf_p_mass", "leaf_p_area", "leaf_np")),
   aes(x = myvar, y = dNPi)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
-              shape = 21, aes(size = dwNPi)) +
+              shape = 21, aes(size = 1/dNPi_se), alpha = 0.3) +
   geom_crossbar(data = df_box_int %>% drop_na(var) %>%
-                  filter(var %in% c("sla", "lma", "leaf_n_mass", "leaf_n_area", 
+                  filter(var %in% c("lma", "leaf_n_mass", "leaf_n_area", 
                                     "leaf_p_mass", "leaf_p_area", "leaf_np")),
                 aes(x = var, y = middle, ymin = ymin, 
                     ymax = ymax, fill = int_type),
@@ -737,92 +554,244 @@ meta_intPlot_leaf_nutrients <- ggplot(
                               expression("M"["area"]),
                               "SLA")) +
   scale_y_continuous(limits = c(-4, 4), breaks = seq(-4, 4, 1)) +
+  scale_size_continuous(limits = c(0, 15), range = c(0.2, 4)) +
   labs(x = "", 
        y = "Interaction effect size (Hedge's d)",
-       size = "Weight",
+       size = expression(bold("Error"^"-1")),
        fill = "Interaction type") +
-  scale_size(range = c(0.25, 4)) +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"))
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
 meta_intPlot_leaf_nutrients
 
-# Plot leaf phosphorus fractionation. Separating by trait type to avoid plot overwhelm
+png("../plots/CNPmeta_figXX_leaf_nutrients.png", width = 10, height = 12,
+    units = "in", res = 600)
+ggarrange(meta_plot_all_leaf_nutrients, meta_intPlot_leaf_nutrients,
+          nrow = 2, labels = c("(a)", "(b)"), font.label = list(size = 18))
+dev.off()
+
+##############################################################################
+# Leaf phosphorus fractionation plots (removing residual P pool)
+##############################################################################
+# Individual leaf nutrient responses
+meta_plot_all_phosFract <- ggplot(
+  data = subset(fert_exp_responses_all, 
+                myvar %in% c("leaf_structural_p", "leaf_nucleic_p", 
+                             "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi")),
+  aes(x = myvar, y = logr, fill = manip_type)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
+                                              dodge.width = 0.75),
+              shape = 21, aes(size = 1/logr_se), alpha = 0.3) +
+  geom_crossbar(data = df_box_all %>% drop_na(var) %>%
+                  filter(var %in% c("leaf_structural_p", "leaf_nucleic_p", 
+                                    "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi")),
+                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
+                alpha = 0.6, width = 0.6,
+                position = position_dodge(width = 0.8)) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("Leaf structural P",
+                              "Leaf nucleic acid P",
+                              "Leaf metabolic P",
+                              "Leaf Pi")) +
+  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
+  scale_fill_manual(limits = c("n", "p", "np"),
+                    values = c("red", "blue", "magenta")) +
+  scale_size_continuous(limits = c(0, 224), range = c(0.2, 4)) +
+  labs(x = "", 
+       y = "Log response to N, P, or N+P addition",
+       fill = "Nutrient addition",
+       size = expression(bold("Error"^"-1"))) +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+meta_plot_all_phosFract
+
+# Interaction effect sizes for leaf phosphorus fractionation
 meta_intPlot_phosFract <- ggplot(
   data = CNP_effect_sizes_reduced %>%
-    filter(myvar %in%  c("leaf_residual_p", 
-                         "leaf_structural_p", "leaf_nucleic_p", 
+    filter(myvar %in%  c("leaf_structural_p", "leaf_nucleic_p", 
                          "leaf_metabolic_p", "leaf_pi")),
   aes(x = myvar, y = dNPi)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
-              shape = 21, aes(size = dwNPi)) +
+              shape = 21, aes(size = 1 / dNPi_se), alpha = 0.3) +
   geom_crossbar(data = df_box_int %>% drop_na(var) %>%
-                  filter(var %in% c("leaf_residual_p", 
-                                    "leaf_structural_p", "leaf_nucleic_p", 
+                  filter(var %in% c("leaf_structural_p", "leaf_nucleic_p", 
                                     "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi")),
                 aes(x = var, y = middle, ymin = ymin, 
                     ymax = ymax, fill = int_type),
                 alpha = 0.6, width = 0.4,
                 position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("Leaf residual P",
-                              "Leaf structural P",
+  scale_x_discrete(labels = c("Leaf structural P",
                               "Leaf nucleic acid P",
                               "Leaf metabolic P",
                               "Leaf Pi")) +
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  scale_size(range = c(0.25, 4)) +
+  scale_size_continuous(limits = c(0, 8), breaks = seq(0, 9, 3), range = c(0.2, 4)) +
   labs(x = "", 
        y = "Interaction effect size (Hedge's d)",
-       size = "Weight",
+       size = expression(bold("Error"^"-1")),
        fill = "Interaction type") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"))
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
 meta_intPlot_phosFract
 
-# Plot photosynthetic traits. Separating by trait type to avoid plot overwhelm
+png("../plots/CNPmeta_figXX_phos_fract.png", width = 10, height = 12,
+    units = "in", res = 600)
+ggarrange(meta_plot_all_phosFract, meta_intPlot_phosFract,
+          nrow = 2, labels = c("(a)", "(b)"), font.label = list(size = 18))
+dev.off()
+
+##############################################################################
+# Leaf photosynthesis plots
+##############################################################################
+# Individual leaf nutrient responses
+meta_plot_all_photo <- ggplot(
+  data = subset(fert_exp_responses_all, 
+                myvar %in% c("asat", "vcmax", "jmax",
+                             "rd", "leaf_pnue", "leaf_ppue")),
+  aes(x = myvar, y = logr, fill = manip_type)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
+                                              dodge.width = 0.75),
+              shape = 21, aes(size = 1/logr_se), alpha = 0.3) +
+  geom_crossbar(data = df_box_all %>% drop_na(var) %>%
+                  filter(var %in% c("asat", "vcmax", "jmax",
+                                    "rd", "leaf_pnue", "leaf_ppue")),
+                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
+                alpha = 0.6, width = 0.6,
+                position = position_dodge(width = 0.8)) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("PPUE",
+                              "PNUE",
+                              expression("J"["max"]),
+                              expression("V"["cmax"]),
+                              expression("A"["sat"]))) +
+  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
+  scale_fill_manual(limits = c("n", "p", "np"),
+                    values = c("red", "blue", "magenta")) +
+  scale_size_continuous(limits = c(0, 224), range = c(0.2, 4)) +
+  labs(x = "", 
+       y = "Log response to N, P, or N+P addition",
+       fill = "Nutrient addition",
+       size = expression(bold("Error"^"-1"))) +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+meta_plot_all_photo
+
+# Interaction effect sizes for photosynthetic traits
 meta_intPlot_photo <- ggplot(
   data = CNP_effect_sizes_reduced %>%
     filter(myvar %in% c("asat", "vcmax", "jmax",
-                        "rd", "leaf_pnue", "leaf_ppue", "leaf_wue")),
+                        "rd", "leaf_pnue", "leaf_ppue")),
   aes(x = myvar, y = dNPi)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
-              shape = 21, aes(size = dwNPi)) +
+              shape = 21, aes(size = 1/dNPi_se), alpha = 0.3) +
   geom_crossbar(data = df_box_int %>% drop_na(var) %>%
                   filter(var %in% c("asat", "vcmax", "jmax",
-                                    "rd", "leaf_pnue", "leaf_ppue", "leaf_wue")),
+                                    "rd", "leaf_pnue", "leaf_ppue")),
                 aes(x = var, y = middle, ymin = ymin, 
                     ymax = ymax, fill = int_type),
                 alpha = 0.6, width = 0.4, 
                 position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("iWUE",
-                              "PPUE",
+  scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression("J"["max"]),
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
   scale_y_continuous(limits = c(-3, 3), breaks = seq(-3, 3, 1)) +
-  scale_size(range = c(0.25, 4)) +
+  scale_size_continuous(limits = c(0, 12), breaks = seq(0, 12, 4), range = c(0.2, 4)) +
   labs(x = NULL, 
        y = "Interaction effect size (Hedge's d)",
        fill = "Interaction type",
-       size = "Weight") +
+       size = expression(bold("Error"^"-1"))) +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"))
+        axis.title.x = element_text(face = "bold")) +
+    guides(fill = guide_legend(order = 1),
+           size = guide_legend(override.aes = list(alpha = 1),
+                               order = 2))
 meta_intPlot_photo
 
-# Plot biomass traits. Separating by trait type to avoid plot overwhelm
+# Write plot
+png("../plots/CNPmeta_figXX_photo.png", width = 10, height = 12,
+    units = "in", res = 600)
+ggarrange(meta_plot_all_photo, meta_intPlot_photo,
+          nrow = 2, labels = c("(a)", "(b)"), font.label = list(size = 18))
+dev.off()
+
+
+##############################################################################
+# Whole-plant trait plots
+##############################################################################
+# Individual leaf nutrient responses
+meta_plot_all_biomass <- ggplot(
+  data = subset(fert_exp_responses_all, 
+                myvar %in% c("rootshoot", "rmf", "bgb", "agb", "agb_n", 
+                             "agb_p", "total_biomass")),
+  aes(x = myvar, y = logr, fill = manip_type)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
+                                              dodge.width = 0.75),
+              shape = 21, aes(size = 1/logr_var), alpha = 0.3) +
+  geom_crossbar(data = df_box_all %>% drop_na(var) %>%
+                  filter(var %in% c("rootshoot", "rmf", "bgb", "agb", "agb_n", 
+                                    "agb_p", "total_biomass")),
+                aes(x = var, y = middle, ymin = ymin, ymax = ymax),
+                alpha = 0.6, width = 0.6,
+                position = position_dodge(width = 0.8)) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("Root:shoot",
+                              "RMF",
+                              "Belowground biomass",
+                              "Aboveground P standing stock",
+                              "Aboveground N standing stock",
+                              "Aboveground biomass",
+                              "Total biomass")) +
+  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
+  scale_fill_manual(limits = c("n", "p", "np"),
+                    values = c("red", "blue", "magenta")) +
+  scale_size_continuous(limits = c(0, 224), range = c(0.2, 4)) +
+  labs(x = "", 
+       y = "Log response to N, P, or N+P addition",
+       fill = "Nutrient addition",
+       size = expression(bold("Error"^"-1"))) +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+meta_plot_all_biomass
+
+# Interaction effect sizes for whole-plant traits
 meta_intPlot_biomass <- ggplot(
   data = subset(CNP_effect_sizes_reduced, 
                 myvar %in% c("rootshoot", "rmf", "bgb", "agb", "agb_n", 
@@ -830,7 +799,7 @@ meta_intPlot_biomass <- ggplot(
   aes(x = myvar, y = dNPi)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
-              shape = 21, aes(size = dwNPi)) +
+              shape = 21, aes(size = 1 / dNPi_se), alpha = 0.3) +
   geom_crossbar(data = df_box_int %>% drop_na(var) %>%
                   filter(var %in% c("rootshoot", "rmf", "bgb", "agb", "agb_n", 
                                     "agb_p", "total_biomass")),
@@ -847,44 +816,27 @@ meta_intPlot_biomass <- ggplot(
                               "Aboveground biomass",
                               "Total biomass")) +
   scale_y_continuous(limits = c(-3, 3), breaks = seq(-3, 3, 1)) +
-  scale_size(range = c(0.25, 4)) +
+  scale_size_continuous(limits = c(0, 60), breaks = seq(0, 60, 15), range = c(0.2, 4)) +
   labs(x = "", 
        y = "Interaction effect size (Hedge's d)",
        fill = "Interaction type",
-       size = "Weight") +
+       size = expression(bold("Error"^"-1"))) +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"))
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
 meta_intPlot_biomass
 
-# png("../plots/CNPmeta_interaction_plot.png", height = 12, width = 12, 
-#    units = "in", res = 600)
-meta_intPlot_leaf_nutrients / meta_intPlot_photo / meta_intPlot_biomass +
-  plot_annotation(tag_levels = "A", tag_prefix = "(", tag_suffix = ")") &
-  theme(plot.tag = element_text(size = 12, face = "bold"))
-# dev.off()
-
-# png("../plots/CNPmeta_intplot_leafNutrients.png", height = 8, width = 12, 
-#     units = "in", res = 600)
-meta_intPlot_leaf_nutrients
-# dev.off()
-
-# png("../plots/CNPmeta_intplot_photo.png", height = 8, width = 12, 
-#     units = "in", res = 600)
-meta_intPlot_photo
-# dev.off()
-
-# png("../plots/CNPmeta_intplot_phosFract.png", height = 4.5, width = 12, 
-#     units = "in", res = 600)
-meta_intPlot_phosFract
-# dev.off()
-
-# png("../plots/CNPmeta_intplot_biomass.png", height = 8, width = 12, 
-#     units = "in", res = 600)
-meta_intPlot_biomass
-# dev.off()
+# Write plot
+png("../plots/CNPmeta_figXX_biomass.png", width = 12, height = 12,
+    units = "in", res = 600)
+ggarrange(meta_plot_all_biomass, meta_intPlot_biomass,
+          nrow = 2, labels = c("(a)", "(b)"), font.label = list(size = 18))
+dev.off()
 
 ###############################################################################
 # lnRR trait summaries
@@ -927,7 +879,7 @@ nfert_nmass_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + gs_ai + gs_par + pft,
+                                mods = ~ gs_mat + gs_ai + gs_par + n_fixer + photo_path + myc_assoc,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = nfert_lnRR %>% 
                                   filter(myvar == "leaf_n_mass" & !is.na(gs_mat)))
@@ -939,28 +891,33 @@ nfert_nmass_mat_plot <- mod_results(nfert_nmass_fullModel,
                               group = "exp", subset = TRUE
                               )$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
-  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_mat)),
-             aes(x = gs_mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass" & 
+                             !is.na(gs_mat)),
+             aes(x = gs_mat, y = logr, size = 1/logr_se), 
+             alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "red") +
   geom_smooth(method = "loess", linewidth = 2, color = "red") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
-  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
        y = expression(bold("ln RR of N"["mass"]*" to N addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18)
 
 # Nfert: Nmass - AI plot
 nfert_nmass_ai_plot <- ggplot() +
-  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_ai)),
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass" & 
+                             !is.na(gs_ai)),
              aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.3) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
-  labs(x = "Aridity Index",
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = "AI (unitless)",
        y = expression(bold("ln RR of N"["mass"]*" to N addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -970,35 +927,61 @@ nfert_nmass_ai_plot <- ggplot() +
 nfert_nmass_par_plot <- ggplot() +
   geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_par)),
              aes(x = gs_par, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.3) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
-  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("I"["L"]*" ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
        y = expression(bold("ln RR of N"["mass"]*" to N addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
   theme(axis.title = element_text(face = "bold"))
+
+
+mod_results(nfert_nmass_fullModel, 
+            mod = "photo_path",
+            group = "exp", subset = TRUE)$mod_table %>%
+  ggplot(aes(x = name, y = estimate)) +
+  geom_point(data = subset(nfert_lnRR, 
+                           myvar == "leaf_n_mass" & !is.na(gs_par) & 
+                             !is.na(photo_path)),
+             aes(x = toupper(photo_path), y = logr, size = 1/logr_se), 
+             alpha = 0.3) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL), width = 0.1) +
+  geom_point(aes(fill = name), size = 7, shape = 21) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = "Photosynthetic pathway", 
+       y = expression(bold("ln RR of N"["mass"]*" to N addition")),
+       size = expression(bold("Error"^"-1"))) +
+  coord_flip() +
+  theme_classic(base_size = 18)
 
 # Phosphorus addition effect on Nmass - full model
 pfert_nmass_fullModel <- rma.mv(logr, 
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + gs_ai + gs_par + pft,
+                                mods = ~ gs_mat + gs_ai + gs_par + n_fixer + photo_path + myc_assoc,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = pfert_lnRR %>% 
-                                  filter(myvar == "leaf_n_mass" & !is.na(gs_mat)))
+                                  filter(myvar == "leaf_n_mass" & 
+                                           !is.na(gs_mat)))
 summary(pfert_nmass_fullModel)
 
 # Pfert: Nmass - MAT plot
 pfert_nmass_mat_plot <- ggplot() +
-  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_mat)),
-             aes(x = gs_mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass" & 
+                             !is.na(gs_mat)),
+             aes(x = gs_mat, y = logr, size = 1/logr_se), 
+             alpha = 0.3) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.4, 0.4), breaks = seq(-0.4, 0.4, 0.2)) +
-  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
        y = expression(bold("ln RR of N"["mass"]*" to P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18)
@@ -1007,11 +990,12 @@ pfert_nmass_mat_plot <- ggplot() +
 pfert_nmass_ai_plot <- ggplot() +
   geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_ai)),
              aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.3) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-0.4, 0.4), breaks = seq(-0.4, 0.4, 0.2)) +
-  labs(x = "Aridity Index",
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = "AI (unitless)",
        y = expression(bold("ln RR of N"["mass"]*" to P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1021,11 +1005,12 @@ pfert_nmass_ai_plot <- ggplot() +
 pfert_nmass_par_plot <- ggplot() +
   geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_par)),
              aes(x = gs_par, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.3) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-0.4, 0.4), breaks = seq(-0.4, 0.4, 0.2)) +
-  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("I"["L"]*" ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
        y = expression(bold("ln RR of N"["mass"]*" to P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1036,7 +1021,7 @@ npfert_nmass_fullModel <- rma.mv(logr,
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ gs_mat + gs_ai + gs_par + pft,
+                                 mods = ~ gs_mat + gs_ai + gs_par + n_fixer + photo_path + myc_assoc,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = npfert_lnRR %>% 
                                    filter(myvar == "leaf_n_mass" & !is.na(gs_mat)))
@@ -1047,28 +1032,33 @@ npfert_nmass_mat_plot <- mod_results(npfert_nmass_fullModel,
                                      mod = "gs_mat",
                                      group = "exp", subset = TRUE)$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
-  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_mat)),
-             aes(x = gs_mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass" & 
+                             !is.na(gs_mat)),
+             aes(x = gs_mat, y = logr, size = 1/logr_se), 
+             alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "magenta") +
   geom_smooth(method = "loess", linewidth = 2, color = "magenta") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
-  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
        y = expression(bold("ln RR of N"["mass"]*" to N+P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18)
 
 # N+P fert: Nmass - AI plot
 npfert_nmass_ai_plot <- ggplot() +
-  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_ai)),
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass" & 
+                             !is.na(gs_ai)),
              aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
-  labs(x = "Aridity Index",
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = "AI (unitless)",
        y = expression(bold("ln RR of N"["mass"]*" to N+P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1076,24 +1066,27 @@ npfert_nmass_ai_plot <- ggplot() +
 
 # N+P fert: Nmass - PAR plot
 npfert_nmass_par_plot <- ggplot() +
-  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_par)),
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass" & 
+                             !is.na(gs_par)),
              aes(x = gs_par, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
-  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("I"["L"]*" ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
        y = expression(bold("ln RR of N"["mass"]*" to N+P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
   theme(axis.title = element_text(face = "bold"))
 
 png("../plots/CNPmeta_Nmass_clim_moderators.png", units = "in",
-    height = 14, width = 16, res = 600)
+    height = 16, width = 16, res = 600)
 ggarrange(nfert_nmass_mat_plot, nfert_nmass_ai_plot, nfert_nmass_par_plot,
           pfert_nmass_mat_plot, pfert_nmass_ai_plot, pfert_nmass_par_plot,
           npfert_nmass_mat_plot, npfert_nmass_ai_plot, npfert_nmass_par_plot,
-          nrow = 3, ncol = 3, common.legend = TRUE, hjust = 0, vjust = 0,
+          nrow = 3, ncol = 3, common.legend = TRUE, hjust = 0,
+          legend = "bottom",
           labels = c("(a)", "(b)", "(c)", 
                      "(d)", "(e)", "(f)",
                      "(g)", "(h)", "(i)"),
@@ -1109,7 +1102,7 @@ nfert_pmass_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + gs_ai + gs_par + pft,
+                                mods = ~ gs_mat + gs_ai + gs_par + n_fixer + photo_path + myc_assoc,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = nfert_lnRR %>% 
                                   filter(myvar == "leaf_p_mass" & !is.na(gs_mat)))
@@ -1117,12 +1110,15 @@ summary(nfert_pmass_fullModel)
 
 # Nfert: Pmass - MAT plot
 nfert_pmass_mat_plot <- ggplot() +
-  geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_mass"),
-             aes(x = gs_mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_mass" &
+                             !is.na(gs_mat)),
+             aes(x = gs_mat, y = logr, size = 1/logr_se), 
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-1, 0.6), breaks = seq(-1, 0.6, 0.4)) +
-  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
        y = expression(bold("ln RR of P"["mass"]*" to N addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18)
@@ -1131,11 +1127,12 @@ nfert_pmass_mat_plot <- ggplot() +
 nfert_pmass_ai_plot <- ggplot() +
   geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_mass"),
              aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-1, 0.6), breaks = seq(-1, 0.6, 0.4)) +
-  labs(x = "Aridity Index",
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = "AI (unitless)",
        y = expression(bold("ln RR of P"["mass"]*" to N addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1145,11 +1142,12 @@ nfert_pmass_ai_plot <- ggplot() +
 nfert_pmass_par_plot <- ggplot() +
   geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_mass"),
              aes(x = gs_par, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-1, 0.6), breaks = seq(-1, 0.6, 0.4)) +
-  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("I"["L"]*" ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
        y = expression(bold("ln RR of P"["mass"]*" to N addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1160,7 +1158,7 @@ pfert_pmass_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + gs_ai + gs_par + pft,
+                                mods = ~ gs_mat + gs_ai + gs_par + n_fixer + photo_path + myc_assoc,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = pfert_lnRR %>% 
                                   filter(myvar == "leaf_p_mass" & !is.na(gs_mat)))
@@ -1170,11 +1168,13 @@ summary(pfert_pmass_fullModel)
 # Pfert: Pmass - MAT plot
 pfert_pmass_mat_plot <- ggplot() +
   geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_mass"),
-             aes(x = gs_mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+             aes(x = gs_mat, y = logr, size = 1/logr_se), 
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+  scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
-  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
        y = expression(bold("ln RR of P"["mass"]*" to P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18)
@@ -1183,10 +1183,12 @@ pfert_pmass_mat_plot <- ggplot() +
 pfert_pmass_ai_plot <- ggplot() +
   geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_mass"),
              aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
-  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +  labs(x = "Aridity Index",
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = "AI (unitless)",
        y = expression(bold("ln RR of P"["mass"]*" to P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1196,10 +1198,12 @@ pfert_pmass_ai_plot <- ggplot() +
 pfert_pmass_par_plot <- ggplot() +
   geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_mass"),
              aes(x = gs_par, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
-  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("I"["L"]*" ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
        y = expression(bold("ln RR of P"["mass"]*" to P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1211,7 +1215,7 @@ npfert_pmass_fullModel <- rma.mv(logr,
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ gs_mat + gs_ai + gs_par + pft,
+                                 mods = ~ gs_mat + gs_ai + gs_par + n_fixer + photo_path + myc_assoc,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = npfert_lnRR %>% 
                                    filter(myvar == "leaf_p_mass" & !is.na(gs_mat)))
@@ -1222,15 +1226,19 @@ npfert_pmass_mat_plot <- mod_results(npfert_pmass_fullModel,
                                      mod = "gs_mat",
                                      group = "exp", subset = TRUE)$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
-  geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_mass" & !is.na(gs_mat)),
-             aes(x = gs_mat, y = logr, size = 1/logr_se), alpha = 0.75) +
+  geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_mass" & 
+                             !is.na(gs_mat)),
+             aes(x = gs_mat, y = logr, size = 1/logr_se), 
+             alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "magenta") +
-  geom_smooth(method = "loess", linewidth = 2, color = "magenta") +
+  geom_smooth(method = "loess", linewidth = 2, 
+              color = "magenta", linetype = "dashed") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
-  labs(x = expression(bold("Mean annual temperature ("*degree*"C)")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
        y = expression(bold("ln RR of P"["mass"]*" to N+P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18)
@@ -1238,11 +1246,13 @@ npfert_pmass_mat_plot <- mod_results(npfert_pmass_fullModel,
 # N+P fert: Pmass - AI plot
 npfert_pmass_ai_plot <- ggplot() +
   geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_mass"),
-             aes(x = gs_ai, y = logr, size = 1/logr_se), alpha = 0.75) +
+             aes(x = gs_ai, y = logr, size = 1/logr_se), 
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
-  labs(x = "Aridity Index",
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = "AI (unitless)",
        y = expression(bold("ln RR of P"["mass"]*" to N+P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
@@ -1252,11 +1262,12 @@ npfert_pmass_ai_plot <- ggplot() +
 npfert_pmass_par_plot <- ggplot() +
   geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_mass"),
              aes(x = gs_par, y = logr, size = 1/logr_se), 
-             alpha = 0.75) +
+             alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(490, 1010), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
-  labs(x = expression(bold("PAR ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
+  labs(x = expression(bold("I"["L"]*" ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
        y = expression(bold("ln RR of P"["mass"]*" to N+P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 18) + 
