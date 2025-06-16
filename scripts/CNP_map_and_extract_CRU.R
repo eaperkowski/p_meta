@@ -15,7 +15,6 @@ library(rnaturalearth)
 library(naniar)
 library(lubridate)
 library(sf)
-library(rsofun)
 
 # Read PAR dataset
 par <- read.csv("../cru/cru_par_climExtract_growingseason_globe.csv") %>%
@@ -68,23 +67,122 @@ CNP_meta_experiment_map
 # dev.off()
 
 #####################################################################
-# Extract PAR values and merge with climate_long
+# WorldClim v2.1: Temperature
 #####################################################################
-# Convert experiment coordinates and CRU PAR coordinates into sf objects
-site_coords_sf <- st_as_sf(experiment_summary_field, 
-                           coords = c("longitude", "latitude"),
-                           crs = 4326)
-par_coords_sf <- st_as_sf(par, coords = c("lon", "lat"), crs = 4326)
 
-# Find nearest gridded point for each site
-site_coords_sf$nearest_point <- st_nearest_feature(site_coords_sf, par_coords_sf)
+# Let's start with temperature. Folder contains multiple .tif files
+# that represent mean grid-cell temperature for each month. I reckon
+# a rasterStack might be best way to go about this
+tavg_files <- list.files("../cru/world_clim/wc2.1_30s_tavg/", 
+                         pattern = "\\.tif$",
+                         full.names = TRUE)
+wc_tavg <- raster::stack(tavg_files)
 
-# Extract the closest points, merge into experiment_summary_field
-experiment_summary_field <- site_coords_sf %>%
-  mutate(nearest_PAR = par_coords_sf$par[nearest_point]) %>%
-  data.frame() %>%
-  full_join(experiment_summary_field) %>%
-  dplyr::select(exp, latitude, longitude, par = nearest_PAR)
+# Extract average monthly temperature point data from rasterStack
+tavg_extracted <-  data.frame(
+  raster::extract(
+    wc_tavg, experiment_summary_field[, c("longitude", "latitude")]))
+names(tavg_extracted) <- gsub("wc2.1_30s_", "", names(tavg_extracted))
+
+# Add experiment information
+tavg_extracted2 <- cbind(experiment_summary_field, tavg_extracted)
+
+# Pivot longer to make for easy growing season estimation
+tavg_long <- tavg_extracted2 %>%
+  pivot_longer(cols = tavg_01:tavg_12,
+               names_to = "var", values_to = "value") %>%
+  separate(var, into = c("var", "month"), sep = "_")
+
+# Growing season temperature (where degC > 0)
+gs_temp <- tavg_long %>%
+  filter(value > 0) %>%
+  group_by(exp, latitude, longitude) %>%
+  summarize(gs_mat = mean(value, na.rm = TRUE))
+
+#####################################################################
+# WorldClim v2.1: Precipitation
+#####################################################################
+
+# Create growing season filter (average monthly temperature > 0)
+growing_szn <- tavg_long %>% filter(value > 0)
+
+# Create precipitation rasterBrick
+prcp_files <- list.files("../cru/world_clim/wc2.1_30s_prec/", 
+                         pattern = "\\.tif$",
+                         full.names = TRUE)
+wc_prcp <- raster::stack(prcp_files)
+
+# Extract average monthly precipitation point data from rasterStack
+prcp_extracted <-  data.frame(
+  raster::extract(
+    wc_prcp, experiment_summary_field[, c("longitude", "latitude")]))
+names(prcp_extracted) <- gsub("wc2.1_30s_", "", names(prcp_extracted))
+
+# Add experiment information
+prcp_extracted2 <- cbind(experiment_summary_field, prcp_extracted)
+
+# Pivot longer to make for easy growing season estimation
+prcp_long <- prcp_extracted2 %>%
+  pivot_longer(cols = prec_01:prec_12,
+               names_to = "var", values_to = "value") %>%
+  separate(var, into = c("var", "month"), sep = "_") %>%
+  mutate(var = "prcp")
+
+# Growing season precipitation (where degC > 0)
+gs_prcp <- prcp_long %>%
+  semi_join(growing_szn, by = c("exp", "month")) %>%
+  group_by(exp, latitude, longitude) %>%
+  summarize(gs_map = mean(value, na.rm = TRUE))
+
+
+#####################################################################
+# WorldClim v2.1: Solar radiation
+#####################################################################
+
+
+# Create precipitation rasterBrick
+srad_files <- list.files("../cru/world_clim/wc2.1_30s_srad/", 
+                         pattern = "\\.tif$",
+                         full.names = TRUE)
+wc_srad <- raster::stack(srad_files)
+
+# Extract average monthly precipitation point data from rasterStack
+prcp_extracted <-  data.frame(
+  raster::extract(
+    wc_prcp, experiment_summary_field[, c("longitude", "latitude")]))
+names(prcp_extracted) <- gsub("wc2.1_30s_", "", names(prcp_extracted))
+
+# Add experiment information
+prcp_extracted2 <- cbind(experiment_summary_field, prcp_extracted)
+
+# Pivot longer to make for easy growing season estimation
+prcp_long <- prcp_extracted2 %>%
+  pivot_longer(cols = prec_01:prec_12,
+               names_to = "var", values_to = "value") %>%
+  separate(var, into = c("var", "month"), sep = "_") %>%
+  mutate(var = "prcp")
+
+# Growing season precipitation (where degC > 0)
+gs_prcp <- prcp_long %>%
+  semi_join(growing_szn, by = c("exp", "month")) %>%
+  group_by(exp, latitude, longitude) %>%
+  
+
+
+
+
+
+
+
+
+
+
+
+
+ai_index <- brick("../cru/world_clim/ai_v3_yr.tif")
+ai_extracted <- data.frame(
+  raster::extract(ai_index, experiment_summary_field[, c("longitude", "latitude")]))
+
 
 #####################################################################
 # Convert CRU data to RasterBrick, then extract data from coordinates
