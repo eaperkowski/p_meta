@@ -72,7 +72,7 @@ use_response_n <- c("agb_n", "agb_p", "agb", "anpp", "agb_n_mass",
                     "agb_p_mass", "leaf_n_mass", "leaf_p_mass", "anet",
                     "total_biomass", "bgb", "rootshoot", "bnpp", "lma", "sla", "rmf",
                     "gsw", "amax", "leaf_wue", "fine_root_biomass", "leaf_n_area",
-                    "leaf_p_area", "asat", "vcmax", "jmax", "leaf_pnue", "leaf_np",
+                    "leaf_p_area", "asat", "vcmax", "jmax", "jmax_vcmax", "leaf_pnue", "leaf_np",
                     "leaf_ppue", "leaf_structural_p", "leaf_metabolic_p",
                     "leaf_nucleic_p", "leaf_residual_p", "leaf_pi")
 
@@ -116,12 +116,12 @@ df_box_n_k <- data.frame(var = use_vars_n,
                           k = c("(18)", "(12)", "(125)", "(30)", "(23)", "(139)",
                                 "(133)", "(85)", "(42)", "(63)", "(40)",
                                 NA, "(37)", "(43)", "(115)", "(113)", "(37)", 
-                                "(84)", "(79)", "(42)", "(40)", "(58)", "(59)", 
+                                "(84)", "(79)", "(42)", "(40)", "(32)", "(58)", "(59)", 
                                 "(20)", "(21)", "(21)", "(20)", "(5)"),
                          sig.level = c("***", "***", "***", "***", "***", "***",
                                        "*. ", "ns ", "ns ", "ns ", "***", 
                                        NA, "***", "ns ", "** ", "*. ", "ns ", 
-                                       "** ", "ns ", "ns ", "ns ", "ns ", "ns ", 
+                                       "** ", "ns ", "ns ", "ns ", ". ", "ns ", "ns ", 
                                        "ns ", "ns ", "ns ", "ns ", "ns "))
 
 df_box_n <- purrr::map_dfr(out_n, "df_box") |> 
@@ -149,7 +149,7 @@ use_response_p <- c("agb_n", "agb_p", "agb", "anpp", "agb_n_mass",
                     "agb_p_mass", "leaf_n_mass", "leaf_p_mass", "anet",
                     "total_biomass", "bgb", "rootshoot", "bnpp", "lma", "sla", "rmf",
                     "gsw", "amax", "leaf_wue", "fine_root_biomass", "leaf_n_area",
-                    "leaf_p_area", "asat", "vcmax", "jmax", "leaf_pnue", "leaf_np",
+                    "leaf_p_area", "asat", "vcmax", "jmax", "jmax_vcmax", "leaf_pnue", "leaf_np",
                     "leaf_ppue", "leaf_structural_p", "leaf_metabolic_p",
                     "leaf_nucleic_p", "leaf_residual_p", "leaf_pi")
 
@@ -191,14 +191,13 @@ df_box_p_k <- data.frame(var = use_vars_p,
                          k = c("(18)", "(12)", "(125)", "(30)", "(23)", "(139)",
                                "(133)", "(85)", "(42)", "(63)", "(40)", NA,
                                "(37)", "(43)", "(115)", "(113)", "(37)", "(84)", 
-                               "(79)", "(42)", "(40)", "(58)", "(59)", "(20)",
+                               "(79)", "(42)", "(40)", "(32)", "(58)", "(59)", "(20)",
                                "(21)", "(21)", "(20)", "(5)"),
                          sig.level = c(".  ", "***", "***", "***", "***", "ns ",
                                        "***", "ns ", "* ", "ns ", "*. ", NA,
                                        ".  ", ".  ", "***", "ns ", "ns ", "ns ", 
-                                       "***", "ns ", "*. ", "ns ", "ns ", "ns ",
+                                       "***", "ns ", "*. ", "ns", "ns ", "ns ", "ns ",
                                        "*. ", "ns ", "ns ", "**"))
-
 
 df_box_p <- purrr::map_dfr(out_p, "df_box") |> 
   full_join(df_box_p_k) |>
@@ -225,7 +224,7 @@ use_response_np <- c("agb_n", "agb_p", "agb", "anpp", "agb_n_mass",
                     "agb_p_mass", "leaf_n_mass", "leaf_p_mass", "anet",
                     "total_biomass", "bgb", "rootshoot", "bnpp", "lma", "sla", "rmf",
                     "gsw", "amax", "leaf_wue", "fine_root_biomass", "leaf_n_area",
-                    "leaf_p_area", "asat", "vcmax", "jmax", "leaf_pnue", "leaf_np",
+                    "leaf_p_area", "asat", "vcmax", "jmax", "jmax_vcmax", "leaf_pnue", "leaf_np",
                     "leaf_ppue", "leaf_structural_p", "leaf_metabolic_p",
                     "leaf_nucleic_p", "leaf_residual_p", "leaf_pi")
 
@@ -271,12 +270,12 @@ df_box_np_k <- data.frame(var = use_vars_np,
                           k = c("(18)", "(12)", "(125)", "(30)", "(23)", "(139)",
                                 "(133)", "(85)", "(42)", "(63)", "(40)", NA,
                                 "(37)", "(43)", "(115)", "(113)", "(37)", "(84)", 
-                                "(79)", "(42)", "(40)", "(58)", "(59)", "(20)",
+                                "(79)", "(42)", "(40)", "(32)", "(58)", "(59)", "(20)",
                                 "(21)", "(21)", "(20)", "(5)"),
                           sig.level = c("***", "***", "***", "** ", "*  ", "***",
                                         "***", "*  ", "***", "ns ", "***", NA,
                                         "** ", "*  ", "***", "** ", ".  ", "***", 
-                                        "***", ".  ", "***", "ns ", "ns ", "ns ",
+                                        "***", ".  ", "***", "***", "ns ", "ns ", "ns ",
                                         "*  ", "ns ", "ns ", "** "))
 
 df_box_np <- purrr::map_dfr(out_np, "df_box") |> 
@@ -427,7 +426,7 @@ df_box_all <- df_box_n %>%
                         levels = c("rootshoot", "rmf", "bgb", "agb_p", 
                                    "agb_p_mass", "agb_n", "agb_n_mass",
                                    "agb", "total_biomass", 
-                                   "leaf_wue", "leaf_ppue", "leaf_pnue", 
+                                   "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax",
                                    "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
                                    "leaf_structural_p", "leaf_nucleic_p", 
                                    "leaf_metabolic_p", "leaf_pi", 
@@ -450,7 +449,7 @@ fert_exp_responses_all <- nfert_lnRR %>%
                                    "agb_p_mass", "agb_n", "agb_n_mass",
                                    "agb", "total_biomass", 
                                    "leaf_wue", "leaf_ppue", "leaf_pnue", 
-                                   "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
+                                   "jmax_vcmax", "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
                                    "leaf_structural_p", "leaf_nucleic_p", 
                                    "leaf_metabolic_p", "leaf_pi", 
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
@@ -461,7 +460,7 @@ CNP_effect_sizes_reduced <- CNP_effect_sizes_reduced %>%
   mutate(myvar = factor(myvar, 
                         levels = c("rootshoot", "rmf", "bgb", "agb_p", 
                                    "agb_n", "agb", "total_biomass", 
-                                   "leaf_wue", "leaf_ppue", "leaf_pnue", 
+                                   "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax",
                                    "jmax", "vcmax", "asat", "leaf_residual_p", 
                                    "leaf_structural_p", "leaf_nucleic_p", 
                                    "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
@@ -473,7 +472,7 @@ df_box_int <- df_box_int %>%
   mutate(var = factor(var, 
                       levels = c("rootshoot", "rmf", "bgb", "agb_p", 
                                  "agb_n", "agb", "total_biomass", 
-                                 "leaf_wue", "leaf_ppue", "leaf_pnue", 
+                                 "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax", 
                                  "jmax", "vcmax", "asat", "leaf_residual_p", 
                                  "leaf_structural_p", "leaf_nucleic_p", 
                                  "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
@@ -638,7 +637,7 @@ meta_intPlot_phosFract <- ggplot(
                               "Leaf metabolic P",
                               "Leaf Pi")) +
   scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  scale_size_continuous(limits = c(0, 8), breaks = seq(0, 9, 3), range = c(0.2, 4)) +
+  scale_size_continuous(limits = c(0, 9), breaks = seq(0, 9, 3), range = c(0.2, 4)) +
   labs(x = "", 
        y = "Interaction effect size (Hedge's d)",
        size = expression(bold("Error"^"-1")),
@@ -665,21 +664,22 @@ dev.off()
 # Individual leaf nutrient responses
 meta_plot_all_photo <- ggplot(
   data = subset(fert_exp_responses_all, 
-                myvar %in% c("asat", "vcmax", "jmax",
-                             "rd", "leaf_pnue", "leaf_ppue")),
+                myvar %in% c("asat", "vcmax", "jmax", "jmax_vcmax",
+                             "leaf_pnue", "leaf_ppue")),
   aes(x = myvar, y = logr, fill = manip_type)) +
   geom_jitter(position = position_jitterdodge(jitter.width = 0.1,
                                               dodge.width = 0.75),
               shape = 21, aes(size = 1/logr_se), alpha = 0.3) +
   geom_crossbar(data = df_box_all %>% drop_na(var) %>%
-                  filter(var %in% c("asat", "vcmax", "jmax",
-                                    "rd", "leaf_pnue", "leaf_ppue")),
+                  filter(var %in% c("asat", "vcmax", "jmax", "jmax_vcmax",
+                                    "leaf_pnue", "leaf_ppue")),
                 aes(x = var, y = middle, ymin = ymin, ymax = ymax),
                 alpha = 0.6, width = 0.6,
                 position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
+                              expression("J"["max"]*": V"["cmax"]),
                               expression("J"["max"]),
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
@@ -711,7 +711,7 @@ meta_intPlot_photo <- ggplot(
                                               dodge.width = 0.75),
               shape = 21, aes(size = 1/dNPi_se), alpha = 0.3) +
   geom_crossbar(data = df_box_int %>% drop_na(var) %>%
-                  filter(var %in% c("asat", "vcmax", "jmax",
+                  filter(var %in% c("asat", "vcmax", "jmax", "jmax_vcmax",
                                     "rd", "leaf_pnue", "leaf_ppue")),
                 aes(x = var, y = middle, ymin = ymin, 
                     ymax = ymax, fill = int_type),
@@ -720,6 +720,7 @@ meta_intPlot_photo <- ggplot(
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
+                              expression("J"["max"]*": V"["cmax"]),
                               expression("J"["max"]),
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
@@ -879,10 +880,10 @@ nfert_nmass_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + ai + gs_par,
+                                mods = ~ gs_mat + gs_ai + gs_par,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = nfert_lnRR %>% 
-                                  filter(myvar == "leaf_n_mass" & !is.na(gs_mat)))
+                                  filter(myvar == "leaf_n_mass" & !is.na(gs_mat) & logr > -0.2))
 summary(nfert_nmass_fullModel)
 
 # Nfert: Nmass - MAT plot
@@ -892,7 +893,7 @@ nfert_nmass_mat_plot <- mod_results(nfert_nmass_fullModel,
                               )$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
   geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass" & 
-                             !is.na(gs_mat)),
+                             !is.na(gs_mat) & logr > -0.2),
              aes(x = gs_mat, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
@@ -909,18 +910,17 @@ nfert_nmass_mat_plot <- mod_results(nfert_nmass_fullModel,
 
 # Nfert: Nmass - AI plot
 nfert_nmass_ai_plot <- mod_results(nfert_nmass_fullModel, 
-                                   mod = "ai",
+                                   mod = "gs_ai",
                                    group = "exp", subset = TRUE
 )$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
   geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_mass" & 
-                             !is.na(gs_mat)),
-             aes(x = ai, y = logr, size = 1/logr_se), 
+                             !is.na(gs_mat) & logr > -0.2),
+             aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "red") +
-  geom_smooth(method = "loess", linewidth = 2, color = "red", 
-              linetype = "dashed") +
+  geom_smooth(method = "loess", linewidth = 2, color = "red") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 2.5), breaks = seq(0, 2.5, 0.5)) +
   scale_y_continuous(limits = c(-0.2, 0.6), breaks = seq(-0.2, 0.6, 0.2)) +
@@ -946,33 +946,12 @@ nfert_nmass_par_plot <- ggplot() +
   theme_classic(base_size = 18) + 
   theme(axis.title = element_text(face = "bold"))
 
-
-mod_results(nfert_nmass_fullModel, 
-            mod = "photo_path",
-            group = "exp", subset = TRUE)$mod_table %>%
-  ggplot(aes(x = name, y = estimate)) +
-  geom_jitter(data = subset(nfert_lnRR, 
-                           myvar == "leaf_n_mass" & !is.na(gs_par) & 
-                             !is.na(photo_path)),
-             aes(x = toupper(photo_path), y = logr, size = 1/logr_se), 
-             alpha = 0.3, width = 0.1) +
-  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL), width = 0.1) +
-  geom_point(aes(fill = name), size = 7, shape = 21) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  scale_y_continuous(limits = c(-0.4, 0.6), breaks = seq(-0.4, 0.6, 0.2)) +
-  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = "Photosynthetic pathway", 
-       y = expression(bold("ln RR of N"["mass"]*" to N addition")),
-       size = expression(bold("Error"^"-1"))) +
-  coord_flip() +
-  theme_classic(base_size = 18)
-
 # Phosphorus addition effect on Nmass - full model
 pfert_nmass_fullModel <- rma.mv(logr, 
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + ai + gs_par,
+                                mods = ~ gs_mat + gs_ai + gs_par,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = pfert_lnRR %>% 
                                   filter(myvar == "leaf_n_mass" & 
@@ -996,8 +975,8 @@ pfert_nmass_mat_plot <- ggplot() +
 
 # Pfert: Nmass - AI plot
 pfert_nmass_ai_plot <- ggplot() +
-  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass" & !is.na(ai)),
-             aes(x = ai, y = logr, size = 1/logr_se), 
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_n_mass" & !is.na(gs_ai)),
+             aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.3) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 2.5), breaks = seq(0, 2.5, 0.5)) +
@@ -1029,7 +1008,7 @@ npfert_nmass_fullModel <- rma.mv(logr,
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ gs_mat + ai + gs_par,
+                                 mods = ~ gs_mat + gs_ai + gs_par,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = npfert_lnRR %>% 
                                    filter(myvar == "leaf_n_mass" & !is.na(gs_mat) & logr > -0.2))
@@ -1046,7 +1025,7 @@ npfert_nmass_mat_plot <- mod_results(npfert_nmass_fullModel,
              alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "magenta") +
-  geom_smooth(method = "loess", linewidth = 2, color = "magenta", linetype = "dashed") +
+  geom_smooth(method = "loess", linewidth = 2, color = "magenta") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.2, 0.6), breaks = seq(-0.2, 0.6, 0.2)) +
@@ -1059,8 +1038,8 @@ npfert_nmass_mat_plot <- mod_results(npfert_nmass_fullModel,
 # N+P fert: Nmass - AI plot
 npfert_nmass_ai_plot <- ggplot() +
   geom_point(data = subset(npfert_lnRR, myvar == "leaf_n_mass" & 
-                             !is.na(ai)),
-             aes(x = ai, y = logr, size = 1/logr_se), 
+                             !is.na(gs_ai)),
+             aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 2.5), breaks = seq(0, 2.5, 0.5)) +
@@ -1110,7 +1089,7 @@ nfert_pmass_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + ai + gs_par,
+                                mods = ~ gs_mat + gs_ai + gs_par,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = nfert_lnRR %>% 
                                   filter(myvar == "leaf_p_mass" & !is.na(gs_mat)))
@@ -1134,7 +1113,7 @@ nfert_pmass_mat_plot <- ggplot() +
 # Nfert: Pmass - AI plot
 nfert_pmass_ai_plot <- ggplot() +
   geom_point(data = subset(nfert_lnRR, myvar == "leaf_p_mass"),
-             aes(x = ai, y = logr, size = 1/logr_se), 
+             aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 2.5), breaks = seq(0, 2.5, 0.5)) +
@@ -1166,17 +1145,24 @@ pfert_pmass_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + ai + gs_par,
+                                mods = ~ gs_mat + gs_ai + gs_par,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = pfert_lnRR %>% 
                                   filter(myvar == "leaf_p_mass" & !is.na(gs_mat)))
 summary(pfert_pmass_fullModel)
 
 # Pfert: Pmass - MAT plot
-pfert_pmass_mat_plot <- ggplot() +
-  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_mass"),
+pfert_pmass_mat_plot <- mod_results(pfert_pmass_fullModel, 
+                                    mod = "gs_mat",
+                                    group = "exp", subset = TRUE)$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_mass" & 
+                             !is.na(gs_mat) & logr > -0.2),
              aes(x = gs_mat, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "blue") +
+  geom_smooth(method = "loess", linewidth = 2, color = "blue") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
@@ -1188,12 +1174,12 @@ pfert_pmass_mat_plot <- ggplot() +
 
 # Pfert: Pmass - AI plot
 pfert_pmass_ai_plot <- mod_results(pfert_pmass_fullModel, 
-                                   mod = "ai",
+                                   mod = "gs_ai",
                                    group = "exp", subset = TRUE)$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
-  geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_mass" & 
+  geom_point(data = subset(pfert_lnRR, myvar == "leaf_p_mass" & 
                              !is.na(gs_mat)),
-             aes(x = ai, y = logr, size = 1/logr_se), 
+             aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "blue") +
@@ -1229,7 +1215,7 @@ npfert_pmass_fullModel <- rma.mv(logr,
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ gs_mat + ai + gs_par,
+                                 mods = ~ gs_mat + gs_ai + gs_par,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = npfert_lnRR %>% 
                                    filter(myvar == "leaf_p_mass" & !is.na(gs_mat)))
@@ -1259,7 +1245,7 @@ npfert_pmass_mat_plot <- mod_results(npfert_pmass_fullModel,
 # N+P fert: Pmass - AI plot
 npfert_pmass_ai_plot <- ggplot() +
   geom_point(data = subset(npfert_lnRR, myvar == "leaf_p_mass" & !is.na(gs_mat)),
-             aes(x = ai, y = logr, size = 1/logr_se), 
+             aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 2.5), breaks = seq(0, 2.5, 0.5)) +
@@ -1315,7 +1301,7 @@ nfert_leafnp_fullModel <- rma.mv(logr,
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ gs_mat + ai + gs_par,
+                                 mods = ~ gs_mat + gs_ai + gs_par,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = nfert_lnRR %>% 
                                    filter(myvar == "leaf_np" & !is.na(gs_mat)))
@@ -1587,10 +1573,10 @@ nfert_narea_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + ai + gs_par,
+                                mods = ~ gs_mat + gs_ai + gs_par,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = nfert_lnRR %>% 
-                                  filter(myvar == "leaf_n_area" & !is.na(gs_mat)))
+                                  filter(myvar == "leaf_n_area" & !is.na(gs_mat) & gs_ai < 2.5 & logr < 0.75))
 summary(nfert_narea_fullModel)
 
 # Nfert: Narea - MAT plot
@@ -1619,7 +1605,7 @@ nfert_narea_mat_plot <- mod_results(nfert_narea_fullModel,
 nfert_narea_ai_plot <- ggplot() +
   geom_point(data = subset(nfert_lnRR, myvar == "leaf_n_area" & 
                              !is.na(gs_mat)),
-             aes(x = ai, y = logr, size = 1/logr_se), 
+             aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 2.5), breaks = seq(0, 2.5, 0.5)) +
@@ -1785,7 +1771,7 @@ nfert_marea_fullModel <- rma.mv(logr,
                                 logr_var,
                                 method = "REML", 
                                 random = ~ 1 | exp, 
-                                mods = ~ gs_mat + ai + gs_par,
+                                mods = ~ gs_mat + gs_ai + gs_par,
                                 slab = exp, control = list(stepadj = 0.3), 
                                 data = nfert_lnRR %>% 
                                   filter(myvar == "lma" & !is.na(gs_mat)))
@@ -1984,10 +1970,10 @@ nfert_bgb_fullModel <- rma.mv(logr,
                                logr_var,
                                method = "REML", 
                                random = ~ 1 | exp, 
-                               mods = ~ gs_mat + ai + gs_par,
+                               mods = ~ gs_mat + gs_ai + gs_par,
                                slab = exp, control = list(stepadj = 0.3), 
-                               data = nfert_lnRR %>% 
-                                 filter(myvar == "bgb" & !is.na(gs_mat)))
+                               data = npfert_lnRR %>% 
+                                 filter(myvar == "agb" & !is.na(gs_mat)))
 summary(nfert_bgb_fullModel)
 ## Response of belowground biomass to N fertilization increases with
 ## increasing wetness
@@ -1997,7 +1983,7 @@ pfert_bgb_fullModel <- rma.mv(logr,
                               logr_var,
                               method = "REML", 
                               random = ~ 1 | exp, 
-                              mods = ~ gs_mat + ai + gs_par,
+                              mods = ~ gs_mat + gs_ai + gs_par,
                               slab = exp, control = list(stepadj = 0.3), 
                               data = pfert_lnRR %>% 
                                 filter(myvar == "bgb" & !is.na(gs_mat)))

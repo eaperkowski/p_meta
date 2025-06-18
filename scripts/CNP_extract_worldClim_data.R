@@ -8,17 +8,11 @@
 library(R.utils)
 library(raster)
 library(ncdf4)
-library(plotbiomes)
 library(maps)
 library(tidyverse)
 library(rnaturalearth)
 library(naniar)
 library(lubridate)
-library(sf)
-
-# Read PAR dataset
-par <- read.csv("../cru/cru_par_climExtract_growingseason_globe.csv") %>%
-  dplyr::select(-X)
 
 # Read data sources (MESI, NutNet, EAP manual compilation)
 mesi <- read.csv("../data/mesi_main_manual.csv")
@@ -73,7 +67,7 @@ CNP_meta_experiment_map
 # Let's start with temperature. Folder contains multiple .tif files
 # that represent mean grid-cell temperature for each month. I reckon
 # a rasterStack might be best way to go about this
-tavg_files <- list.files("../cru/world_clim/wc2.1_30s_tavg/", 
+tavg_files <- list.files("../climate/worldclim/tavg/", 
                          pattern = "\\.tif$",
                          full.names = TRUE)
 wc_tavg <- raster::stack(tavg_files)
@@ -107,7 +101,7 @@ gs_temp <- tavg_long %>%
 growing_szn <- tavg_long %>% filter(value > 0)
 
 # Create precipitation rasterBrick
-prcp_files <- list.files("../cru/world_clim/wc2.1_30s_prec/", 
+prcp_files <- list.files("../climate/worldclim/prcp/", 
                          pattern = "\\.tif$",
                          full.names = TRUE)
 wc_prcp <- raster::stack(prcp_files)
@@ -123,10 +117,9 @@ prcp_extracted2 <- cbind(experiment_summary_field, prcp_extracted)
 
 # Pivot longer to make for easy growing season estimation
 prcp_long <- prcp_extracted2 %>%
-  pivot_longer(cols = prec_01:prec_12,
+  pivot_longer(cols = prcp_01:prcp_12,
                names_to = "var", values_to = "value") %>%
-  separate(var, into = c("var", "month"), sep = "_") %>%
-  mutate(var = "prcp")
+  separate(var, into = c("var", "month"), sep = "_")
 
 # Growing season precipitation (where degC > 0)
 gs_prcp <- prcp_long %>%
@@ -138,12 +131,12 @@ gs_prcp <- prcp_long %>%
 # WorldClim v2.1: Solar radiation (then convert to PAR)
 #####################################################################
 # Create solar radiation rasterBrick
-srad_files <- list.files("../cru/world_clim/wc2.1_30s_srad/", 
+srad_files <- list.files("../climate/worldclim/srad/", 
                          pattern = "\\.tif$",
                          full.names = TRUE)
 wc_srad <- raster::stack(srad_files)
 
-# Extract average monthly precipitation point data from rasterStack
+# Extract average monthly solar radiation point data from rasterStack
 srad_extracted <-  data.frame(
   raster::extract(
     wc_srad, experiment_summary_field[, c("longitude", "latitude")]))
@@ -159,7 +152,7 @@ srad_long <- srad_extracted2 %>%
   separate(var, into = c("var", "month"), sep = "_") %>%
   mutate(var = "par",
          value = value * 1000 / 86400 * 2.1, # convert to umol/m2/s
-         value = value * 2) # crude estimator for daytime par (assuming daylength = 0.5 days)
+         value = value * 2) # crude scaling for daytime par (assuming daylength = 0.5 days)
 
 # Growing season precipitation (where degC > 0)
 gs_srad <- srad_long %>%
@@ -168,32 +161,42 @@ gs_srad <- srad_long %>%
   summarize(gs_par = mean(value, na.rm = TRUE))
   
 #####################################################################
-# WorldClim v2.1: Aridity and elevation
+# WorldClim v2.1: Aridity
 #####################################################################
 
-#################
-# Aridity index
-#################
-# Create raster
-ai_index <- raster("../cru/world_clim/ai_v3_yr.tif")
+# Create aridity index rasterBrick
+aridity_files <- list.files("../climate/aridity/", 
+                         pattern = "\\.tif$",
+                         full.names = TRUE)
+wc_ai <- raster::stack(aridity_files)
 
-# Extract point data
-ai_extracted <- data.frame(
+# Extract average monthly precipitation point data from rasterStack
+ai_extracted <-  data.frame(
   raster::extract(
-    ai_index, experiment_summary_field[, c("longitude", "latitude")]))
+    wc_ai, experiment_summary_field[, c("longitude", "latitude")]))
+names(ai_extracted) <- gsub("awi_pm_sr", "ai", names(ai_extracted))
 
 # Add experiment information
 ai_extracted2 <- cbind(experiment_summary_field, ai_extracted)
-names(ai_extracted2)[4] <- "ai"
 
-# Correct AI units
-ai_extracted2$ai <- ai_extracted2$ai / 10000
+# Pivot longer to make for easy growing season estimation
+ai_long <- ai_extracted2 %>%
+  pivot_longer(cols = ai_01:ai_12,
+               names_to = "var", values_to = "value") %>%
+  separate(var, into = c("var", "month"), sep = "_")
 
-#################
-# Elevation
-#################
+# Growing season precipitation (where degC > 0)
+gs_ai <- ai_long %>%
+  semi_join(growing_szn, by = c("exp", "month")) %>%
+  group_by(exp, latitude, longitude) %>%
+  summarize(gs_ai = mean(value, na.rm = TRUE)) %>%
+  mutate(gs_ai = gs_ai / 10000)
+
+#####################################################################
+# WorldClim v2.1: Elevation
+#####################################################################
 # Create raster
-z_index <- raster("../cru/world_clim/wc2.1_30s_elev.tif")
+z_index <- raster("../climate/worldclim/wc2.1_30s_elev.tif")
 
 # Extract point data
 z_extracted <- raster::extract(
@@ -203,7 +206,6 @@ z_extracted <- raster::extract(
 z_extracted2 <- cbind(experiment_summary_field, z_extracted)
 names(z_extracted2)[4] <- "z"
 
-
 #####################################################################
 # MERGE WORLDCLIM DATA TOGETHER & INTO COMPILED DATASET
 #####################################################################
@@ -211,13 +213,12 @@ worldClim_sites <- z_extracted2 %>%
   full_join(gs_temp) %>%
   full_join(gs_prcp) %>%
   full_join(gs_srad) %>%
-  full_join(ai_extracted2) %>%
-  filter(exp != "hasselt_fnp" & exp != "hammersmith_fnp")
+  full_join(gs_ai)
 
 # Merge climate summary with compiled dataset
 compiled_df <- full_df %>%
   full_join(worldClim_sites, by = c("exp", "latitude", "longitude")) %>%
-  dplyr::select(source:elevation, z:ai, ecosystem_type:npk, 
+  dplyr::select(source:elevation, z:gs_ai, ecosystem_type:npk, 
                 fert, n_c:rep_t)
 write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
 

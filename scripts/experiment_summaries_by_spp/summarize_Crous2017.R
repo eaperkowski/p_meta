@@ -9,7 +9,8 @@ crous_data <- read.csv("../../raw_data/Crous_2017_NewPhyt.csv") %>%
            factor(Treatm, 
                   levels = c("LNLP", "HNLP", "LNHP", "HNHP")),
          pnue = PSsat / Narea,
-         ppue = PSsat / Parea) 
+         ppue = PSsat / Parea,
+         jmax.vcmax = Jsat / Vcsat) 
 head(crous_data)
 
 # Generate treatment summary statistics
@@ -31,6 +32,11 @@ crous_data_summary <- crous_data %>%
     Jmax_mean = mean(Jsat, na.rm = TRUE),
     Jmax_sd = sd(Jsat, na.rm = TRUE),
     Jmax_se = Jmax_sd / sqrt(Jmax_n),
+    
+    JmaxVcmax_n = sum(!is.na(jmax.vcmax)),
+    JmaxVcmax_mean = mean(jmax.vcmax, na.rm = TRUE),
+    JmaxVcmax_sd = sd(jmax.vcmax, na.rm = TRUE),
+    JmaxVcmax_se = JmaxVcmax_sd / sqrt(JmaxVcmax_n),
     
     gsw_n = sum(!is.na(Gssat)),
     gsw_mean = mean(Gssat, na.rm = TRUE),
@@ -90,12 +96,12 @@ crous_data_summary_control <- crous_data_summary %>%
   filter(Treatm == "LNLP") %>%
   mutate(exp = "crous2017") %>%
   select(-Treatm)
-names(crous_data_summary_control)[2:53] <- str_c(names(crous_data_summary_control)[2:53], "_control")
+names(crous_data_summary_control)[2:57] <- str_c(names(crous_data_summary_control)[2:57], "_control")
 
 crous_data_summary_treatment <- crous_data_summary %>%
   filter(Treatm != "LNLP") %>%
   mutate(exp = "crous2017")
-names(crous_data_summary_treatment)[3:54] <- str_c(names(crous_data_summary_treatment)[3:54], "_trt")
+names(crous_data_summary_treatment)[3:58] <- str_c(names(crous_data_summary_treatment)[3:58], "_trt")
 
 # Format into easy merge into compiled datasheet, write to .csv
 crous_data_summary_control %>%
@@ -116,6 +122,11 @@ crous_data_summary_control %>%
                 Jmax_sd_control, Jmax_sd_trt, 
                 Jmax_se_control, Jmax_se_trt, 
                 Jmax_n_control, Jmax_n_trt,
+                
+                JmaxVcmax_mean_control, JmaxVcmax_mean_trt, 
+                JmaxVcmax_sd_control, JmaxVcmax_sd_trt, 
+                JmaxVcmax_se_control, JmaxVcmax_se_trt, 
+                JmaxVcmax_n_control, JmaxVcmax_n_trt,
                 
                 gsw_mean_control, gsw_mean_trt, 
                 gsw_sd_control, gsw_sd_trt, 
@@ -173,7 +184,7 @@ crous_data_summary_control %>%
   pivot_wider(names_from = stat:trt,
               values_from = value) %>%
   mutate(Treatm = factor(Treatm, levels = c("LNLP", "HNLP", "LNHP", "HNHP")),
-         trait = factor(trait, levels = c("Asat", "Vcmax", "Jmax", "rd", "gsw",
+         trait = factor(trait, levels = c("Asat", "Vcmax", "Jmax", "JmaxVcmax", "rd", "gsw",
                                           "lma", "Nmass", "Narea", "Pmass",
                                           "Parea", "leafnp", "pnue", "ppue")),
          mean_control = ifelse(trait == "rd", abs(mean_control),
