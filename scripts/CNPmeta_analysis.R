@@ -112,6 +112,10 @@ out_n <- purrr::map(as.list(use_vars_n),
                                     rename(var = myvar), nam_target = .))
 names(out_n) <- use_vars_n
 
+out_n[["rootshoot"]]$modl
+out_p[["rootshoot"]]$modl
+out_np[["rootshoot"]]$modl
+
 df_box_n_k <- data.frame(var = use_vars_n,
                           k = c("(18)", "(12)", "(125)", "(30)", "(23)", "(139)",
                                 "(133)", "(85)", "(42)", "(63)", "(40)",
