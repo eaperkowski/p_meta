@@ -112,10 +112,6 @@ out_n <- purrr::map(as.list(use_vars_n),
                                     rename(var = myvar), nam_target = .))
 names(out_n) <- use_vars_n
 
-out_n[["rootshoot"]]$modl
-out_p[["rootshoot"]]$modl
-out_np[["rootshoot"]]$modl
-
 df_box_n_k <- data.frame(var = use_vars_n,
                           k = c("(18)", "(12)", "(125)", "(30)", "(23)", "(139)",
                                 "(133)", "(85)", "(42)", "(63)", "(40)",
@@ -1374,7 +1370,7 @@ pfert_leafnp_fullModel <- rma.mv(logr,
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ gs_mat + ai + gs_par + n_fixer + photo_path + myc_assoc,
+                                 mods = ~ gs_mat + gs_ai + gs_par,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = pfert_lnRR %>% 
                                    filter(myvar == "leaf_np" & !is.na(gs_mat)))
@@ -1431,7 +1427,7 @@ npfert_leafnp_fullModel <- rma.mv(logr,
                                   logr_var,
                                   method = "REML", 
                                   random = ~ 1 | exp, 
-                                  mods = ~ gs_mat + ai + gs_par + n_fixer + photo_path + myc_assoc,
+                                  mods = ~ gs_mat + gs_ai + gs_par,
                                   slab = exp, control = list(stepadj = 0.3), 
                                   data = npfert_lnRR %>% 
                                     filter(myvar == "leaf_np" & !is.na(gs_mat)))
@@ -2044,3 +2040,53 @@ npfert_rmf_fullModel <- rma.mv(logr,
                                 filter(myvar == "rmf" & !is.na(gs_mat)))
 summary(npfert_rmf_fullModel)
 
+
+
+
+# N+P addition - full model
+
+## Quickly order mycorrhizal types to make NM the reference
+nfert_lnRR <- nfert_lnRR %>% 
+  mutate(myc_assoc = factor(myc_assoc, levels = c("NM", 
+                                                  "NM-AM",
+                                                  "AM",
+                                                  "EcM",
+                                                  "EcM-AM")))
+pfert_lnRR <- pfert_lnRR %>% 
+  mutate(myc_assoc = factor(myc_assoc, levels = c("NM", 
+                                                  "NM-AM",
+                                                  "AM",
+                                                  "EcM",
+                                                  "EcM-AM")))
+npfert_lnRR <- npfert_lnRR %>% 
+  mutate(myc_assoc = factor(myc_assoc, levels = c("NM", 
+                                                  "NM-AM",
+                                                  "AM",
+                                                  "EcM",
+                                                  "EcM-AM")))
+
+
+nfert_trait_fullModel <- rma.mv(logr, 
+                                 logr_var,
+                                 method = "REML", 
+                                 random = ~ 1 | exp, 
+                                 mods = ~ photo_path + n_fixer + myc_assoc,
+                                 slab = exp, control = list(stepadj = 0.3), 
+                                 data = pfert_lnRR %>% 
+                                   filter(myvar == "lma" & 
+                                            !is.na(n_fixer)))
+
+summary(nfert_trait_fullModel)
+
+mod_results(nfert_trait_fullModel, mod = "photo_path", group = "exp")
+mod_results(nfert_trait_fullModel, mod = "n_fixer", group = "exp")
+mod_results(nfert_trait_fullModel, mod = "myc_assoc", group = "exp")
+
+
+ggplot(data = nfert_lnRR %>% 
+  filter(myvar == "rootshoot" & !is.na(gs_mat)),
+  aes(x = gs_mat, y = logr)) +
+  geom_point()
+
+
+& logr > -0.2
