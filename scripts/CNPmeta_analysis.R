@@ -16,7 +16,8 @@ library(orchaRd)
 # Read compiled dataset
 full_df <- read.csv("../data/CNP_data_compiled.csv") %>%
   replace_with_na_all(~.x == "<NA>") %>%
-  mutate(pft = str_c(photo_path, n_fixer, myc_assoc, sep = "_"))
+  mutate(pft = str_c(photo_path, n_fixer, myc_assoc, sep = "_"),
+         am_strat = ifelse(myc_assoc == ))
 
 # Create experiment metadata summary
 experiment_summary <- full_df %>%
@@ -2073,7 +2074,7 @@ nfert_trait_fullModel <- rma.mv(logr,
                                  mods = ~ photo_path + n_fixer + myc_assoc,
                                  slab = exp, control = list(stepadj = 0.3), 
                                  data = pfert_lnRR %>% 
-                                   filter(myvar == "lma" & 
+                                   filter(myvar == "leaf_p_mass" & 
                                             !is.na(n_fixer)))
 
 summary(nfert_trait_fullModel)
@@ -2083,10 +2084,10 @@ mod_results(nfert_trait_fullModel, mod = "n_fixer", group = "exp")
 mod_results(nfert_trait_fullModel, mod = "myc_assoc", group = "exp")
 
 
+
+
 ggplot(data = nfert_lnRR %>% 
   filter(myvar == "rootshoot" & !is.na(gs_mat)),
   aes(x = gs_mat, y = logr)) +
   geom_point()
 
-
-& logr > -0.2
