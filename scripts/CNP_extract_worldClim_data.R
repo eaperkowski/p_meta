@@ -41,26 +41,6 @@ experiment_summary_field <- distinct(full_df_field, exp, .keep_all = TRUE) %>%
 unique(experiment_summary_field$exp)
 
 #####################################################################
-# Create map of all experiments included in meta-analysis
-#####################################################################
-CNP_meta_experiment_map <- ggplot() +
-  borders(database = "world", colour = "black", fill = "antiquewhite") +
-  geom_point(data = experiment_summary_field,
-             aes(x = longitude, y = latitude), 
-             color = "red", size = 0.5) +
-  scale_x_continuous(limits = c(-180, 180), breaks = seq(-180, 180, 90)) +
-  scale_y_continuous(limits = c(-80, 90), breaks = seq(-60, 90, 30)) +
-  labs(x = expression("Longitude ("*degree*")"),
-       y = expression("Latitutde ("*degree*")")) +
-  theme_classic(base_size = 18) +
-  theme(panel.grid = element_blank())
-
-# png("../plots/CNPmeta_site_map.png", width = 3600, height = 2400,
-#     res = 600)
-CNP_meta_experiment_map 
-# dev.off()
-
-#####################################################################
 # WorldClim v2.1: Temperature
 #####################################################################
 
