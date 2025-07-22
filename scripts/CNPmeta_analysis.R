@@ -17,7 +17,12 @@ library(orchaRd)
 full_df <- read.csv("../data/CNP_data_compiled.csv") %>%
   replace_with_na_all(~.x == "<NA>") %>%
   mutate(pft = str_c(photo_path, n_fixer, myc_assoc, sep = "_"),
-         am_strat = ifelse(myc_assoc == ))
+         myc_nas = ifelse(myc_assoc == "EcM" | myc_assoc == "EcM-AM" |
+                            myc_assoc == "ErM", "mining",
+                          ifelse(myc_assoc == "NM-AM" |
+                                   myc_assoc == "AM" | myc_assoc == "NM",
+                                 "scavenging",
+                                 NA)))
 
 # Create experiment metadata summary
 experiment_summary <- full_df %>%
@@ -455,6 +460,8 @@ fert_exp_responses_all <- nfert_lnRR %>%
                                    "leaf_metabolic_p", "leaf_pi", 
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
                                    "leaf_n_area", "leaf_n_mass", "lma")))
+
+write.csv(fert_exp_responses_all, "../data/CNP_metaanalysis_results.csv", row.names = F)
 
 # Factor interaction effect size variables to appear in a certain order
 CNP_effect_sizes_reduced <- CNP_effect_sizes_reduced %>%
@@ -1957,7 +1964,7 @@ ggarrange(nfert_marea_mat_plot, nfert_marea_ai_plot, nfert_marea_par_plot,
 dev.off()
 
 ###############################################################################
-# Some additional exploratory models
+# Species moderator variables
 ###############################################################################
 
 # No effect of climate demand on total biomass
@@ -2066,28 +2073,49 @@ npfert_lnRR <- npfert_lnRR %>%
                                                   "EcM",
                                                   "EcM-AM")))
 
+unique(nfert_lnRR$myvar)
 
-nfert_trait_fullModel <- rma.mv(logr, 
+
+###############################################################################
+# Species identity moderation
+###############################################################################
+
+# N fert - Marea
+nfert_marea_fullModel <- rma.mv(logr, 
                                  logr_var,
                                  method = "REML", 
                                  random = ~ 1 | exp, 
-                                 mods = ~ photo_path + n_fixer + myc_assoc,
+                                 mods = ~ myc_nas,
                                  slab = exp, control = list(stepadj = 0.3), 
-                                 data = pfert_lnRR %>% 
-                                   filter(myvar == "leaf_p_mass" & 
+                                 data = nfert_lnRR %>% 
+                                   filter(myvar == "lma" & 
                                             !is.na(n_fixer)))
+summary(nfert_marea_fullModel)
 
-summary(nfert_trait_fullModel)
+# P fert - Marea
+pfert_marea_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ myc_nas,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = pfert_lnRR %>% 
+                                  filter(myvar == "lma" & 
+                                           !is.na(n_fixer)))
+summary(pfert_marea_fullModel)
 
-mod_results(nfert_trait_fullModel, mod = "photo_path", group = "exp")
-mod_results(nfert_trait_fullModel, mod = "n_fixer", group = "exp")
-mod_results(nfert_trait_fullModel, mod = "myc_assoc", group = "exp")
+# N+P fert - Marea
+npfert_marea_fullModel <- rma.mv(logr, 
+                                logr_var,
+                                method = "REML", 
+                                random = ~ 1 | exp, 
+                                mods = ~ myc_nas,
+                                slab = exp, control = list(stepadj = 0.3), 
+                                data = npfert_lnRR %>% 
+                                  filter(myvar == "lma" & 
+                                           !is.na(n_fixer)))
+summary(npfert_marea_fullModel)
 
 
 
-
-ggplot(data = nfert_lnRR %>% 
-  filter(myvar == "rootshoot" & !is.na(gs_mat)),
-  aes(x = gs_mat, y = logr)) +
-  geom_point()
 
