@@ -306,11 +306,11 @@ dev.off()
 
 
 ###############################################################################
-# Nmass - species identity
+# Narea - species identity
 ###############################################################################
 
 # Photosynthetic pathway
-nmass_photo_plot <- ggplot(data = spp_mod_df %>% 
+narea_photo_plot <- ggplot(data = spp_mod_df %>% 
                              filter(trait == "narea" &
                                       moderator_group == "photo"),
                            aes(group = nut_add)) +
@@ -355,8 +355,8 @@ nmass_photo_plot
 
 
 # N fixation
-nmass_nfix_plot <- ggplot(data = spp_mod_df %>%
-                            filter(trait == "nmass" &
+narea_nfix_plot <- ggplot(data = spp_mod_df %>%
+                            filter(trait == "narea" &
                                      moderator_group == "nfix"),
                           aes(group = nut_add)) +
   geom_errorbar(aes(x = moderator, y = estimate, 
@@ -364,36 +364,6 @@ nmass_nfix_plot <- ggplot(data = spp_mod_df %>%
                 width = 0.5, linewidth = 1) +
   geom_point(aes(x = moderator, y = estimate, fill = moderator),
              shape = 21, size = 5) +
-  geom_bracket(data = spp_mod_df %>% filter(trait == "nmass" & 
-                                              moderator_group == "nfix" &
-                                              nut_add == "n"),
-               xmin = "n_fixer", xmax = "non_fixer", y.position = 0.5, size = 1,
-               label = "", tip.length = 0.02) +
-  geom_text(data = spp_mod_df %>% filter(trait == "nmass" & 
-                                           moderator_group == "nfix" &
-                                           nut_add == "n"),
-            x = 1.5, y = 0.55,
-            label = "***", size = 6) +
-  geom_bracket(data = spp_mod_df %>% filter(trait == "nmass" & 
-                                              moderator_group == "nfix" &
-                                              nut_add == "p"),
-               xmin = "n_fixer", xmax = "non_fixer", y.position = 0.5, size = 1,
-               label = "", tip.length = 0.02) +
-  geom_text(data = spp_mod_df %>% filter(trait == "nmass" & 
-                                           moderator_group == "nfix" &
-                                           nut_add == "p"),
-            x = 1.5, y = 0.55,
-            label = "***", size = 6) +
-  geom_bracket(data = spp_mod_df %>% filter(trait == "narea" & 
-                                              moderator_group == "nfix" &
-                                              nut_add == "np"),
-               xmin = "n_fixer", xmax = "non_fixer", y.position = 0.5, size = 1,
-               label = "", tip.length = 0.02) +
-  geom_text(data = spp_mod_df %>% filter(trait == "nmass" & 
-                                           moderator_group == "nfix" &
-                                           nut_add == "np"),
-            x = 1.5, y = 0.55,
-            label = "*", size = 6) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   scale_y_continuous(limits = c(-0.2, 0.6)) +
   scale_x_discrete(labels = c("N-fixer", "non-fixer")) +
@@ -408,7 +378,7 @@ nmass_nfix_plot <- ggplot(data = spp_mod_df %>%
         axis.title = element_text(face = "bold"))
 
 # Mycorrhizal acquisition strategy
-nmass_myc_plot <- ggplot(data = spp_mod_df %>%
+narea_myc_plot <- ggplot(data = spp_mod_df %>%
                            filter(trait == "narea" &
                                     moderator_group == "myc"),
                          aes(group = nut_add)) +
@@ -417,6 +387,16 @@ nmass_myc_plot <- ggplot(data = spp_mod_df %>%
                 width = 0.5, linewidth = 1) +
   geom_point(aes(x = moderator, y = estimate, fill = moderator),
              shape = 21, size = 5) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "narea" & 
+                                              moderator_group == "myc" &
+                                              nut_add == "n"),
+               xmin = "mining", xmax = "scavenging", y.position = 0.5, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "narea" & 
+                                           moderator_group == "myc" &
+                                           nut_add == "n"),
+            x = 1.5, y = 0.55,
+            label = "**", size = 6) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   scale_y_continuous(limits = c(-0.2, 0.6)) +
   labs(x = "Myc. acquisition strategy",
