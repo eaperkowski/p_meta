@@ -125,10 +125,11 @@ df_box_n_k <- data.frame(var = use_vars_n,
                                 "(84)", "(79)", "(42)", "(40)", "(32)", "(58)", "(59)", 
                                 "(20)", "(21)", "(21)", "(20)", "(5)"),
                          sig.level = c("***", "***", "***", "***", "***", "***",
-                                       "*. ", "ns ", "ns ", "ns ", "***", 
-                                       NA, "***", "ns ", "** ", "*. ", "ns ", 
-                                       "** ", "ns ", "ns ", "ns ", ". ", "ns ", "ns ", 
-                                       "ns ", "ns ", "ns ", "ns ", "ns "))
+                                       "*  ", "   ", "   ", "   ", "***", 
+                                       NA, "***", "   ", "** ", "*  ", "   ", 
+                                       "** ", "   ", "   ", "   ", "   ", "   ", "   ", 
+                                       "   ", "   ", "   ", "   ", "   "))
+df_box_n_k$k_sig <- str_c(df_box_n_k$k, df_box_n_k$sig.level)
 
 df_box_n <- purrr::map_dfr(out_n, "df_box") |> 
   full_join(df_box_n_k) |>
@@ -199,11 +200,15 @@ df_box_p_k <- data.frame(var = use_vars_p,
                                "(37)", "(43)", "(115)", "(113)", "(37)", "(84)", 
                                "(79)", "(42)", "(40)", "(32)", "(58)", "(59)", "(20)",
                                "(21)", "(21)", "(20)", "(5)"),
-                         sig.level = c(".  ", "***", "***", "***", "***", "ns ",
-                                       "***", "ns ", "* ", "ns ", "*. ", NA,
-                                       ".  ", ".  ", "***", "ns ", "ns ", "ns ", 
-                                       "***", "ns ", "*. ", "ns", "ns ", "ns ", "ns ",
-                                       "*. ", "ns ", "ns ", "**"))
+                         sig.level = c("   ", "***", "***", "***", "***", "   ",
+                                       "***", "   ", "*  ", "   ", "*  ", NA,
+                                       "   ", "   ", "***", "   ", "   ", "   ", 
+                                       "***", "   ", "*  ", "   ", "   ", "   ", "   ",
+                                       "*  ", "   ", "   ", "** "))
+df_box_p_k$k_sig <- str_c(df_box_p_k$k, df_box_p_k$sig.level)
+
+
+
 
 df_box_p <- purrr::map_dfr(out_p, "df_box") |> 
   full_join(df_box_p_k) |>
@@ -279,10 +284,11 @@ df_box_np_k <- data.frame(var = use_vars_np,
                                 "(79)", "(42)", "(40)", "(32)", "(58)", "(59)", "(20)",
                                 "(21)", "(21)", "(20)", "(5)"),
                           sig.level = c("***", "***", "***", "** ", "*  ", "***",
-                                        "***", "*  ", "***", "ns ", "***", NA,
-                                        "** ", "*  ", "***", "** ", ".  ", "***", 
-                                        "***", ".  ", "***", "***", "ns ", "ns ", "ns ",
-                                        "*  ", "ns ", "ns ", "** "))
+                                        "***", "*  ", "***", "   ", "***", NA,
+                                        "** ", "*  ", "***", "** ", "   ", "***", 
+                                        "***", "   ", "***", "***", "   ", "   ", "   ",
+                                        "*  ", "   ", "   ", "** "))
+df_box_np_k$k_sig <- str_c(df_box_np_k$k, df_box_np_k$sig.level)
 
 df_box_np <- purrr::map_dfr(out_np, "df_box") |> 
   full_join(df_box_np_k) %>%
@@ -401,14 +407,28 @@ out_int <- purrr::map(as.list(use_vars_int),
                                           rename(var = myvar), nam_target = .))
 names(out_int) <- use_vars_int
 
+df_box_int_k <- data.frame(var = use_vars_int,
+                          k = c("(18)", "(12)", "(125)", "(30)", "(23)", "(139)",
+                                "(133)", "(85)", "(42)", "(63)", "(40)", NA,
+                                "(37)", "(3)", "(43)", "(115)", "(88)", "(37)", 
+                                "(84)", "(79)", "(42)", "(40)", "(32)", "(58)", "(59)",
+                                "(20)", "(21)", "(20)", "(20)", "(5)"),
+                          sig.level = c("   ", "   ", "*  ", ".  ", "   ", "   ",
+                                        ".  ", "   ", "   ", "   ", "   ", NA,
+                                        "   ", "   ", ".  ", "** ", "   ", ".  ", 
+                                        "   ", "   ", "   ", "   ", "   ", "   ", "   ",
+                                        "   ", "   ", "   ", "*   ", "   "))
+df_box_int_k$k_sig <- str_c(df_box_int_k$k, df_box_int_k$sig.level)
+
+
 df_box_int <- purrr::map_dfr(out_int, "df_box") |> 
+  full_join(df_box_int_k) |>
   left_join(
     CNP_effect_sizes_reduced |> 
       group_by(myvar) |> 
       summarise(intES_min = min(dNPi), intES_max = max(dNPi)) |> 
       rename(var = myvar),
     by = "var")
-
 
 ##############################################################################
 # Plot prep
@@ -2117,5 +2137,332 @@ npfert_marea_fullModel <- rma.mv(logr,
 summary(npfert_marea_fullModel)
 
 
+#####################################################################
+# N addition ESA figs
+#####################################################################
+nadd_chemistry_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "n") %>%
+         filter(var %in% c("leaf_n_mass", "leaf_n_area", 
+                           "leaf_p_mass", "leaf_p_area")),
+       aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "red", shape = 21) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c(expression("P"["area"]), 
+                              expression("P"["mass"]), 
+                              expression("N"["area"]),
+                              expression("N"["mass"]))) +
+  geom_text(aes(label = k_sig), y = 0.7, fontface = "bold") +
+  scale_y_continuous(limits = c(-0.8, 0.8), breaks = seq(-0.8, 0.8, 0.4)) +
+  labs(x = "", 
+       y = NULL) +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+
+nadd_photo_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "n") %>%
+                                filter(var %in% c("asat", "vcmax", "jmax",
+                                                  "leaf_pnue", "leaf_ppue")),
+                              aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "red", shape = 21) +
+  geom_text(aes(label = k_sig), y = 0.7, fontface = "bold") +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("PPUE",
+                              "PNUE",
+                              expression("J"["max"]),
+                              expression("V"["cmax"]),
+                              expression("A"["sat"]))) +
+  scale_y_continuous(limits = c(-0.8, 0.8), breaks = seq(-0.8, 0.8, 0.4)) +
+  scale_fill_manual(values = "red") +
+  labs(x = "", y = "Log response to N addition") +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
 
 
+nadd_bio_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "n") %>%
+                            filter(var %in% c("rootshoot", "rmf", "bgb", "agb", 
+                                              "total_biomass")),
+                          aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "red", shape = 21) +
+  geom_text(aes(label = k_sig), y = 0.7, fontface = "bold") +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("Root:shoot",
+                              "RMF",
+                              "BGB",
+                              "AGB",
+                              "Total biomass")) +
+  scale_y_continuous(limits = c(-0.8, 0.8), breaks = seq(-0.8, 0.8, 0.4)) +
+  labs(x = "", 
+       y = NULL)  +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+
+png("../plots/esa_figs/ESA_Nadd_fig.png", height = 4, width = 16, units = "in", res = 600)
+ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot, nrow = 1, 
+          ncol = 3, labels = c("(a)", "(b)", "(c)", font.label = list(size = 18)),
+          align = "hv")
+dev.off()
+
+#####################################################################
+# P addition ESA figs
+#####################################################################
+padd_chemistry_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "p") %>%
+                                filter(var %in% c("leaf_n_mass", "leaf_n_area", 
+                                                  "leaf_p_mass", "leaf_p_area")),
+                              aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "blue", shape = 21) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c(expression("P"["area"]), 
+                              expression("P"["mass"]), 
+                              expression("N"["area"]),
+                              expression("N"["mass"]))) +
+  geom_text(aes(label = k_sig), y = 0.95, fontface = "bold") +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = "", 
+       y = NULL) +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+padd_chemistry_plot
+
+padd_photo_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "p") %>%
+                            filter(var %in% c("asat", "vcmax", "jmax",
+                                              "leaf_pnue", "leaf_ppue")),
+                          aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "blue", shape = 21) +
+  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("PPUE",
+                              "PNUE",
+                              expression("J"["max"]),
+                              expression("V"["cmax"]),
+                              expression("A"["sat"]))) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  scale_fill_manual(values = "blue") +
+  labs(x = "", y = "Log response to P addition") +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+padd_photo_plot
+
+padd_bio_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "p") %>%
+                          filter(var %in% c("rootshoot", "rmf", "bgb", "agb", 
+                                            "total_biomass")),
+                        aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "blue", shape = 21) +
+  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("Root:shoot",
+                              "RMF",
+                              "BGB",
+                              "AGB",
+                              "Total biomass")) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = "", 
+       y = NULL)  +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+padd_bio_plot
+
+png("../plots/esa_figs/ESA_Padd_fig.png", height = 4, width = 16, units = "in", res = 600)
+ggarrange(padd_chemistry_plot, padd_photo_plot, padd_bio_plot, nrow = 1, 
+          ncol = 3, labels = c("(a)", "(b)", "(c)", font.label = list(size = 18)),
+          align = "hv")
+dev.off()
+
+#####################################################################
+# N+P addition ESA figs
+#####################################################################
+npadd_chemistry_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "np") %>%
+                                filter(var %in% c("leaf_n_mass", "leaf_n_area", 
+                                                  "leaf_p_mass", "leaf_p_area")),
+                              aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "magenta", shape = 21) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c(expression("P"["area"]), 
+                              expression("P"["mass"]), 
+                              expression("N"["area"]),
+                              expression("N"["mass"]))) +
+  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = "", 
+       y = NULL) +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+npadd_chemistry_plot
+
+npadd_photo_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "np") %>%
+                            filter(var %in% c("asat", "vcmax", "jmax",
+                                              "leaf_pnue", "leaf_ppue")),
+                          aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "magenta", shape = 21) +
+  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("PPUE",
+                              "PNUE",
+                              expression("J"["max"]),
+                              expression("V"["cmax"]),
+                              expression("A"["sat"]))) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = "", y = "Log response to P addition") +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+npadd_photo_plot
+
+npadd_bio_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "np") %>%
+                          filter(var %in% c("rootshoot", "rmf", "bgb", "agb", 
+                                            "total_biomass")),
+                        aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "magenta", shape = 21) +
+  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("Root:shoot",
+                              "RMF",
+                              "BGB",
+                              "AGB",
+                              "Total biomass")) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(x = "", 
+       y = NULL)  +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+npadd_bio_plot
+
+png("../plots/esa_figs/ESA_NPadd_fig.png", height = 4, width = 16, units = "in", res = 600)
+ggarrange(npadd_chemistry_plot, npadd_photo_plot, npadd_bio_plot, nrow = 1, 
+          ncol = 3, labels = c("(a)", "(b)", "(c)", font.label = list(size = 18)),
+          align = "hv")
+dev.off()
+
+#####################################################################
+# N+P interaction ESA figs
+#####################################################################
+npint_chemistry_plot <- ggplot(data = df_box_int %>% drop_na(var) %>%
+                                 filter(var %in% c("leaf_n_mass", "leaf_n_area", 
+                                                   "leaf_p_mass", "leaf_p_area")),
+                               aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "black", shape = 21) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c(expression("P"["area"]), 
+                              expression("P"["mass"]), 
+                              expression("N"["area"]),
+                              expression("N"["mass"]))) +
+  geom_text(aes(label = k_sig), y = 1.1, fontface = "bold") +
+  scale_y_continuous(limits = c(-1.2, 1.2), breaks = seq(-1.2, 1.2, 0.6)) +
+  labs(x = "", 
+       y = NULL) +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = guide_legend(order = 1),
+         size = guide_legend(override.aes = list(alpha = 1),
+                             order = 2))
+npint_chemistry_plot
+
+npint_photo_plot <- ggplot(data = df_box_int %>% drop_na(var) %>%
+                             filter(var %in% c("asat", "vcmax", "jmax",
+                                               "leaf_pnue", "leaf_ppue")),
+                           aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(size = 4, fill = "black", shape = 21) +
+  geom_text(aes(label = k_sig), y = 1.1, fontface = "bold") +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("PPUE",
+                              "PNUE",
+                              expression("J"["max"]),
+                              expression("V"["cmax"]),
+                              expression("A"["sat"]))) +
+  scale_y_continuous(limits = c(-1.2, 1.2), breaks = seq(-1.2, 1.2, 0.6)) +
+  labs(x = "", y = "Interaction effect size (Hedge's d)") +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"))
+npint_photo_plot
+
+npint_bio_plot <- ggplot(data = df_box_int %>% drop_na(var) %>%
+                           filter(var %in% c("rootshoot", "rmf", "bgb", "agb", 
+                                             "total_biomass")),
+                         aes(x = var, y = middle)) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(aes(fill = int_type), size = 4, shape = 21) +
+  geom_text(aes(label = k_sig), y = 1.1, fontface = "bold") +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  scale_x_discrete(labels = c("Root:shoot",
+                              "RMF",
+                              "BGB",
+                              "AGB",
+                              "Total biomass")) +
+  scale_y_continuous(limits = c(-1.2, 1.2), breaks = seq(-1.2, 1.2, 0.6)) +
+  scale_fill_manual(values = c("black", "red")) +
+  labs(x = "", 
+       y = NULL)  +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "right",
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold")) +
+  guides(fill = "none")
+npint_bio_plot

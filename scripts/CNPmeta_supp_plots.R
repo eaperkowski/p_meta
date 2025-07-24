@@ -417,4 +417,267 @@ ggarrange(narea_photo_plot, narea_nfix_plot, narea_myc_plot,
 dev.off()
 
 
+###############################################################################
+# Pmass - species identity
+###############################################################################
+
+# Photosynthetic pathway
+pmass_photo_plot <- ggplot(data = spp_mod_df %>% 
+                             filter(trait == "pmass" &
+                                      moderator_group == "photo"),
+                           aes(group = nut_add)) +
+  geom_errorbar(aes(x = moderator, y = estimate, 
+                    ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, linewidth = 1) +
+  geom_point(aes(x = moderator, y = estimate, fill = moderator),
+             shape = 21, size = 5) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                              moderator_group == "photo" &
+                                              nut_add == "p"),
+               xmin = "c4", xmax = "c3", y.position = 0.8, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                           moderator_group == "photo" &
+                                           nut_add == "p"),
+            x = 1.5, y = 0.85,
+            label = "**", size = 6) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  scale_y_continuous(limits = c(-0.6, 1.2), breaks = seq(-0.6, 1.2, 0.6)) +
+  scale_x_discrete(labels = c("C4", "C3")) +
+  labs(x = "Photo. pathway",
+       y = NULL) +
+  coord_flip() +
+  facet_grid(nut_add~., labeller = labeller(nut_add = facet.labs)) +
+  guides(fill = "none") +
+  theme_classic(base_size = 18) +
+  theme(strip.background = element_rect(linewidth = 1.5),
+        strip.text = element_text(face = "bold", size = 14),
+        axis.title = element_text(face = "bold"))
+pmass_photo_plot
+
+
+# N fixation
+pmass_nfix_plot <- ggplot(data = spp_mod_df %>%
+                            filter(trait == "pmass" &
+                                     moderator_group == "nfix"),
+                          aes(group = nut_add)) +
+  geom_errorbar(aes(x = moderator, y = estimate, 
+                    ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, linewidth = 1) +
+  geom_point(aes(x = moderator, y = estimate, fill = moderator),
+             shape = 21, size = 5) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                              moderator_group == "nfix" &
+                                              nut_add == "n"),
+               xmin = "n_fixer", xmax = "non_fixer", y.position = 1, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                           moderator_group == "nfix" &
+                                           nut_add == "n"),
+            x = 1.5, y = 1.1,
+            label = "**", size = 6) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                              moderator_group == "nfix" &
+                                              nut_add == "p"),
+               xmin = "n_fixer", xmax = "non_fixer", y.position = 1, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                           moderator_group == "nfix" &
+                                           nut_add == "p"),
+            x = 1.5, y = 1.1,
+            label = "***", size = 6) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                              moderator_group == "nfix" &
+                                              nut_add == "np"),
+               xmin = "n_fixer", xmax = "non_fixer", y.position = 1, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                           moderator_group == "nfix" &
+                                           nut_add == "np"),
+            x = 1.5, y = 1.1,
+            label = "*", size = 6) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  scale_y_continuous(limits = c(-0.6, 1.2), breaks = seq(-0.6, 1.2, 0.6)) +
+  scale_x_discrete(labels = c("N-fixer", "non-fixer")) +
+  labs(x = "N-fixation ability",
+       y = NULL) +
+  coord_flip() +
+  facet_grid(nut_add~., labeller = labeller(nut_add = facet.labs)) +
+  guides(fill = "none") +
+  theme_classic(base_size = 18) +
+  theme(strip.background = element_rect(linewidth = 1.5),
+        strip.text = element_text(face = "bold", size = 14),
+        axis.title = element_text(face = "bold"))
+
+# Mycorrhizal acquisition strategy
+pmass_myc_plot <- ggplot(data = spp_mod_df %>%
+                           filter(trait == "pmass" &
+                                    moderator_group == "myc"),
+                         aes(group = nut_add)) +
+  geom_errorbar(aes(x = moderator, y = estimate, 
+                    ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, linewidth = 1) +
+  geom_point(aes(x = moderator, y = estimate, fill = moderator),
+             shape = 21, size = 5) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                              moderator_group == "myc" &
+                                              nut_add == "n"),
+               xmin = "mining", xmax = "scavenging", y.position = 1.1, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                           moderator_group == "myc" &
+                                           nut_add == "n"),
+            x = 1.5, y = 1.2,
+            label = "***", size = 6) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                              moderator_group == "myc" &
+                                              nut_add == "p"),
+               xmin = "mining", xmax = "scavenging", y.position = 1.1, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                           moderator_group == "myc" &
+                                           nut_add == "p"),
+            x = 1.5, y = 1.2,
+            label = "***", size = 6) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                              moderator_group == "myc" &
+                                              nut_add == "np"),
+               xmin = "mining", xmax = "scavenging", y.position = 1.1, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "pmass" & 
+                                           moderator_group == "myc" &
+                                           nut_add == "np"),
+            x = 1.5, y = 1.2,
+            label = "***", size = 6) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  scale_y_continuous(limits = c(-0.6, 1.2), breaks = seq(-0.6, 1.2, 0.6)) +
+  labs(x = "Myc. acquisition strategy",
+       y = "Log-response ratio") +
+  coord_flip() +
+  facet_grid(nut_add~., labeller = labeller(nut_add = facet.labs)) +
+  guides(fill = "none") +
+  theme_classic(base_size = 18) +
+  theme(strip.background = element_rect(linewidth = 1.5),
+        strip.text = element_text(face = "bold", size = 14),
+        axis.title = element_text(face = "bold"))
+
+png("../plots/CNPmeta_spp_moderator/CNPmeta_pmass_sppMod.png",
+    height = 12.5, width = 8, units = "in", res = 600)
+ggarrange(pmass_photo_plot, pmass_nfix_plot, pmass_myc_plot,
+          ncol = 1, nrow = 3, align = "hv", labels = c("(a)", "(b)", "(c)"),
+          font.label = list(size = 18), hjust = -0.5)
+dev.off()
+
+###############################################################################
+# Parea - species identity
+###############################################################################
+
+# Photosynthetic pathway
+parea_photo_plot <- ggplot(data = spp_mod_df %>% 
+                             filter(trait == "parea" &
+                                      moderator_group == "photo"),
+                           aes(group = nut_add)) +
+  geom_errorbar(aes(x = moderator, y = estimate, 
+                    ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, linewidth = 1) +
+  geom_point(aes(x = moderator, y = estimate, fill = moderator),
+             shape = 21, size = 5) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  scale_y_continuous(limits = c(-0.4, 1.2), breaks = seq(-0.4, 1.2, 0.4)) +
+  scale_x_discrete(labels = c("C4", "C3")) +
+  labs(x = "Photo. pathway",
+       y = NULL) +
+  coord_flip() +
+  facet_grid(nut_add~., labeller = labeller(nut_add = facet.labs)) +
+  guides(fill = "none") +
+  theme_classic(base_size = 18) +
+  theme(strip.background = element_rect(linewidth = 1.5),
+        strip.text = element_text(face = "bold", size = 14),
+        axis.title = element_text(face = "bold"))
+pmass_photo_plot
+
+
+# N fixation
+parea_nfix_plot <- ggplot(data = spp_mod_df %>%
+                            filter(trait == "parea" &
+                                     moderator_group == "nfix"),
+                          aes(group = nut_add)) +
+  geom_errorbar(aes(x = moderator, y = estimate, 
+                    ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, linewidth = 1) +
+  geom_point(aes(x = moderator, y = estimate, fill = moderator),
+             shape = 21, size = 5) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "parea" & 
+                                              moderator_group == "nfix" &
+                                              nut_add == "n"),
+               xmin = "n_fixer", xmax = "non_fixer", y.position = 1, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "parea" & 
+                                           moderator_group == "nfix" &
+                                           nut_add == "n"),
+            x = 1.5, y = 1.1,
+            label = "***", size = 6) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "parea" & 
+                                              moderator_group == "nfix" &
+                                              nut_add == "np"),
+               xmin = "n_fixer", xmax = "non_fixer", y.position = 1, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "parea" & 
+                                           moderator_group == "nfix" &
+                                           nut_add == "np"),
+            x = 1.5, y = 1.1,
+            label = "***", size = 6) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  scale_y_continuous(limits = c(-0.4, 1.2), breaks = seq(-0.4, 1.2, 0.4)) +
+  scale_x_discrete(labels = c("N-fixer", "non-fixer")) +
+  labs(x = "N-fixation ability",
+       y = NULL) +
+  coord_flip() +
+  facet_grid(nut_add~., labeller = labeller(nut_add = facet.labs)) +
+  guides(fill = "none") +
+  theme_classic(base_size = 18) +
+  theme(strip.background = element_rect(linewidth = 1.5),
+        strip.text = element_text(face = "bold", size = 14),
+        axis.title = element_text(face = "bold"))
+
+# Mycorrhizal acquisition strategy
+pmass_myc_plot <- ggplot(data = spp_mod_df %>%
+                           filter(trait == "parea" &
+                                    moderator_group == "myc"),
+                         aes(group = nut_add)) +
+  geom_errorbar(aes(x = moderator, y = estimate, 
+                    ymin = lower_ci, ymax = upper_ci),
+                width = 0.5, linewidth = 1) +
+  geom_point(aes(x = moderator, y = estimate, fill = moderator),
+             shape = 21, size = 5) +
+  geom_bracket(data = spp_mod_df %>% filter(trait == "parea" & 
+                                              moderator_group == "myc" &
+                                              nut_add == "p"),
+               xmin = "mining", xmax = "scavenging", y.position = 1.4, size = 1,
+               label = "", tip.length = 0.02) +
+  geom_text(data = spp_mod_df %>% filter(trait == "parea" & 
+                                           moderator_group == "myc" &
+                                           nut_add == "p"),
+            x = 1.5, y = 1.475,
+            label = "***", size = 6) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  scale_y_continuous(limits = c(-0.5, 1.5), breaks = seq(-0.5, 1.5, 0.5)) +
+  labs(x = "Myc. acquisition strategy",
+       y = "Log-response ratio") +
+  coord_flip() +
+  facet_grid(nut_add~., labeller = labeller(nut_add = facet.labs)) +
+  guides(fill = "none") +
+  theme_classic(base_size = 18) +
+  theme(strip.background = element_rect(linewidth = 1.5),
+        strip.text = element_text(face = "bold", size = 14),
+        axis.title = element_text(face = "bold"))
+
+png("../plots/CNPmeta_spp_moderator/CNPmeta_parea_sppMod.png",
+    height = 12.5, width = 8, units = "in", res = 600)
+ggarrange(pmass_photo_plot, pmass_nfix_plot, pmass_myc_plot,
+          ncol = 1, nrow = 3, align = "hv", labels = c("(a)", "(b)", "(c)"),
+          font.label = list(size = 18), hjust = -0.5)
+dev.off()
+
+
 
