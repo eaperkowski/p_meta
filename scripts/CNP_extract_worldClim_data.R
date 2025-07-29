@@ -200,5 +200,10 @@ compiled_df <- full_df %>%
   full_join(worldClim_sites, by = c("exp", "latitude", "longitude")) %>%
   dplyr::select(source:elevation, z:gs_ai, ecosystem_type:npk, 
                 fert, n_c:rep_t)
+
+compiled_df %>%
+  filter(citation == "yang2014")
+
+
 write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
 

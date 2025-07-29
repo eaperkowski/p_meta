@@ -15,14 +15,14 @@ library(orchaRd)
 
 # Read compiled dataset
 full_df <- read.csv("../data/CNP_data_compiled.csv") %>%
-  replace_with_na_all(~.x == "<NA>") %>%
-  mutate(pft = str_c(photo_path, n_fixer, myc_assoc, sep = "_"),
-         myc_nas = ifelse(myc_assoc == "EcM" | myc_assoc == "EcM-AM" |
-                            myc_assoc == "ErM", "mining",
-                          ifelse(myc_assoc == "NM-AM" |
-                                   myc_assoc == "AM" | myc_assoc == "NM",
-                                 "scavenging",
-                                 NA)))
+  replace_with_na_all(~.x == "<NA>") #%>%
+  #mutate(pft = str_c(photo_path, n_fixer, myc_assoc, sep = "_"),
+  #       myc_nas = ifelse(myc_assoc == "EcM" | myc_assoc == "EcM-AM" |
+  #                          myc_assoc == "ErM", "mining",
+  #                        ifelse(myc_assoc == "NM-AM" |
+  #                                 myc_assoc == "AM" | myc_assoc == "NM",
+  #                               "scavenging",
+  #                               NA)))
 
 # Create experiment metadata summary
 experiment_summary <- full_df %>%
@@ -206,9 +206,6 @@ df_box_p_k <- data.frame(var = use_vars_p,
                                        "***", "   ", "*  ", "   ", "   ", "   ", "   ",
                                        "*  ", "   ", "   ", "** "))
 df_box_p_k$k_sig <- str_c(df_box_p_k$k, df_box_p_k$sig.level)
-
-
-
 
 df_box_p <- purrr::map_dfr(out_p, "df_box") |> 
   full_join(df_box_p_k) |>
@@ -463,7 +460,10 @@ df_box_all <- df_box_n %>%
                                sprintf("%.3f", middle)),
          plot_label = paste0("paste('", middle_fixed, "'^'", sig.level, "')"),
          bold_yn = ifelse(sig.level %in% c("*", "**", "***"),
-                          "bold", "plain"))
+                          "bold", "plain"),
+         middle_perc = (exp(middle) - 1) * 100,
+         upper_perc = (exp(ymax) - 1) * 100,
+         lower_perc = (exp(ymin) - 1) * 100)
 
 # Merge N, P, and NP lnRR values
 fert_exp_responses_all <- nfert_lnRR %>%
@@ -481,7 +481,7 @@ fert_exp_responses_all <- nfert_lnRR %>%
                                    "leaf_np", "leaf_p_area", "leaf_p_mass", 
                                    "leaf_n_area", "leaf_n_mass", "lma")))
 
-write.csv(fert_exp_responses_all, "../data/CNP_metaanalysis_results.csv", row.names = F)
+#write.csv(fert_exp_responses_all, "../data/CNP_metaanalysis_results.csv", row.names = F)
 
 # Factor interaction effect size variables to appear in a certain order
 CNP_effect_sizes_reduced <- CNP_effect_sizes_reduced %>%
@@ -2068,9 +2068,6 @@ npfert_rmf_fullModel <- rma.mv(logr,
                                 filter(myvar == "rmf" & !is.na(gs_mat)))
 summary(npfert_rmf_fullModel)
 
-
-
-
 # N+P addition - full model
 
 ## Quickly order mycorrhizal types to make NM the reference
@@ -2143,16 +2140,16 @@ summary(npfert_marea_fullModel)
 nadd_chemistry_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "n") %>%
          filter(var %in% c("leaf_n_mass", "leaf_n_area", 
                            "leaf_p_mass", "leaf_p_area")),
-       aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+       aes(x = var, y = middle_perc)) +
+  geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "red", shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c(expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
                               expression("N"["mass"]))) +
-  geom_text(aes(label = k_sig), y = 0.7, fontface = "bold") +
-  scale_y_continuous(limits = c(-0.8, 0.8), breaks = seq(-0.8, 0.8, 0.4)) +
+  geom_text(aes(label = k_sig), y = 140, fontface = "bold") +
+  scale_y_continuous(limits = c(-50, 150), breaks = seq(-50, 150, 50)) +
   labs(x = "", 
        y = NULL) +
   coord_flip() +
@@ -2167,19 +2164,19 @@ nadd_chemistry_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(mani
 nadd_photo_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "n") %>%
                                 filter(var %in% c("asat", "vcmax", "jmax",
                                                   "leaf_pnue", "leaf_ppue")),
-                              aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                              aes(x = var, y = middle_perc)) +
+  geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "red", shape = 21) +
-  geom_text(aes(label = k_sig), y = 0.7, fontface = "bold") +
+  geom_text(aes(label = k_sig), y = 75, fontface = "bold") +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression("J"["max"]),
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
-  scale_y_continuous(limits = c(-0.8, 0.8), breaks = seq(-0.8, 0.8, 0.4)) +
+  scale_y_continuous(limits = c(-80, 80), breaks = seq(-80, 80, 40)) +
   scale_fill_manual(values = "red") +
-  labs(x = "", y = "Log response to N addition") +
+  labs(x = "", y = "Response to N addition (%)") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -2193,17 +2190,17 @@ nadd_photo_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_ty
 nadd_bio_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "n") %>%
                             filter(var %in% c("rootshoot", "rmf", "bgb", "agb", 
                                               "total_biomass")),
-                          aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                          aes(x = var, y = middle_perc)) +
+  geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "red", shape = 21) +
-  geom_text(aes(label = k_sig), y = 0.7, fontface = "bold") +
+  geom_text(aes(label = k_sig), y = 140, fontface = "bold") +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
                               "BGB",
                               "AGB",
                               "Total biomass")) +
-  scale_y_continuous(limits = c(-0.8, 0.8), breaks = seq(-0.8, 0.8, 0.4)) +
+  scale_y_continuous(limits = c(-50, 150), breaks = seq(-50, 150, 50)) +
   labs(x = "", 
        y = NULL)  +
   coord_flip() +
@@ -2227,16 +2224,16 @@ dev.off()
 padd_chemistry_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "p") %>%
                                 filter(var %in% c("leaf_n_mass", "leaf_n_area", 
                                                   "leaf_p_mass", "leaf_p_area")),
-                              aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                              aes(x = var, y = middle_perc)) +
+  geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c(expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
                               expression("N"["mass"]))) +
-  geom_text(aes(label = k_sig), y = 0.95, fontface = "bold") +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  geom_text(aes(label = k_sig), y = 140, fontface = "bold") +
+  scale_y_continuous(limits = c(-50, 150), breaks = seq(-50, 150, 50)) +
   labs(x = "", 
        y = NULL) +
   coord_flip() +
@@ -2252,19 +2249,19 @@ padd_chemistry_plot
 padd_photo_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "p") %>%
                             filter(var %in% c("asat", "vcmax", "jmax",
                                               "leaf_pnue", "leaf_ppue")),
-                          aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                          aes(x = var, y = middle_perc)) +
+  geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
+  geom_text(aes(label = k_sig), y = 75, fontface = "bold") +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression("J"["max"]),
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  scale_y_continuous(limits = c(-80, 80), breaks = seq(-80, 80, 40)) +
   scale_fill_manual(values = "blue") +
-  labs(x = "", y = "Log response to P addition") +
+  labs(x = "", y = "Response to P addition (%)") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -2278,17 +2275,17 @@ padd_photo_plot
 padd_bio_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "p") %>%
                           filter(var %in% c("rootshoot", "rmf", "bgb", "agb", 
                                             "total_biomass")),
-                        aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                        aes(x = var, y = middle_perc)) +
+  geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
+  geom_text(aes(label = k_sig), y = 140, fontface = "bold") +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
                               "BGB",
                               "AGB",
                               "Total biomass")) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  scale_y_continuous(limits = c(-50, 150), breaks = seq(-50, 150, 50)) +
   labs(x = "", 
        y = NULL)  +
   coord_flip() +
@@ -2313,16 +2310,16 @@ dev.off()
 npadd_chemistry_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "np") %>%
                                 filter(var %in% c("leaf_n_mass", "leaf_n_area", 
                                                   "leaf_p_mass", "leaf_p_area")),
-                              aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                              aes(x = var, y = middle_perc)) +
+  geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "magenta", shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c(expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
                               expression("N"["mass"]))) +
-  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  geom_text(aes(label = k_sig), y = 140, fontface = "bold") +
+  scale_y_continuous(limits = c(-50, 150), breaks = seq(-50, 150, 50)) +
   labs(x = "", 
        y = NULL) +
   coord_flip() +
@@ -2338,18 +2335,18 @@ npadd_chemistry_plot
 npadd_photo_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "np") %>%
                             filter(var %in% c("asat", "vcmax", "jmax",
                                               "leaf_pnue", "leaf_ppue")),
-                          aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                          aes(x = var, y = middle_perc)) +
+  geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "magenta", shape = 21) +
-  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
+  geom_text(aes(label = k_sig), y = 75, fontface = "bold") +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression("J"["max"]),
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
-  labs(x = "", y = "Log response to P addition") +
+  scale_y_continuous(limits = c(-80, 80), breaks = seq(-80, 80, 40)) +
+  labs(x = "", y = "Response to N+P addition (%)") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -2363,17 +2360,17 @@ npadd_photo_plot
 npadd_bio_plot <- ggplot(data = df_box_all %>% drop_na(var) %>% filter(manip_type == "np") %>%
                           filter(var %in% c("rootshoot", "rmf", "bgb", "agb", 
                                             "total_biomass")),
-                        aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                        aes(x = var, y = middle_perc)) +
+  geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "magenta", shape = 21) +
-  geom_text(aes(label = k_sig), y = 0.9, fontface = "bold") +
+  geom_text(aes(label = k_sig), y = 140, fontface = "bold") +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
                               "BGB",
                               "AGB",
                               "Total biomass")) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  scale_y_continuous(limits = c(-50, 150), breaks = seq(-50, 150, 50)) +
   labs(x = "", 
        y = NULL)  +
   coord_flip() +
@@ -2439,7 +2436,7 @@ npint_photo_plot <- ggplot(data = df_box_int %>% drop_na(var) %>%
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"))
+        axis.title.x = element_text(face = "bold", size = 14))
 npint_photo_plot
 
 npint_bio_plot <- ggplot(data = df_box_int %>% drop_na(var) %>%
@@ -2466,3 +2463,50 @@ npint_bio_plot <- ggplot(data = df_box_int %>% drop_na(var) %>%
         axis.title.x = element_text(face = "bold")) +
   guides(fill = "none")
 npint_bio_plot
+
+png("../plots/esa_figs/ESA_NPint_fig.png", height = 4, width = 16, units = "in", res = 600)
+ggarrange(npint_chemistry_plot, npint_photo_plot, npint_bio_plot, nrow = 1, 
+          ncol = 3, labels = c("(a)", "(b)", "(c)", font.label = list(size = 18)),
+          align = "hv")
+dev.off()
+
+
+
+
+
+#####################################################################
+# Write plots
+#####################################################################
+
+png("../plots/CNP_testfig.png", height = 12, width = 16, units = "in", res = 600)
+
+ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
+          padd_chemistry_plot, padd_photo_plot, padd_bio_plot,
+          npadd_chemistry_plot, npadd_photo_plot, npadd_bio_plot,
+          nrow = 3, ncol = 3, labels = c("(a)", "(b)", "(c)",
+                                         "(d)", "(e)", "(f)",
+                                         "(g)", "(h)", "(i)"), 
+          font.label = list(size = 18),
+          align = "hv")
+
+# ggarrange(nadd_chemistry_plot, padd_chemistry_plot, npadd_chemistry_plot,
+#           nadd_photo_plot, padd_photo_plot, npadd_photo_plot,
+#           nadd_bio_plot, padd_bio_plot, npadd_bio_plot,
+#           nrow = 3, ncol = 3, labels = c("(a)", "(b)", "(c)",
+#                                          "(d)", "(e)", "(f)",
+#                                          "(g)", "(h)", "(i)"), 
+#           font.label = list(size = 18), align = "hv")
+dev.off()
+
+
+
+ci_summary <- df_box_all %>%
+  mutate(middle_perc = round(middle_perc, 1),
+         upper_perc = round(upper_perc, 1),
+         lower_perc = round(lower_perc, 1)) %>%
+  dplyr::select(var, manip_type, middle_perc, upper_perc, lower_perc) %>%
+  arrange(var)
+
+
+
+
