@@ -5,50 +5,59 @@
 #####################################################################
 # Load libraries and datasets
 #####################################################################
-library(R.utils)
-library(raster)
-library(ncdf4)
-library(plotbiomes)
-library(maps)
+
+# Load libraries
 library(tidyverse)
+library(tmap)
 library(rnaturalearth)
-library(naniar)
-library(lubridate)
 library(sf)
 
-# Read PAR dataset
-par <- read.csv("../cru/cru_par_climExtract_growingseason_globe.csv") %>%
-  dplyr::select(-X)
 
-# Read data sources (MESI, NutNet, EAP manual compilation)
-mesi <- read.csv("../data/mesi_main_manual.csv")
-nutnet <- read.csv("../data/nutnet_main.csv")
-eap <- read.csv("../data/eap_main.csv")
+# Read raw data file
+df <- read.csv("../data/CNP_data_compiled.csv")
+df_field <- filter(df, experiment_type == "field")
 
-# Merge data sources into single data frame
-full_df <- mesi %>% full_join(nutnet) %>% full_join(eap) %>%
-  replace_with_na_all(~.x == "<NA>") %>%
-  dplyr::select(-doi, -x_units, -se_c, -se_t) %>%
-  mutate(fert = ifelse(npk == "_100", 
-                       "n", ifelse(npk == "_010",
-                                   "p", ifelse(npk == "_110", "np", NA))))
-
-# Create data frame with only field experiments (since field experiments
-# only have latitude and longitude)
-full_df_field <- full_df %>%
-  filter(experiment_type == "field")
 
 # Create file that includes the latitude and longitude of all unique
 # sites in meta-analysis
-experiment_summary_field <- distinct(full_df_field, exp, .keep_all = TRUE) %>%
+experiment_summary_field <- distinct(df_field, exp, .keep_all = TRUE) %>%
   filter(!is.na(latitude) & !is.na(longitude)) %>%
   dplyr::select(exp, latitude, longitude)
 
-unique(experiment_summary_field$exp)
+exp_plot_prep <- st_as_sf(experiment_summary_field,
+                          coords = c("longitude", "latitude"),
+                          crs = 4326)
 
 #####################################################################
 # Create map of all experiments included in meta-analysis
 #####################################################################
+
+# Load world map as sf
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Define Robinson projection (EPSG:54030 or proj4string)
+robinson_crs <- "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+
+# Transform both datasets to Robinson
+world_robin <- st_transform(world, crs = robinson_crs)
+coords_robin <- st_transform(exp_plot_prep, crs = robinson_crs)
+
+
+ggplot(data = world_robin) +
+  geom_sf(fill = "antiquewhite", color = "black", size = 0.2) +
+  geom_sf(data = coords_robin, size = 1) +
+  theme_minimal(base_size = 12) +
+  coord_sf(expand = F,
+           lims_method = "box") +
+  scale_y_continuous(breaks = seq(from = -90, to = 90, by = 30)) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_line(color = "gray80", size = 0.3),
+    #panel.background = element_rect(fill = "lightblue1"),
+    legend.position = "right"
+  )
+
+
 CNP_meta_experiment_map <- ggplot() +
   borders(database = "world", colour = "black", fill = "antiquewhite") +
   geom_point(data = experiment_summary_field,

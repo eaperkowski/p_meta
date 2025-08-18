@@ -299,7 +299,13 @@ npint_chemistry_plot <- ggplot(data = meta_ci_int %>%
                                                    "leaf_n_area", 
                                                    "leaf_p_mass", 
                                                    "leaf_p_area")),
-                               aes(x = var, y = middle_perc)) +
+                               aes(x = factor(var,
+                                              levels = c("lma",
+                                                         "leaf_n_mass", 
+                                                         "leaf_n_area", 
+                                                         "leaf_p_mass", 
+                                                         "leaf_p_area")), 
+                                   y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), 
                 size = 1, width = 0.25) +
   geom_point(size = 4, fill = "black", shape = 21) +
@@ -327,7 +333,13 @@ npint_photo_plot <- ggplot(data = meta_ci_int %>%
                                                "jmax",
                                                "leaf_pnue", 
                                                "leaf_ppue")),
-                           aes(x = var, y = middle_perc)) +
+                           aes(x = factor(var,
+                                          levels = c("asat", 
+                                                     "vcmax", 
+                                                     "jmax",
+                                                     "leaf_pnue", 
+                                                     "leaf_ppue")), 
+                               y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), 
                 size = 1, width = 0.25) +
   geom_point(size = 4, fill = "black", shape = 21) +
@@ -339,22 +351,28 @@ npint_photo_plot <- ggplot(data = meta_ci_int %>%
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
   scale_y_continuous(limits = c(-200, 200), breaks = seq(-200, 200, 100)) +
-  labs(x = "", y = NULL) +
+  labs(x = "", y = "Interaction effect (%)") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
         axis.text.y = element_text(color = "black", size = 18))
 npint_photo_plot
 
-npint_bio_plot <- ggplot(data = meta_ci_int %>% 
+npint_biaxis.title.x = npint_bio_plot <- ggplot(data = meta_ci_int %>% 
                            drop_na(var) %>%
                            filter(var %in% c("rootshoot", 
                                              "rmf", 
                                              "bgb", 
                                              "agb", 
                                              "total_biomass")),
-                         aes(x = var, y = middle_perc)) +
+                         aes(x = factor(var,
+                                        levels = c("rootshoot", 
+                                        "rmf", 
+                                        "bgb", 
+                                        "agb", 
+                                        "total_biomass")), 
+                             y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(aes(fill = int_type), size = 4, shape = 21) +
   geom_text(aes(label = k_sig), y = 75, fontface = "bold", size = 5) +
@@ -366,7 +384,7 @@ npint_bio_plot <- ggplot(data = meta_ci_int %>%
                               "Total biomass")) +
   scale_y_continuous(limits = c(-80, 80), breaks = seq(-80, 80, 40)) +
   scale_fill_manual(values = c("black", "red")) +
-  labs(y = "Interaction effect (%)", 
+  labs(y = "", 
        x = "")  +
   coord_flip() +
   theme_classic(base_size = 18) +
@@ -395,12 +413,12 @@ ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
 #dev.off()
 
 # Figure 3 - interaction effects
-#png("../plots/CNP_fig3_intEffects.png", height = 12, width = 6, 
-#    units = "in", res = 600)
+png("../plots/CNP_fig3_intEffects_wide.png", height = 4.5, width = 16, 
+    units = "in", res = 600)
 ggarrange(npint_chemistry_plot, npint_photo_plot, npint_bio_plot, 
-          nrow = 3, ncol = 1, labels = c("(a)", "(b)", "(c)"), 
+          nrow = 1, ncol = 3, labels = c("(a)", "(b)", "(c)"), 
           font.label = list(size = 18), align = "hv")
-#dev.off()
+dev.off()
 
 
 ci_summary <- df_box_all %>%
