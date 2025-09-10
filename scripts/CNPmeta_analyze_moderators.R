@@ -3365,3 +3365,7 @@ marea_myc_summary %>%
   full_join(ppue_myc_summary) %>%
   write.csv("../data/CNPmeta_myc_moderators.csv", row.names = F)
 
+
+
+
+
