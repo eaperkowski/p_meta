@@ -523,7 +523,7 @@ nmass_myc_plot <- ggplot(data = meta_myc_results %>%
   geom_text(x = 1.5, y = 102, label = "NS", size = 6) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   scale_fill_manual(values = c("pink", "darkred")) +
-  scale_x_discrete(labels = c("non-fixer", expression("N"["2"]*"-fixer"))) +
+  scale_x_discrete(labels = c("mining", "scavenging")) +
   scale_y_continuous(limits = c(-25, 100), breaks = seq(-25, 100, 25)) +
   labs(x = expression(bold("Mycorrhizal-NAS")),
        y = expression(bold("N"["mass"]*" response to N addition (%)"))) +
@@ -689,13 +689,13 @@ ggarrange(npint_chemistry_plot, npint_photo_plot, npint_bio_plot,
 dev.off()
 
 # Figure 4 - moderator plots
-png("../plots/CNP_fig4_moderators.png", height = 12, width = 24,
+png("../plots/CNP_fig4_moderators.png", height = 12.5, width = 24,
     units = "in", res = 600)
 ggarrange(nmass_tg_plot, nmass_ai_plot, nmass_nfix_plot, nmass_myc_plot, nmass_photo_plot,
           pmass_tg_plot, pmass_ai_plot, pmass_nfix_plot, pmass_myc_plot, pmass_photo_plot,
           nrow = 2, ncol = 5, legend = "bottom", common.legend = TRUE,
           labels = c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)",
-                     "(g)", "(h)", "(i)", "(j)"), 
-          font.label = list(size = 18), align = "hv")
+                     "(g)", "(h)", "(i)", "(j)"),
+          font.label = list(size = 20), align = "hv")
 dev.off()
 
