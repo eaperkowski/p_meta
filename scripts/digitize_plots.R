@@ -240,9 +240,6 @@ yu2015 <- metaDigitise(dir = "../plots_to_digitize/Yu_2015/")
 # Ye 2022b
 ye2022b <- metaDigitise(dir = "../plots_to_digitize/Ye2022_forests/")
 
-
-
-
 ye2022b %>%
   mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
          mean = round(mean, 2),
@@ -252,3 +249,18 @@ ye2022b %>%
   select(variable:sd, se, n) %>%
   write.csv("../data_summaries/species_level/Ye2022_forests_summarized.csv", row.names = F)
 
+# Chen 2020
+chen2020 <- metaDigitise(dir = "../plots_to_digitize/Chen_2020/")
+
+chen2020 %>%
+  separate(group_id, into = c("spp", "nut_add")) %>%
+  mutate(spp = factor(spp, levels = c("Bischaemum", "Sbungeana", "Ldavurica")),
+         nut_add = ifelse(nut_add == "<NA>", "control", nut_add),
+         nut_add = factor(nut_add, levels = c("control", "n", "p", "np")),
+         mean = round(mean, 2),
+         sd = round(sd, 2),
+         se = round(se, 2)) %>%
+  arrange(variable, spp, nut_add) %>%
+  select(variable:sd, se, n) %>%
+  write.csv("../data_summaries/species_level/Chen2020_data.csv", row.names = F)
+  
