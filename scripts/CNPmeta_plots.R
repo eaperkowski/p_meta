@@ -10,8 +10,25 @@ meta_results <- read.csv("../data/CNPmeta_logr_results.csv")
 meta_results_int <- read.csv("../data/CNPmeta_logr_results_int.csv")
 
 # Load meta-analysis confidence intervals
-meta_ci <- read.csv("../data/CNPmeta_ci.csv")
-meta_ci_int <- read.csv("../data/CNPmeta_ci_int.csv")
+meta_ci <- read.csv("../data/CNPmeta_ci.csv") %>%
+  filter(var %in% c("leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
+                    "lma", "leaf_ppue", "leaf_pnue", "jmax", "vcmax", "asat",
+                    "rootshoot", "rmf", "bgb", "agb", "total_biomass")) %>%
+  mutate(var = factor(var, levels = c("leaf_p_area", "leaf_p_mass", 
+                                      "leaf_n_area", "leaf_n_mass",
+                                      "lma", "leaf_ppue", "leaf_pnue", 
+                                      "jmax", "vcmax", "asat", "rootshoot",
+                                      "rmf", "bgb", "agb", "total_biomass")))
+
+meta_ci_int <- read.csv("../data/CNPmeta_ci_int.csv") %>%
+  filter(var %in% c("leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
+                    "lma", "leaf_ppue", "leaf_pnue", "jmax", "vcmax", "asat",
+                    "rootshoot", "rmf", "bgb", "agb", "total_biomass")) %>%
+  mutate(var = factor(var, levels = c("leaf_p_area", "leaf_p_mass", 
+                                      "leaf_n_area", "leaf_n_mass",
+                                      "lma", "leaf_ppue", "leaf_pnue", 
+                                      "jmax", "vcmax", "asat", "rootshoot",
+                                      "rmf", "bgb", "agb", "total_biomass")))
 
 # Load species moderator results
 meta_photo_results <- read.csv("../data/CNPmeta_photo_moderators.csv")
@@ -86,7 +103,7 @@ nadd_photo_plot <- ggplot(data = meta_ci %>%
         legend.title = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold", size = 16),
         axis.text.y = element_text(size = 18, color = "black"))
-
+nadd_photo_plot
 
 nadd_bio_plot <- ggplot(data = meta_ci %>% 
                           drop_na(var) %>% 
@@ -115,6 +132,7 @@ nadd_bio_plot <- ggplot(data = meta_ci %>%
         legend.title = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
         axis.text.y = element_text(size = 18, color = "black"))
+nadd_bio_plot
 
 #####################################################################
 # P addition plots
@@ -131,8 +149,8 @@ padd_chemistry_plot <- ggplot(data = meta_ci %>%
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c(expression("P"["area"]), 
-                              expression("P"["mass"]), 
+  scale_x_discrete(labels = c(expression("P"["area"]),
+                              expression("P"["mass"]),
                               expression("N"["area"]),
                               expression("N"["mass"]),
                               expression("M"["area"]))) +
@@ -367,7 +385,7 @@ npint_photo_plot <- ggplot(data = meta_ci_int %>%
         axis.text.y = element_text(color = "black", size = 18))
 npint_photo_plot
 
-npint_biaxis.title.x = npint_bio_plot <- ggplot(data = meta_ci_int %>% 
+npint_bio_plot <- ggplot(data = meta_ci_int %>% 
                            drop_na(var) %>%
                            filter(var %in% c("rootshoot", 
                                              "rmf", 
@@ -451,7 +469,7 @@ nmass_ai_plot <- mod_results(nadd_nmass_clim, mod = "gs_ai",
              alpha = 0.30) +
   geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
               alpha = 0.3, fill = "red") +
-  geom_smooth(method = "loess", linewidth = 2, color = "red") +
+  geom_smooth(method = "loess", linewidth = 2, color = "red", linetype = "dashed") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_x_continuous(limits = c(0, 3.4), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-25, 100), breaks = seq(-25, 100, 25)) +
@@ -668,8 +686,8 @@ pmass_myc_plot
 #####################################################################
 
 # Figure 2 - individual effects
-#png("../plots/CNP_fig2_indEffects.png", height = 12, width = 16, 
-#    units = "in", res = 600)
+png("../plots/CNP_fig2_indEffects.png", height = 12, width = 16, 
+    units = "in", res = 600)
 ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
           padd_chemistry_plot, padd_photo_plot, padd_bio_plot,
           npadd_chemistry_plot, npadd_photo_plot, npadd_bio_plot,
@@ -678,7 +696,7 @@ ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
                                          "(g)", "(h)", "(i)"), 
           font.label = list(size = 18),
           align = "hv")
-#dev.off()
+dev.off()
 
 # Figure 3 - interaction effects
 png("../plots/CNP_fig3_intEffects_wide.png", height = 4.5, width = 16, 

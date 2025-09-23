@@ -20,12 +20,7 @@ nutnet <- read.csv("../data/nutnet_main.csv")
 eap <- read.csv("../data/eap_main.csv")
 
 # Merge data sources into single data frame
-full_df <- mesi %>% full_join(nutnet) %>% full_join(eap) %>%
-  replace_with_na_all(~.x == "<NA>") %>%
-  dplyr::select(-doi, -x_units, -se_c, -se_t) %>%
-  mutate(fert = ifelse(npk == "_100", 
-                       "n", ifelse(npk == "_010",
-                                   "p", ifelse(npk == "_110", "np", NA))))
+full_df <- read.csv("../data/CNP_data_compiled.csv")
 
 # Create data frame with only field experiments (since field experiments
 # only have latitude and longitude)
@@ -47,7 +42,7 @@ unique(experiment_summary_field$exp)
 # Let's start with temperature. Folder contains multiple .tif files
 # that represent mean grid-cell temperature for each month. I reckon
 # a rasterStack might be best way to go about this
-tavg_files <- list.files("../climate/worldclim/tavg/", 
+tavg_files <- list.files("../gridded_products/worldclim/tavg/", 
                          pattern = "\\.tif$",
                          full.names = TRUE)
 wc_tavg <- raster::stack(tavg_files)
@@ -81,7 +76,7 @@ gs_temp <- tavg_long %>%
 growing_szn <- tavg_long %>% filter(value > 0)
 
 # Create precipitation rasterBrick
-prcp_files <- list.files("../climate/worldclim/prcp/", 
+prcp_files <- list.files("../gridded_products/worldclim/prcp/", 
                          pattern = "\\.tif$",
                          full.names = TRUE)
 wc_prcp <- raster::stack(prcp_files)
@@ -111,7 +106,7 @@ gs_prcp <- prcp_long %>%
 # WorldClim v2.1: Solar radiation (then convert to PAR)
 #####################################################################
 # Create solar radiation rasterBrick
-srad_files <- list.files("../climate/worldclim/srad/", 
+srad_files <- list.files("../gridded_products/worldclim/srad/", 
                          pattern = "\\.tif$",
                          full.names = TRUE)
 wc_srad <- raster::stack(srad_files)
@@ -145,7 +140,7 @@ gs_srad <- srad_long %>%
 #####################################################################
 
 # Create aridity index rasterBrick
-aridity_files <- list.files("../climate/aridity/", 
+aridity_files <- list.files("../gridded_products/aridity/", 
                          pattern = "\\.tif$",
                          full.names = TRUE)
 wc_ai <- raster::stack(aridity_files)
@@ -176,7 +171,7 @@ gs_ai <- ai_long %>%
 # WorldClim v2.1: Elevation
 #####################################################################
 # Create raster
-z_index <- raster("../climate/worldclim/wc2.1_30s_elev.tif")
+z_index <- raster("../gridded_products/worldclim/wc2.1_30s_elev.tif")
 
 # Extract point data
 z_extracted <- raster::extract(
@@ -201,9 +196,7 @@ compiled_df <- full_df %>%
   dplyr::select(source:elevation, z:gs_ai, ecosystem_type:npk, 
                 fert, n_c:rep_t)
 
-compiled_df %>%
-  filter(citation == "yang2014")
+worldClim_sites %>%
+  filter(exp == "shihezi")
 
-
-write.csv(compiled_df, "../data/CNP_data_compiled.csv", row.names = F)
 
