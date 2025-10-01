@@ -6,7 +6,12 @@ library(naniar) # to resolve NA/<NA> issue
 library(orchaRd)
 
 # Load meta-analysis results
-meta_results_int <- read.csv("../data/CNPmeta_logr_results_int.csv")
+meta_results_int <- read.csv("../data/CNPmeta_logr_results_int.csv") %>%
+  mutate(myc_nas = ifelse(myc_assoc == "NM" | myc_assoc == "AM" |
+                            myc_assoc == "NM-AM", 
+                          "scavenging",
+                          ifelse(myc_assoc == "EcM" | myc_assoc == "ErM" | 
+                                   myc_assoc == "EcM-AM", "mining", NA)))
 
 # Check file structure
 head(meta_results_int)
@@ -308,8 +313,8 @@ int_marea_clim_summary %>%
          across(estimate:ci.ub_perc, ~round(.x, 3)),
          estimate_se = str_c("[", estimate, "±", se, "]"),
          estimate_se_perc = str_c("[", estimate_perc, "±", se_perc, "]"),
-         ci.range = str_c("[", ci.lb_perc, ", ", ci.ub_perc, "]"),
-         ci.range_perc = str_c("[", ci.lb, ", ", ci.ub, "]")) %>%
+         ci.range = str_c("[", ci.lb, ", ", ci.ub, "]"),
+         ci.range_perc = str_c("[", ci.lb_perc, ", ", ci.ub_perc, "]")) %>%
   write.csv("../data/CNPmeta_clim_moderators_int.csv", row.names = F)
 
 ##############################################################################
@@ -407,7 +412,7 @@ int_pmass_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "leaf_n_mass" & 
+                            filter(myvar == "leaf_p_mass" & 
                                      !is.na(photo_path)))
 
 # Model summary
@@ -434,7 +439,7 @@ int_parea_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "asat" & 
+                            filter(myvar == "leaf_p_area" & 
                                      !is.na(photo_path)))
 
 # Model summary
@@ -464,6 +469,7 @@ int_leafnp_photo <- rma.mv(yi = dNPi,
                           data = meta_results_int %>% 
                             filter(myvar == "leaf_np" & 
                                      !is.na(photo_path)))
+
 
 # Model summary
 int_leafnp_photo_summary <- data.frame(trait = "leaf_np", 
@@ -701,6 +707,7 @@ int_marea_photo_summary %>%
   full_join(int_narea_photo_summary) %>%
   full_join(int_pmass_photo_summary) %>%
   full_join(int_parea_photo_summary) %>%
+  full_join(int_leafnp_photo_summary) %>%
   full_join(int_asat_photo_summary) %>%
   full_join(int_vcmax_photo_summary) %>%
   full_join(int_jmax_photo_summary) %>%
@@ -709,6 +716,12 @@ int_marea_photo_summary %>%
   full_join(int_tbio_photo_summary) %>%
   full_join(int_agb_photo_summary) %>%
   full_join(int_bgb_photo_summary) %>%
+  mutate(estimate_perc = (exp(estimate) - 1) * 100,
+         lowerCL_perc = (exp(lowerCL) - 1) * 100,
+         upperCL_perc = (exp(upperCL) - 1) * 100,
+         across(estimate:upperCL_perc, ~round(.x, 3)),
+         ci.range = str_c("[", lowerCL, ", ", upperCL, "]"),
+         ci.range_perc = str_c("[", lowerCL_perc, ", ", upperCL_perc, "]")) %>%
   write.csv("../data/CNPmeta_photo_moderators_int.csv", row.names = F)
 
 ##############################################################################
@@ -736,7 +749,7 @@ int_marea_nfix_summary <- data.frame(trait = "marea",
                                                 group = "exp")$mod_table,
                                     z = coef(summary(int_marea_nfix))[2,3],
                                     p = coef(summary(int_marea_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # Nmass Nfixation
@@ -763,7 +776,7 @@ int_nmass_nfix_summary <- data.frame(trait = "nmass",
                                                  group = "exp")$mod_table,
                                      z = coef(summary(int_nmass_nfix))[2,3],
                                      p = coef(summary(int_nmass_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # Narea Nfixation
@@ -790,7 +803,7 @@ int_narea_nfix_summary <- data.frame(trait = "narea",
                                                  group = "exp")$mod_table,
                                      z = coef(summary(int_narea_nfix))[2,3],
                                      p = coef(summary(int_narea_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # Pmass Nfixation
@@ -817,7 +830,7 @@ int_pmass_nfix_summary <- data.frame(trait = "pmass",
                                                  group = "exp")$mod_table,
                                      z = coef(summary(int_pmass_nfix))[2,3],
                                      p = coef(summary(int_pmass_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # Parea Nfixation
@@ -844,7 +857,7 @@ int_parea_nfix_summary <- data.frame(trait = "parea",
                                                  group = "exp")$mod_table,
                                      z = coef(summary(int_parea_nfix))[2,3],
                                      p = coef(summary(int_parea_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # Leaf N:P Nfixation
@@ -871,7 +884,7 @@ int_leafnp_nfix_summary <- data.frame(trait = "leaf_np",
                                                 group = "exp")$mod_table,
                                     z = coef(summary(int_leafnp_nfix))[2,3],
                                     p = coef(summary(int_leafnp_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # Asat Nfixation
@@ -898,7 +911,7 @@ int_asat_nfix_summary <- data.frame(trait = "asat",
                                                  group = "exp")$mod_table,
                                      z = coef(summary(int_asat_nfix))[2,3],
                                      p = coef(summary(int_asat_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # Vcmax Nfixation
@@ -925,7 +938,7 @@ int_vcmax_nfix_summary <- data.frame(trait = "vcmax",
                                                  group = "exp")$mod_table,
                                      z = coef(summary(int_vcmax_nfix))[2,3],
                                      p = coef(summary(int_vcmax_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # Jmax Nfixation
@@ -952,7 +965,7 @@ int_jmax_nfix_summary <- data.frame(trait = "jmax",
                                                  group = "exp")$mod_table,
                                      z = coef(summary(int_jmax_nfix))[2,3],
                                      p = coef(summary(int_jmax_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # PNUE Nfixation
@@ -979,7 +992,7 @@ int_pnue_nfix_summary <- data.frame(trait = "pnue",
                                                 group = "exp")$mod_table,
                                     z = coef(summary(int_pnue_nfix))[2,3],
                                     p = coef(summary(int_pnue_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # PPUE Nfixation
@@ -1006,7 +1019,7 @@ int_ppue_nfix_summary <- data.frame(trait = "ppue",
                                                 group = "exp")$mod_table,
                                     z = coef(summary(int_ppue_nfix))[2,3],
                                     p = coef(summary(int_ppue_nfix))[2, 4]) %>%
-  dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
+  dplyr::select(trait, nut_add, nfix = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
 # Merge nfix moderator results and write to .csv
@@ -1022,6 +1035,12 @@ int_marea_nfix_summary %>%
   full_join(int_jmax_nfix_summary) %>%
   full_join(int_pnue_nfix_summary) %>%
   full_join(int_ppue_nfix_summary) %>%
+  mutate(estimate_perc = (exp(estimate) - 1) * 100,
+         lowerCL_perc = (exp(lowerCL) - 1) * 100,
+         upperCL_perc = (exp(upperCL) - 1) * 100,
+         across(estimate:upperCL_perc, ~round(.x, 3)),
+         ci.range = str_c("[", lowerCL, ", ", upperCL, "]"),
+         ci.range_perc = str_c("[", lowerCL_perc, ", ", upperCL_perc, "]"))
   write.csv("../data/CNPmeta_nfix_moderators_int.csv", row.names = F)
 
 
@@ -1029,796 +1048,320 @@ int_marea_nfix_summary %>%
 # Marea mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_marea_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "n" & 
-                                     myvar == "lma" & 
-                                     !is.na(myc_nas)))
+# Model
+int_marea_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "lma" & 
+                                   !is.na(myc_nas)))
 
-nadd_marea_myc_summary <- data.frame(trait = "marea", 
-                                      nut_add = "n",
-                                      mod_results(nadd_marea_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(nadd_marea_myc))[2,3],
-                                      p = coef(summary(nadd_marea_myc))[2, 4]) %>%
+# Model summary
+int_marea_myc_summary <- data.frame(trait = "marea", 
+                                    nut_add = "int",
+                                    mod_results(int_marea_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_marea_myc))[2,3],
+                                    p = coef(summary(int_marea_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# P addition
-padd_marea_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "p" & 
-                                     myvar == "lma" & 
-                                     !is.na(myc_nas)))
-
-padd_marea_myc_summary <- data.frame(trait = "marea", 
-                                      nut_add = "p",
-                                      mod_results(padd_marea_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(padd_marea_myc))[2,3],
-                                      p = coef(summary(padd_marea_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_marea_myc <- rma.mv(logr, 
-                           logr_var,
-                           method = "REML", 
-                           random = ~ 1 | exp, 
-                           mods = ~ myc_nas,
-                           slab = exp, 
-                           control = list(stepadj = 0.3), 
-                           data = meta_results %>% 
-                             filter(manip_type == "np" & 
-                                      myvar == "lma" & 
-                                      !is.na(myc_nas)))
-
-npadd_marea_myc_summary <- data.frame(trait = "marea", 
-                                       nut_add = "np",
-                                       mod_results(npadd_marea_myc, 
-                                                   mod = "myc_nas", 
-                                                   group = "exp")$mod_table,
-                                       z = coef(summary(npadd_marea_myc))[2,3],
-                                       p = coef(summary(npadd_marea_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge Marea moderator results, with some light cleaning
-marea_myc_summary <- rbind(nadd_marea_myc_summary, 
-                            padd_marea_myc_summary, 
-                            npadd_marea_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # Nmass mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_nmass_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "n" & 
-                                     myvar == "leaf_n_mass" & 
-                                     !is.na(myc_nas)))
+# Model
+int_nmass_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "leaf_n_mass" & 
+                                   !is.na(myc_nas)))
 
-nadd_nmass_myc_summary <- data.frame(trait = "nmass", 
-                                      nut_add = "n",
-                                      mod_results(nadd_nmass_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(nadd_nmass_myc))[2,3],
-                                      p = coef(summary(nadd_nmass_myc))[2, 4]) %>%
+# Model summary
+int_nmass_myc_summary <- data.frame(trait = "nmass", 
+                                    nut_add = "int",
+                                    mod_results(int_nmass_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_nmass_myc))[2,3],
+                                    p = coef(summary(int_nmass_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# P addition
-padd_nmass_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "p" & 
-                                     myvar == "leaf_n_mass" & 
-                                     !is.na(myc_nas)))
-
-padd_nmass_myc_summary <- data.frame(trait = "nmass", 
-                                      nut_add = "p",
-                                      mod_results(padd_nmass_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(padd_nmass_myc))[2,3],
-                                      p = coef(summary(padd_nmass_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_nmass_myc <- rma.mv(logr, 
-                           logr_var,
-                           method = "REML", 
-                           random = ~ 1 | exp, 
-                           mods = ~ myc_nas,
-                           slab = exp, 
-                           control = list(stepadj = 0.3), 
-                           data = meta_results %>% 
-                             filter(manip_type == "np" & 
-                                      myvar == "leaf_n_mass" & 
-                                      !is.na(myc_nas)))
-
-npadd_nmass_myc_summary <- data.frame(trait = "nmass", 
-                                       nut_add = "np",
-                                       mod_results(npadd_nmass_myc, 
-                                                   mod = "myc_nas", 
-                                                   group = "exp")$mod_table,
-                                       z = coef(summary(npadd_nmass_myc))[2,3],
-                                       p = coef(summary(npadd_nmass_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge Nmass moderator results, with some light cleaning
-nmass_myc_summary <- rbind(nadd_nmass_myc_summary, 
-                            padd_nmass_myc_summary, 
-                            npadd_nmass_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # Narea mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_narea_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "n" & 
-                                     myvar == "leaf_n_area" & 
-                                     !is.na(myc_nas)))
+# Model
+int_narea_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "leaf_n_area" & 
+                                   !is.na(myc_nas)))
 
-nadd_narea_myc_summary <- data.frame(trait = "narea", 
-                                      nut_add = "n",
-                                      mod_results(nadd_narea_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(nadd_narea_myc))[2,3],
-                                      p = coef(summary(nadd_narea_myc))[2, 4]) %>%
+# Model summary
+int_narea_myc_summary <- data.frame(trait = "narea", 
+                                    nut_add = "int",
+                                    mod_results(int_narea_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_narea_myc))[2,3],
+                                    p = coef(summary(int_narea_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# P addition
-padd_narea_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "p" & 
-                                     myvar == "leaf_n_area" & 
-                                     !is.na(myc_nas)))
-
-padd_narea_myc_summary <- data.frame(trait = "narea", 
-                                      nut_add = "p",
-                                      mod_results(padd_narea_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(padd_narea_myc))[2,3],
-                                      p = coef(summary(padd_narea_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_narea_myc <- rma.mv(logr, 
-                           logr_var,
-                           method = "REML", 
-                           random = ~ 1 | exp, 
-                           mods = ~ myc_nas,
-                           slab = exp, 
-                           control = list(stepadj = 0.3), 
-                           data = meta_results %>% 
-                             filter(manip_type == "np" & 
-                                      myvar == "leaf_n_area" & 
-                                      !is.na(myc_nas)))
-
-npadd_narea_myc_summary <- data.frame(trait = "narea", 
-                                       nut_add = "np",
-                                       mod_results(npadd_narea_myc, 
-                                                   mod = "myc_nas", 
-                                                   group = "exp")$mod_table,
-                                       z = coef(summary(npadd_narea_myc))[2,3],
-                                       p = coef(summary(npadd_narea_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge Nmass moderator results, with some light cleaning
-narea_myc_summary <- rbind(nadd_narea_myc_summary, 
-                            padd_narea_myc_summary, 
-                            npadd_narea_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # Pmass mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_pmass_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "n" & 
-                                     myvar == "leaf_p_mass" & 
-                                     !is.na(myc_nas)))
+# Model
+int_pmass_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "leaf_p_mass" & 
+                                   !is.na(myc_nas)))
 
-nadd_pmass_myc_summary <- data.frame(trait = "pmass", 
-                                      nut_add = "n",
-                                      mod_results(nadd_pmass_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(nadd_pmass_myc))[2,3],
-                                      p = coef(summary(nadd_pmass_myc))[2, 4]) %>%
+# Model summary
+int_pmass_myc_summary <- data.frame(trait = "pmass", 
+                                    nut_add = "int",
+                                    mod_results(int_pmass_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_pmass_myc))[2,3],
+                                    p = coef(summary(int_pmass_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# P addition
-padd_pmass_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "p" & 
-                                     myvar == "leaf_p_mass" & 
-                                     !is.na(myc_nas)))
-
-padd_pmass_myc_summary <- data.frame(trait = "pmass", 
-                                      nut_add = "p",
-                                      mod_results(padd_pmass_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(padd_pmass_myc))[2,3],
-                                      p = coef(summary(padd_pmass_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_pmass_myc <- rma.mv(logr, 
-                           logr_var,
-                           method = "REML", 
-                           random = ~ 1 | exp, 
-                           mods = ~ myc_nas,
-                           slab = exp, 
-                           control = list(stepadj = 0.3), 
-                           data = meta_results %>% 
-                             filter(manip_type == "np" & 
-                                      myvar == "leaf_p_mass" & 
-                                      !is.na(myc_nas)))
-
-npadd_pmass_myc_summary <- data.frame(trait = "pmass", 
-                                       nut_add = "np",
-                                       mod_results(npadd_pmass_myc, 
-                                                   mod = "myc_nas", 
-                                                   group = "exp")$mod_table,
-                                       z = coef(summary(npadd_pmass_myc))[2,3],
-                                       p = coef(summary(npadd_pmass_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge Pmass moderator results, with some light cleaning
-pmass_myc_summary <- rbind(nadd_pmass_myc_summary, 
-                            padd_pmass_myc_summary, 
-                            npadd_pmass_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # Parea mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_parea_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "n" & 
-                                     myvar == "leaf_p_area" & 
-                                     !is.na(myc_nas)))
+# Model
+int_parea_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "leaf_p_area" & 
+                                   !is.na(myc_nas)))
 
-nadd_parea_myc_summary <- data.frame(trait = "parea", 
-                                      nut_add = "n",
-                                      mod_results(nadd_parea_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(nadd_parea_myc))[2,3],
-                                      p = coef(summary(nadd_parea_myc))[2, 4]) %>%
+# Model summary
+int_parea_myc_summary <- data.frame(trait = "parea", 
+                                    nut_add = "int",
+                                    mod_results(int_parea_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_parea_myc))[2,3],
+                                    p = coef(summary(int_parea_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-# P addition
-padd_parea_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "p" & 
-                                     myvar == "leaf_p_area" & 
-                                     !is.na(myc_nas)))
+##############################################################################
+# Leaf N:P mycorrhizal acquisition strategy
+##############################################################################
 
-padd_parea_myc_summary <- data.frame(trait = "parea", 
-                                      nut_add = "p",
-                                      mod_results(padd_parea_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(padd_parea_myc))[2,3],
-                                      p = coef(summary(padd_parea_myc))[2, 4]) %>%
+# Model
+int_leafnp_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "leaf_np" & 
+                                   !is.na(myc_nas)))
+
+# Model summary
+int_leafnp_myc_summary <- data.frame(trait = "leafnp", 
+                                    nut_add = "int",
+                                    mod_results(int_leafnp_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_leafnp_myc))[2,3],
+                                    p = coef(summary(int_leafnp_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_parea_myc <- rma.mv(logr, 
-                           logr_var,
-                           method = "REML", 
-                           random = ~ 1 | exp, 
-                           mods = ~ myc_nas,
-                           slab = exp, 
-                           control = list(stepadj = 0.3), 
-                           data = meta_results %>% 
-                             filter(manip_type == "np" & 
-                                      myvar == "leaf_p_area" & 
-                                      !is.na(myc_nas)))
-
-npadd_parea_myc_summary <- data.frame(trait = "parea", 
-                                       nut_add = "np",
-                                       mod_results(npadd_parea_myc, 
-                                                   mod = "myc_nas", 
-                                                   group = "exp")$mod_table,
-                                       z = coef(summary(npadd_parea_myc))[2,3],
-                                       p = coef(summary(npadd_parea_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge Parea moderator results, with some light cleaning
-parea_myc_summary <- rbind(nadd_parea_myc_summary, 
-                            padd_parea_myc_summary, 
-                            npadd_parea_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # Asat mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_asat_myc <- rma.mv(logr, 
-                         logr_var,
-                         method = "REML", 
-                         random = ~ 1 | exp, 
-                         mods = ~ myc_nas,
-                         slab = exp, 
-                         control = list(stepadj = 0.3), 
-                         data = meta_results %>% 
-                           filter(manip_type == "n" & 
-                                    myvar == "asat" & 
-                                    !is.na(myc_nas)))
+# Model
+int_asat_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "asat" & 
+                                   !is.na(myc_nas)))
 
-nadd_asat_myc_summary <- data.frame(trait = "asat", 
-                                     nut_add = "n",
-                                     mod_results(nadd_asat_myc, 
-                                                 mod = "myc_nas", 
-                                                 group = "exp")$mod_table,
-                                     z = coef(summary(nadd_asat_myc))[2,3],
-                                     p = coef(summary(nadd_asat_myc))[2, 4]) %>%
+# Model summary
+int_asat_myc_summary <- data.frame(trait = "asat", 
+                                    nut_add = "int",
+                                    mod_results(int_nmass_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_asat_myc))[2,3],
+                                    p = coef(summary(int_asat_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# P addition
-padd_asat_myc <- rma.mv(logr, 
-                         logr_var,
-                         method = "REML", 
-                         random = ~ 1 | exp, 
-                         mods = ~ myc_nas,
-                         slab = exp, 
-                         control = list(stepadj = 0.3), 
-                         data = meta_results %>% 
-                           filter(manip_type == "p" & 
-                                    myvar == "asat" & 
-                                    !is.na(myc_nas)))
-
-padd_asat_myc_summary <- data.frame(trait = "asat", 
-                                     nut_add = "p",
-                                     mod_results(padd_asat_myc, 
-                                                 mod = "myc_nas", 
-                                                 group = "exp")$mod_table,
-                                     z = coef(summary(padd_asat_myc))[2,3],
-                                     p = coef(summary(padd_asat_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_asat_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "np" & 
-                                     myvar == "asat" & 
-                                     !is.na(myc_nas)))
-
-npadd_asat_myc_summary <- data.frame(trait = "asat", 
-                                      nut_add = "np",
-                                      mod_results(npadd_asat_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(npadd_asat_myc))[2,3],
-                                      p = coef(summary(npadd_asat_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge Asat moderator results, with some light cleaning
-asat_myc_summary <- rbind(nadd_asat_myc_summary, 
-                           padd_asat_myc_summary, 
-                           npadd_asat_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # Vcmax mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_vcmax_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "n" & 
-                                     myvar == "vcmax" & 
-                                     !is.na(myc_nas)))
+# Model
+int_vcmax_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "vcmax" & 
+                                   !is.na(myc_nas)))
 
-nadd_vcmax_myc_summary <- data.frame(trait = "vcmax", 
-                                      nut_add = "n",
-                                      mod_results(nadd_vcmax_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(nadd_vcmax_myc))[2,3],
-                                      p = coef(summary(nadd_vcmax_myc))[2, 4]) %>%
+# Model summary
+int_vcmax_myc_summary <- data.frame(trait = "vcmax", 
+                                    nut_add = "int",
+                                    mod_results(int_nmass_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_vcmax_myc))[2,3],
+                                    p = coef(summary(int_vcmax_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# P addition
-padd_vcmax_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "p" & 
-                                     myvar == "vcmax" & 
-                                     !is.na(myc_nas)))
-
-padd_vcmax_myc_summary <- data.frame(trait = "vcmax", 
-                                      nut_add = "p",
-                                      mod_results(padd_vcmax_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(padd_vcmax_myc))[2,3],
-                                      p = coef(summary(padd_vcmax_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_vcmax_myc <- rma.mv(logr, 
-                           logr_var,
-                           method = "REML", 
-                           random = ~ 1 | exp, 
-                           mods = ~ myc_nas,
-                           slab = exp, 
-                           control = list(stepadj = 0.3), 
-                           data = meta_results %>% 
-                             filter(manip_type == "np" & 
-                                      myvar == "vcmax" & 
-                                      !is.na(myc_nas)))
-
-npadd_vcmax_myc_summary <- data.frame(trait = "vcmax", 
-                                       nut_add = "np",
-                                       mod_results(npadd_vcmax_myc, 
-                                                   mod = "myc_nas", 
-                                                   group = "exp")$mod_table,
-                                       z = coef(summary(npadd_vcmax_myc))[2,3],
-                                       p = coef(summary(npadd_vcmax_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge Vcmax moderator results, with some light cleaning
-vcmax_myc_summary <- rbind(nadd_vcmax_myc_summary, 
-                            padd_vcmax_myc_summary, 
-                            npadd_vcmax_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # Jmax mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_jmax_myc <- rma.mv(logr, 
-                         logr_var,
-                         method = "REML", 
-                         random = ~ 1 | exp, 
-                         mods = ~ myc_nas,
-                         slab = exp, 
-                         control = list(stepadj = 0.3), 
-                         data = meta_results %>% 
-                           filter(manip_type == "n" & 
-                                    myvar == "jmax" & 
-                                    !is.na(myc_nas)))
+# Model
+int_jmax_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "jmax" & 
+                                   !is.na(myc_nas)))
 
-nadd_jmax_myc_summary <- data.frame(trait = "jmax", 
-                                     nut_add = "n",
-                                     mod_results(nadd_jmax_myc, 
-                                                 mod = "myc_nas", 
-                                                 group = "exp")$mod_table,
-                                     z = coef(summary(nadd_jmax_myc))[2,3],
-                                     p = coef(summary(nadd_jmax_myc))[2, 4]) %>%
+# Model summary
+int_jmax_myc_summary <- data.frame(trait = "jmax", 
+                                    nut_add = "int",
+                                    mod_results(int_jmax_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_jmax_myc))[2,3],
+                                    p = coef(summary(int_jmax_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# P addition
-padd_jmax_myc <- rma.mv(logr, 
-                         logr_var,
-                         method = "REML", 
-                         random = ~ 1 | exp, 
-                         mods = ~ myc_nas,
-                         slab = exp, 
-                         control = list(stepadj = 0.3), 
-                         data = meta_results %>% 
-                           filter(manip_type == "p" & 
-                                    myvar == "jmax" & 
-                                    !is.na(myc_nas)))
-
-padd_jmax_myc_summary <- data.frame(trait = "jmax", 
-                                     nut_add = "p",
-                                     mod_results(padd_jmax_myc, 
-                                                 mod = "myc_nas", 
-                                                 group = "exp")$mod_table,
-                                     z = coef(summary(padd_jmax_myc))[2,3],
-                                     p = coef(summary(padd_jmax_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_jmax_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "np" & 
-                                     myvar == "jmax" & 
-                                     !is.na(myc_nas)))
-
-npadd_jmax_myc_summary <- data.frame(trait = "jmax", 
-                                      nut_add = "np",
-                                      mod_results(npadd_jmax_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(npadd_jmax_myc))[2,3],
-                                      p = coef(summary(npadd_jmax_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge Jmax moderator results, with some light cleaning
-jmax_myc_summary <- rbind(nadd_jmax_myc_summary, 
-                           padd_jmax_myc_summary, 
-                           npadd_jmax_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # PNUE mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_pnue_myc <- rma.mv(logr, 
-                         logr_var,
-                         method = "REML", 
-                         random = ~ 1 | exp, 
-                         mods = ~ myc_nas,
-                         slab = exp, 
-                         control = list(stepadj = 0.3), 
-                         data = meta_results %>% 
-                           filter(manip_type == "n" & 
-                                    myvar == "leaf_pnue" & 
-                                    !is.na(myc_nas)))
+# Model
+int_pnue_myc <- rma.mv(yi = dNPi,
+                        V = vNPi,
+                        W = wNPi,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ myc_nas,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results_int %>% 
+                          filter(myvar == "leaf_pnue" & 
+                                   !is.na(myc_nas)))
 
-nadd_pnue_myc_summary <- data.frame(trait = "pnue", 
-                                     nut_add = "n",
-                                     mod_results(nadd_pnue_myc, 
-                                                 mod = "myc_nas", 
-                                                 group = "exp")$mod_table,
-                                     z = coef(summary(nadd_pnue_myc))[2,3],
-                                     p = coef(summary(nadd_pnue_myc))[2, 4]) %>%
+# Model summary
+int_pnue_myc_summary <- data.frame(trait = "pnue", 
+                                    nut_add = "int",
+                                    mod_results(int_pnue_myc, 
+                                                mod = "myc_nas", 
+                                                group = "exp")$mod_table,
+                                    z = coef(summary(int_pnue_myc))[2,3],
+                                    p = coef(summary(int_pnue_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# P addition
-padd_pnue_myc <- rma.mv(logr, 
-                         logr_var,
-                         method = "REML", 
-                         random = ~ 1 | exp, 
-                         mods = ~ myc_nas,
-                         slab = exp, 
-                         control = list(stepadj = 0.3), 
-                         data = meta_results %>% 
-                           filter(manip_type == "p" & 
-                                    myvar == "leaf_pnue" & 
-                                    !is.na(myc_nas)))
-
-padd_pnue_myc_summary <- data.frame(trait = "pnue", 
-                                     nut_add = "p",
-                                     mod_results(padd_pnue_myc, 
-                                                 mod = "myc_nas", 
-                                                 group = "exp")$mod_table,
-                                     z = coef(summary(padd_pnue_myc))[2,3],
-                                     p = coef(summary(padd_pnue_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_pnue_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "np" & 
-                                     myvar == "leaf_pnue" & 
-                                     !is.na(myc_nas)))
-
-npadd_pnue_myc_summary <- data.frame(trait = "pnue", 
-                                      nut_add = "np",
-                                      mod_results(npadd_pnue_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(npadd_pnue_myc))[2,3],
-                                      p = coef(summary(npadd_pnue_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge PNUE moderator results, with some light cleaning
-pnue_myc_summary <- rbind(nadd_pnue_myc_summary, 
-                           padd_pnue_myc_summary, 
-                           npadd_pnue_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # PPUE mycorrhizal acquisition strategy
 ##############################################################################
 
-# N addition
-nadd_ppue_myc <- rma.mv(logr, 
-                         logr_var,
-                         method = "REML", 
-                         random = ~ 1 | exp, 
-                         mods = ~ myc_nas,
-                         slab = exp, 
-                         control = list(stepadj = 0.3), 
-                         data = meta_results %>% 
-                           filter(manip_type == "n" & 
-                                    myvar == "leaf_ppue" & 
-                                    !is.na(myc_nas)))
+# Model
+int_ppue_myc <- rma.mv(yi = dNPi,
+                       V = vNPi,
+                       W = wNPi,
+                       method = "REML", 
+                       random = ~ 1 | exp, 
+                       mods = ~ myc_nas,
+                       slab = exp, 
+                       control = list(stepadj = 0.3), 
+                       data = meta_results_int %>% 
+                         filter(myvar == "leaf_ppue" & 
+                                  !is.na(myc_nas)))
 
-nadd_ppue_myc_summary <- data.frame(trait = "ppue", 
-                                     nut_add = "n",
-                                     mod_results(nadd_ppue_myc, 
-                                                 mod = "myc_nas", 
-                                                 group = "exp")$mod_table,
-                                     z = coef(summary(nadd_ppue_myc))[2,3],
-                                     p = coef(summary(nadd_ppue_myc))[2, 4]) %>%
+# Model summary
+int_ppue_myc_summary <- data.frame(trait = "ppue", 
+                                   nut_add = "int",
+                                   mod_results(int_ppue_myc, 
+                                               mod = "myc_nas", 
+                                               group = "exp")$mod_table,
+                                   z = coef(summary(int_ppue_myc))[2,3],
+                                   p = coef(summary(int_ppue_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# P addition
-padd_ppue_myc <- rma.mv(logr, 
-                         logr_var,
-                         method = "REML", 
-                         random = ~ 1 | exp, 
-                         mods = ~ myc_nas,
-                         slab = exp, 
-                         control = list(stepadj = 0.3), 
-                         data = meta_results %>% 
-                           filter(manip_type == "p" & 
-                                    myvar == "leaf_ppue" & 
-                                    !is.na(myc_nas)))
-
-padd_ppue_myc_summary <- data.frame(trait = "ppue", 
-                                     nut_add = "p",
-                                     mod_results(padd_ppue_myc, 
-                                                 mod = "myc_nas", 
-                                                 group = "exp")$mod_table,
-                                     z = coef(summary(padd_ppue_myc))[2,3],
-                                     p = coef(summary(padd_ppue_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-# N+P addition
-npadd_ppue_myc <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ myc_nas,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "np" & 
-                                     myvar == "leaf_ppue" & 
-                                     !is.na(myc_nas)))
-
-npadd_ppue_myc_summary <- data.frame(trait = "ppue", 
-                                      nut_add = "np",
-                                      mod_results(npadd_ppue_myc, 
-                                                  mod = "myc_nas", 
-                                                  group = "exp")$mod_table,
-                                      z = coef(summary(npadd_ppue_myc))[2,3],
-                                      p = coef(summary(npadd_ppue_myc))[2, 4]) %>%
-  dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
-
-## Merge Jmax moderator results, with some light cleaning
-ppue_myc_summary <- rbind(nadd_ppue_myc_summary, 
-                           padd_ppue_myc_summary, 
-                           npadd_ppue_myc_summary) %>%
-  mutate(estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p)))
 
 ##############################################################################
 # Merge myc moderator results and write to .csv
 ##############################################################################
-marea_myc_summary %>%
-  full_join(nmass_myc_summary) %>%
-  full_join(narea_myc_summary) %>%
-  full_join(pmass_myc_summary) %>%
-  full_join(parea_myc_summary) %>%
-  full_join(asat_myc_summary) %>%
-  full_join(vcmax_myc_summary) %>%
-  full_join(jmax_myc_summary) %>%
-  full_join(pnue_myc_summary) %>%
-  full_join(ppue_myc_summary) %>%
-  write.csv("../data/CNPmeta_myc_moderators.csv", row.names = F)
+int_marea_myc_summary %>%
+  full_join(int_nmass_myc_summary) %>%
+  full_join(int_narea_myc_summary) %>%
+  full_join(int_pmass_myc_summary) %>%
+  full_join(int_parea_myc_summary) %>%
+  full_join(int_leafnp_myc_summary) %>%
+  full_join(int_asat_myc_summary) %>%
+  full_join(int_vcmax_myc_summary) %>%
+  full_join(int_jmax_myc_summary) %>%
+  full_join(int_pnue_myc_summary) %>%
+  full_join(int_ppue_myc_summary) %>%
+  mutate(estimate_perc = (exp(estimate) - 1) * 100,
+         lowerCL_perc = (exp(lowerCL) - 1) * 100,
+         upperCL_perc = (exp(upperCL) - 1) * 100,
+         across(estimate:upperCL_perc, ~round(.x, 3)),
+         ci.range = str_c("[", lowerCL, ", ", upperCL, "]"),
+         ci.range_perc = str_c("[", lowerCL_perc, ", ", upperCL_perc, "]")) %>%
+  write.csv("../data/CNPmeta_myc_moderators_int.csv", row.names = F)
 
 
 
