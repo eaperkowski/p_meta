@@ -11,20 +11,20 @@ meta_results_int <- read.csv("../data/CNPmeta_logr_results_int.csv")
 
 # Load meta-analysis confidence intervals
 meta_ci <- read.csv("../data/CNPmeta_ci.csv") %>%
-  filter(var %in% c("leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
-                    "lma", "leaf_ppue", "leaf_pnue", "jmax", "vcmax", "asat",
+  filter(var %in% c("leaf_np", "leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
+                    "lma", "leaf_ppue", "leaf_pnue", "jmax_vcmax", "jmax", "vcmax", "asat",
                     "rootshoot", "rmf", "bgb", "agb", "total_biomass")) %>%
-  mutate(var = factor(var, levels = c("leaf_p_area", "leaf_p_mass", 
+  mutate(var = factor(var, levels = c("leaf_np", "leaf_p_area", "leaf_p_mass", 
                                       "leaf_n_area", "leaf_n_mass",
                                       "lma", "leaf_ppue", "leaf_pnue", 
-                                      "jmax", "vcmax", "asat", "rootshoot",
+                                      "jmax_vcmax", "jmax", "vcmax", "asat", "rootshoot",
                                       "rmf", "bgb", "agb", "total_biomass")))
 
 meta_ci_int <- read.csv("../data/CNPmeta_ci_int.csv") %>%
-  filter(var %in% c("leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
+  filter(var %in% c("leaf_np", "leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
                     "lma", "leaf_ppue", "leaf_pnue", "jmax", "vcmax", "asat",
                     "rootshoot", "rmf", "bgb", "agb", "total_biomass")) %>%
-  mutate(var = factor(var, levels = c("leaf_p_area", "leaf_p_mass", 
+  mutate(var = factor(var, levels = c("leaf_np", "leaf_p_area", "leaf_p_mass", 
                                       "leaf_n_area", "leaf_n_mass",
                                       "lma", "leaf_ppue", "leaf_pnue", 
                                       "jmax", "vcmax", "asat", "rootshoot",
@@ -54,12 +54,14 @@ nadd_chemistry_plot <- ggplot(data = meta_ci %>%
                                                   "leaf_n_mass", 
                                                   "leaf_n_area", 
                                                   "leaf_p_mass", 
-                                                  "leaf_p_area")),
+                                                  "leaf_p_area",
+                                                  "leaf_np")),
                               aes(x = var, y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "red", shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c(expression("P"["area"]), 
+  scale_x_discrete(labels = c("Leaf N:P",
+                              expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
                               expression("N"["mass"]),
@@ -144,12 +146,14 @@ padd_chemistry_plot <- ggplot(data = meta_ci %>%
                                                   "leaf_n_mass", 
                                                   "leaf_n_area", 
                                                   "leaf_p_mass", 
-                                                  "leaf_p_area")),
+                                                  "leaf_p_area",
+                                                  "leaf_np")),
                               aes(x = var, y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c(expression("P"["area"]),
+  scale_x_discrete(labels = c("Leaf N:P",
+                              expression("P"["area"]),
                               expression("P"["mass"]),
                               expression("N"["area"]),
                               expression("N"["mass"]),
@@ -235,13 +239,15 @@ npadd_chemistry_plot <- ggplot(data = meta_ci %>%
                                                    "leaf_n_mass", 
                                                    "leaf_n_area", 
                                                    "leaf_p_mass", 
-                                                   "leaf_p_area")),
+                                                   "leaf_p_area",
+                                                   "leaf_np")),
                                aes(x = var, y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), 
                 size = 1, width = 0.25) +
   geom_point(size = 4, fill = "magenta", shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c(expression("P"["area"]), 
+  scale_x_discrete(labels = c("Leaf N:P",
+                              expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
                               expression("N"["mass"]),
@@ -255,7 +261,7 @@ npadd_chemistry_plot <- ggplot(data = meta_ci %>%
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"),
         axis.title.x = element_text(face = "bold"),
-        axis.text = element_text(size = 18, color = "black"))
+        axis.text.y = element_text(size = 18, color = "black"))
 npadd_chemistry_plot
 
 npadd_photo_plot <- ggplot(data = meta_ci %>% 
@@ -324,28 +330,27 @@ npint_chemistry_plot <- ggplot(data = meta_ci_int %>%
                                                    "leaf_n_mass", 
                                                    "leaf_n_area", 
                                                    "leaf_p_mass", 
-                                                   "leaf_p_area")),
-                               aes(x = factor(var,
-                                              levels = c("lma",
-                                                         "leaf_n_mass", 
-                                                         "leaf_n_area", 
-                                                         "leaf_p_mass", 
-                                                         "leaf_p_area")), 
+                                                   "leaf_p_area",
+                                                   "leaf_np")),
+                               aes(x = var, 
                                    y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), 
                 size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "black", shape = 21) +
+  geom_point(aes(fill = int_type),size = 4, shape = 21) +
   geom_text(aes(label = k_sig), y = 55, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c(expression("P"["area"]), 
+  scale_x_discrete(labels = c("Leaf N:P",
+                              expression("P"["area"]), 
                               expression("P"["mass"]), 
                               expression("N"["area"]),
                               expression("N"["mass"]),
                               expression("M"["area"]))) +
   scale_y_continuous(limits = c(-60, 60), breaks = seq(-60, 60, 30)) +
+  scale_fill_manual(values = c("black", "pink", "red")) +
   labs(x = "", 
        y = NULL) +
   coord_flip() +
+  guides(fill = "none") +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"),
@@ -377,7 +382,7 @@ npint_photo_plot <- ggplot(data = meta_ci_int %>%
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
   scale_y_continuous(limits = c(-200, 200), breaks = seq(-200, 200, 100)) +
-  labs(x = "", y = "Interaction effect (%)") +
+  labs(x = "", y = "") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -410,7 +415,7 @@ npint_bio_plot <- ggplot(data = meta_ci_int %>%
                               "Total biomass")) +
   scale_y_continuous(limits = c(-80, 80), breaks = seq(-80, 80, 40)) +
   scale_fill_manual(values = c("black", "red")) +
-  labs(y = "", 
+  labs(y = "Interaction effect (%)", 
        x = "")  +
   coord_flip() +
   theme_classic(base_size = 18) +
@@ -686,7 +691,7 @@ pmass_myc_plot
 #####################################################################
 
 # Figure 2 - individual effects
-png("../plots/CNP_fig2_indEffects.png", height = 12, width = 16, 
+png("../plots/CNP_fig2_indEffects.png", height = 16, width = 16, 
     units = "in", res = 600)
 ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
           padd_chemistry_plot, padd_photo_plot, padd_bio_plot,
@@ -699,10 +704,10 @@ ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
 dev.off()
 
 # Figure 3 - interaction effects
-png("../plots/CNP_fig3_intEffects_wide.png", height = 4.5, width = 16, 
+png("../plots/CNP_fig3_intEffects.png", height = 12, width = 5.5, 
     units = "in", res = 600)
 ggarrange(npint_chemistry_plot, npint_photo_plot, npint_bio_plot, 
-          nrow = 1, ncol = 3, labels = c("(a)", "(b)", "(c)"), 
+          nrow = 3, ncol = 1, labels = c("(a)", "(b)", "(c)"), 
           font.label = list(size = 18), align = "hv")
 dev.off()
 

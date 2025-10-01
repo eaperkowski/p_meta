@@ -141,6 +141,15 @@ int_parea_clim_summary <- data.frame(trait = "parea",
                                      coef(summary(int_parea_clim)),
                                      row.names = NULL)
 
+
+mod_results(int_parea_clim, mod = "gs_par", group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_ribbon(aes(ymin = lowerCL, ymax = upperCL), alpha = 0.3) +
+  geom_smooth() +
+  theme_classic(base_size =  18)
+
+
+
 ##############################################################################
 # Leaf N:P climate moderators
 ##############################################################################
