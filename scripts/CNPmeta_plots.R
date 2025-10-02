@@ -30,10 +30,15 @@ meta_ci_int <- read.csv("../data/CNPmeta_ci_int.csv") %>%
                                       "jmax", "vcmax", "asat", "rootshoot",
                                       "rmf", "bgb", "agb", "total_biomass")))
 
-# Load species moderator results
+# Load species moderator results for individual effects
 meta_photo_results <- read.csv("../data/CNPmeta_photo_moderators.csv")
 meta_nfix_results <- read.csv("../data/CNPmeta_nfix_moderators.csv")
 meta_myc_results <- read.csv("../data/CNPmeta_myc_moderators.csv")
+
+# Load species moderator results for interaction effects
+meta_int_photo_results <- read.csv("../data/CNPmeta_photo_moderators_int.csv")
+meta_int_nfix_results <- read.csv("../data/CNPmeta_nfix_moderators_int.csv")
+meta_int_myc_results <- read.csv("../data/CNPmeta_myc_moderators_int.csv")
 
 # Check file structure
 head(meta_results)
@@ -336,7 +341,7 @@ npint_chemistry_plot <- ggplot(data = meta_ci_int %>%
                                    y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), 
                 size = 1, width = 0.25) +
-  geom_point(aes(fill = int_type),size = 4, shape = 21) +
+  geom_point(aes(fill = int_type), size = 4, shape = 21) +
   geom_text(aes(label = k_sig), y = 55, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Leaf N:P",
@@ -479,7 +484,7 @@ nmass_ai_plot <- mod_results(nadd_nmass_clim, mod = "gs_ai",
   scale_x_continuous(limits = c(0, 3.4), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-25, 100), breaks = seq(-25, 100, 25)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("AI"["g"]*" (unitless)")),
+  labs(x = expression(bold("MI"["g"]*" (unitless)")),
        y = expression(bold("N"["mass"]*" response to N addition (%)")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 20) +
@@ -609,7 +614,7 @@ pmass_ai_plot <- mod_results(padd_pmass_clim, mod = "gs_ai",
   scale_x_continuous(limits = c(0, 3.4), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-50, 400), breaks = seq(0, 400, 100)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("AI"["g"]*" (unitless)")),
+  labs(x = expression(bold("MI"["g"]*" (unitless)")),
        y = expression(bold("P"["mass"]*" response to P addition (%)")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 20) +
@@ -687,11 +692,124 @@ pmass_myc_plot <- ggplot(data = meta_myc_results %>%
 pmass_myc_plot
 
 #####################################################################
+# Leaf N:P interaction -- climate and species identity moderators
+#####################################################################
+# Climate Model
+int_leafnp_clim <- rma.mv(yi = dNPi, V = vNPi, W = wNPi, method = "REML", 
+                          random = ~ 1 | exp, mods = ~ gs_mat + gs_ai + gs_par,
+                          slab = exp, control = list(stepadj = 0.3), 
+                          data = meta_results_int %>% 
+                            filter(myvar == "leaf_np" & !is.na(gs_mat) & dNPi < 1))
+summary(int_leafnp_clim)
+
+# Temperature plot
+leafnp_int_tg_plot <- mod_results(int_leafnp_clim, 
+                                  mod = "gs_mat", 
+                                  group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(data = subset(meta_results_int, myvar == "leaf_np" & dNPi < 1), 
+             aes(x = gs_mat, y = (exp(dNPi) - 1) * 100,
+             size = 1 / dNPi_se)) +
+  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
+              alpha = 0.3) +
+  geom_smooth(linewidth = 1.5, color = "black") +
+  scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
+  scale_y_continuous(limits = c(-100, 200)) +
+  scale_size_continuous(limits = c(0, 120), range = c(1, 7)) +
+  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
+       y = "Leaf N:P interaction effect (%)",
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 20) +
+  theme(axis.title = element_text(face = "bold"),
+        axis.text = element_text(color = "black", size = 20))
+
+# Moisture index plot
+leafnp_int_par_plot <- mod_results(int_leafnp_clim, 
+                                  mod = "gs_par", 
+                                  group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(data = subset(meta_results_int, myvar == "leaf_np" & dNPi < 1), 
+             aes(x = gs_par, y = (exp(dNPi) - 1) * 100,
+                 size = 1 / dNPi_se)) +
+  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
+              alpha = 0.3) +
+  geom_smooth(linewidth = 1.5, color = "black") +
+  scale_y_continuous(limits = c(-100, 200)) +
+  scale_x_continuous(limits = c(600, 1000), breaks = seq(600, 1000, 100)) +
+  scale_size_continuous(limits = c(0, 120), range = c(1, 7)) +
+  labs(x = expression(bold("PAR"["g"]*" ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
+       y = "Leaf N:P interaction effect (%)",
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 20) +
+  theme(axis.title = element_text(face = "bold"),
+        axis.text = element_text(color = "black", size = 20))
+
+#####################################################################
+# AGB interaction -- climate moderators
+#####################################################################
+
+# Climate Model
+int_agb_clim <- rma.mv(yi = dNPi, V = vNPi, W = wNPi, method = "REML", 
+                       random = ~ 1 | exp, mods = ~ gs_mat + gs_ai + gs_par,
+                       slab = exp, control = list(stepadj = 0.3), 
+                       data = meta_results_int %>% 
+                         filter(myvar == "agb" & !is.na(gs_mat) & dNPi < 2))
+summary(int_agb_clim)
+
+
+# Temperature plot
+agb_int_tg_plot <- mod_results(int_agb_clim, 
+                               mod = "gs_mat", 
+                               group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(data = subset(meta_results_int, myvar == "agb" & dNPi < 2), 
+             aes(x = gs_mat, y = (exp(dNPi) - 1) * 100,
+                 size = 1 / dNPi_se)) +
+  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
+              alpha = 0.3) +
+  geom_smooth(linewidth = 1.5, color = "black") +
+  scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
+  scale_y_continuous(limits = c(-100, 400)) +
+  scale_size_continuous(limits = c(0, 120), range = c(1, 7)) +
+  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
+       y = "AGB interaction effect (%)",
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 20) +
+  theme(axis.title = element_text(face = "bold"),
+        axis.text = element_text(color = "black", size = 20))
+
+# Moisture index plot
+agb_int_ai_plot <- mod_results(int_agb_clim, 
+                                  mod = "gs_ai", 
+                                  group = "exp")$mod_table %>%
+  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(data = subset(meta_results_int, myvar == "agb" & dNPi < 2), 
+             aes(x = gs_ai, y = (exp(dNPi) - 1) * 100,
+                 size = 1 / dNPi_se)) +
+  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
+              alpha = 0.3) +
+  geom_smooth(linewidth = 1.5, color = "black") +
+  scale_y_continuous(limits = c(-100, 400)) +
+  scale_x_continuous(limits = c(0, 3.4), breaks = seq(0, 3, 1)) +
+  scale_size_continuous(limits = c(0, 120), range = c(1, 7)) +
+  labs(x = expression(bold("MI"["g"]*" (unitless)")),
+       y = "AGB interaction effect (%)",
+       size = expression(bold("Error"^"-1"))) +
+  theme_classic(base_size = 20) +
+  theme(axis.title = element_text(face = "bold"),
+        axis.text = element_text(color = "black", size = 20))
+
+
+#####################################################################
 # Write plots
 #####################################################################
 
-# Figure 2 - individual effects
-png("../plots/CNP_fig2_indEffects.png", height = 16, width = 16, 
+# Figure 1 - individual effects
+png("../plots/CNP_fig1_indEffects.png", height = 12, width = 16, 
     units = "in", res = 600)
 ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
           padd_chemistry_plot, padd_photo_plot, padd_bio_plot,
@@ -703,6 +821,17 @@ ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
           align = "hv")
 dev.off()
 
+# Figure 2 - moderator plots
+png("../plots/CNP_fig2_moderators_ind.png", height = 12.5, width = 24,
+    units = "in", res = 600)
+ggarrange(nmass_tg_plot, nmass_ai_plot, nmass_nfix_plot, nmass_myc_plot, nmass_photo_plot,
+          pmass_tg_plot, pmass_ai_plot, pmass_nfix_plot, pmass_myc_plot, pmass_photo_plot,
+          nrow = 2, ncol = 5, legend = "bottom", common.legend = TRUE,
+          labels = c("(a)", "(b)", "(c)", "(d)", "(e)", 
+                     "(f)", "(g)", "(h)", "(i)", "(j)"),
+          font.label = list(size = 20), align = "hv")
+dev.off()
+
 # Figure 3 - interaction effects
 png("../plots/CNP_fig3_intEffects.png", height = 12, width = 5.5, 
     units = "in", res = 600)
@@ -711,14 +840,12 @@ ggarrange(npint_chemistry_plot, npint_photo_plot, npint_bio_plot,
           font.label = list(size = 18), align = "hv")
 dev.off()
 
-# Figure 4 - moderator plots
-png("../plots/CNP_fig4_moderators.png", height = 12.5, width = 24,
+# Figure 4 - climate interactions plots
+png("../plots/CNP_fig4_climate_mod_int.png", height = 12, width = 12,
     units = "in", res = 600)
-ggarrange(nmass_tg_plot, nmass_ai_plot, nmass_nfix_plot, nmass_myc_plot, nmass_photo_plot,
-          pmass_tg_plot, pmass_ai_plot, pmass_nfix_plot, pmass_myc_plot, pmass_photo_plot,
-          nrow = 2, ncol = 5, legend = "bottom", common.legend = TRUE,
-          labels = c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)",
-                     "(g)", "(h)", "(i)", "(j)"),
+ggarrange(leafnp_int_tg_plot, leafnp_int_par_plot, 
+          agb_int_tg_plot, agb_int_ai_plot, 
+          nrow = 2, ncol = 2, legend = "bottom", common.legend = TRUE,
+          labels = c("(a)", "(b)", "(c)", "(d)"),
           font.label = list(size = 20), align = "hv")
 dev.off()
-

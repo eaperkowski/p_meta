@@ -20,6 +20,12 @@ head(meta_results_int)
 # Marea climate moderators
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "lma" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
+
 # Model
 int_marea_clim <- rma.mv(yi = dNPi,
                          V = vNPi,
@@ -31,7 +37,7 @@ int_marea_clim <- rma.mv(yi = dNPi,
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
                            filter(myvar == "lma" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & dNPi < 2))
 
 # Summary
 int_marea_clim_summary <- data.frame(trait = "marea",
@@ -45,6 +51,12 @@ int_marea_clim_summary <- data.frame(trait = "marea",
 # Nmass climate moderators
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "leaf_n_mass" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
+
 # Model
 int_nmass_clim <- rma.mv(yi = dNPi,
                          V = vNPi,
@@ -56,7 +68,7 @@ int_nmass_clim <- rma.mv(yi = dNPi,
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
                            filter(myvar == "leaf_n_mass" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & dNPi > -2))
 
 # Summary
 int_nmass_clim_summary <- data.frame(trait = "nmass",
@@ -70,6 +82,12 @@ int_nmass_clim_summary <- data.frame(trait = "nmass",
 # Narea climate moderators
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "leaf_n_area" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
+
 # Model
 int_narea_clim <- rma.mv(yi = dNPi,
                          V = vNPi,
@@ -81,7 +99,7 @@ int_narea_clim <- rma.mv(yi = dNPi,
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
                            filter(myvar == "leaf_n_area" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & dNPi < 2))
 
 # Summary
 int_narea_clim_summary <- data.frame(trait = "narea",
@@ -94,6 +112,12 @@ int_narea_clim_summary <- data.frame(trait = "narea",
 ##############################################################################
 # Pmass climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "leaf_p_mass" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_pmass_clim <- rma.mv(yi = dNPi,
@@ -108,8 +132,9 @@ int_pmass_clim <- rma.mv(yi = dNPi,
                            filter(myvar == "leaf_p_mass" & 
                                     !is.na(gs_mat)))
 
+
 # Summary
-int_pmass_clim_summary <- data.frame(trait = "nmass",
+int_pmass_clim_summary <- data.frame(trait = "pmass",
                                      nut_add = "int",
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
@@ -119,6 +144,12 @@ int_pmass_clim_summary <- data.frame(trait = "nmass",
 ##############################################################################
 # Parea climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "leaf_p_area" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_parea_clim <- rma.mv(yi = dNPi,
@@ -131,7 +162,7 @@ int_parea_clim <- rma.mv(yi = dNPi,
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
                            filter(myvar == "leaf_p_area" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & dNPi < 2))
 
 # Summary
 int_parea_clim_summary <- data.frame(trait = "parea",
@@ -141,18 +172,15 @@ int_parea_clim_summary <- data.frame(trait = "parea",
                                      coef(summary(int_parea_clim)),
                                      row.names = NULL)
 
-
-mod_results(int_parea_clim, mod = "gs_par", group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
-  geom_ribbon(aes(ymin = lowerCL, ymax = upperCL), alpha = 0.3) +
-  geom_smooth() +
-  theme_classic(base_size =  18)
-
-
-
 ##############################################################################
 # Leaf N:P climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "leaf_np" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_leafnp_clim <- rma.mv(yi = dNPi,
@@ -180,6 +208,12 @@ int_leafnp_clim_summary <- data.frame(trait = "leaf_np",
 # Total biomass climate moderators
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "total_biomass" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
+
 # Model
 int_tbio_clim <- rma.mv(yi = dNPi,
                          V = vNPi,
@@ -205,6 +239,12 @@ int_tbio_clim_summary <- data.frame(trait = "tbio",
 # Aboveground biomass climate moderators
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "agb" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
+
 # Model
 int_agb_clim <- rma.mv(yi = dNPi,
                         V = vNPi,
@@ -216,7 +256,7 @@ int_agb_clim <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(myvar == "agb" & 
-                                   !is.na(gs_mat)))
+                                   !is.na(gs_mat) & dNPi < 2))
 
 # Summary
 int_agb_clim_summary <- data.frame(trait = "agb",
@@ -229,6 +269,12 @@ int_agb_clim_summary <- data.frame(trait = "agb",
 ##############################################################################
 # Belowground biomass climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "bgb" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_bgb_clim <- rma.mv(yi = dNPi,
@@ -255,6 +301,12 @@ int_bgb_clim_summary <- data.frame(trait = "bgb",
 # Root mass fraction climate moderators
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "rmf" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
+
 # Model
 int_rmf_clim <- rma.mv(yi = dNPi,
                        V = vNPi,
@@ -279,6 +331,12 @@ int_rmf_clim_summary <- data.frame(trait = "rmf",
 ##############################################################################
 # Root:shoot climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(myvar == "rootshoot" & !is.na(gs_mat)) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_rootshoot_clim <- rma.mv(yi = dNPi,
@@ -320,8 +378,8 @@ int_marea_clim_summary %>%
          ci.lb_perc = (exp(ci.lb) - 1) * 100,
          ci.ub_perc = (exp(ci.ub) - 1) * 100,
          across(estimate:ci.ub_perc, ~round(.x, 3)),
-         estimate_se = str_c("[", estimate, "±", se, "]"),
-         estimate_se_perc = str_c("[", estimate_perc, "±", se_perc, "]"),
+         estimate_se = str_c(estimate, "±", se),
+         estimate_se_perc = str_c(estimate_perc, "±", se_perc),
          ci.range = str_c("[", ci.lb, ", ", ci.ub, "]"),
          ci.range_perc = str_c("[", ci.lb_perc, ", ", ci.ub_perc, "]")) %>%
   write.csv("../data/CNPmeta_clim_moderators_int.csv", row.names = F)
@@ -1235,7 +1293,7 @@ int_asat_myc <- rma.mv(yi = dNPi,
 # Model summary
 int_asat_myc_summary <- data.frame(trait = "asat", 
                                     nut_add = "int",
-                                    mod_results(int_nmass_myc, 
+                                    mod_results(int_asat_myc, 
                                                 mod = "myc_nas", 
                                                 group = "exp")$mod_table,
                                     z = coef(summary(int_asat_myc))[2,3],
@@ -1262,7 +1320,7 @@ int_vcmax_myc <- rma.mv(yi = dNPi,
 # Model summary
 int_vcmax_myc_summary <- data.frame(trait = "vcmax", 
                                     nut_add = "int",
-                                    mod_results(int_nmass_myc, 
+                                    mod_results(int_vcmax_myc, 
                                                 mod = "myc_nas", 
                                                 group = "exp")$mod_table,
                                     z = coef(summary(int_vcmax_myc))[2,3],
