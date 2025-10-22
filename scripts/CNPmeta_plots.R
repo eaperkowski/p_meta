@@ -94,14 +94,14 @@ nadd_photo_plot <- ggplot(data = meta_ci %>%
                           aes(x = var, y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "red", shape = 21) +
-  geom_text(aes(label = k_sig), y = 85, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 95, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression("J"["max"]),
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
-  scale_y_continuous(limits = c(-100, 100), breaks = seq(-100, 100, 50)) +
+  scale_y_continuous(limits = c(-110, 110), breaks = seq(-100, 100, 50)) +
   scale_fill_manual(values = "red") +
   labs(x = "", y = "Response to N addition (%)") +
   coord_flip() +
@@ -186,14 +186,14 @@ padd_photo_plot <- ggplot(data = meta_ci %>%
                           aes(x = var, y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 85, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 95, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression("J"["max"]),
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
-  scale_y_continuous(limits = c(-100, 100), breaks = seq(-100, 100, 50)) +
+  scale_y_continuous(limits = c(-110, 110), breaks = seq(-100, 100, 50)) +
   scale_fill_manual(values = "blue") +
   labs(x = "", y = "Response to P addition (%)") +
   coord_flip() +
@@ -280,14 +280,14 @@ npadd_photo_plot <- ggplot(data = meta_ci %>%
                            aes(x = var, y = middle_perc)) +
   geom_errorbar(aes(ymin = lower_perc, ymax = upper_perc), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "magenta", shape = 21) +
-  geom_text(aes(label = k_sig), y = 85, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 95, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression("J"["max"]),
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
-  scale_y_continuous(limits = c(-100, 100), breaks = seq(-100, 100, 50)) +
+  scale_y_continuous(limits = c(-110, 110), breaks = seq(-100, 100, 50)) +
   labs(x = "", y = "Response to N+P addition (%)") +
   coord_flip() +
   theme_classic(base_size = 18) +
