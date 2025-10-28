@@ -503,7 +503,7 @@ nmass_photo_plot <- ggplot(data = meta_photo_results %>%
   geom_point(aes(fill = photo), shape = 21, size = 5) +
   geom_bracket(xmin = "C3", xmax = "C4", y.position = 98, size = 1,
                label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 100, label = "*", size = 6) +
+  geom_text(x = 1.5, y = 100, label = "**", size = 6) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   scale_fill_manual(values = c("pink", "darkred")) +
   scale_y_continuous(limits = c(-25, 100), breaks = seq(-25, 100, 25)) +
@@ -723,6 +723,7 @@ leafnp_int_tg_plot <- mod_results(int_leafnp_clim,
   theme_classic(base_size = 20) +
   theme(axis.title = element_text(face = "bold"),
         axis.text = element_text(color = "black", size = 20))
+leafnp_int_tg_plot
 
 # Moisture index plot
 leafnp_int_par_plot <- mod_results(int_leafnp_clim, 
@@ -745,6 +746,7 @@ leafnp_int_par_plot <- mod_results(int_leafnp_clim,
   theme_classic(base_size = 20) +
   theme(axis.title = element_text(face = "bold"),
         axis.text = element_text(color = "black", size = 20))
+leafnp_int_par_plot
 
 #####################################################################
 # AGB interaction -- climate moderators
