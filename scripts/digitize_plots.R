@@ -264,3 +264,120 @@ chen2020 %>%
   select(variable:sd, se, n) %>%
   write.csv("../data_summaries/species_level/Chen2020_data.csv", row.names = F)
   
+# Zhu et al. 2014
+zhu2014 <- metaDigitise(dir = "../plots_to_digitize/Zhu_2014/")
+
+zhu2014 %>%
+  separate(group_id, into = c("spp", "nut_add")) %>%
+  mutate(variable = factor(variable, 
+                           levels = c("sla",
+                                      "leaf_n_mass",
+                                      "leaf_p_mass",
+                                      "leaf_np",
+                                      "asat", 
+                                      "gs",
+                                      "leaf_pnue",
+                                      "leaf_ppue")),
+         nut_add = factor(nut_add, levels = c("control", "n", "p", "np")),
+         mean = ifelse(variable == "sla", 1/mean * 10000, mean),
+         across(mean:se, \(x) round(x, digits = 3))) %>%
+  arrange(variable, spp, nut_add) %>%
+  dplyr::select(variable:mean, sd, se, n) %>%
+  write.csv("../data_summaries/species_level/Zhu2014_summarized.csv", row.names = F)
+
+# Feller 2003
+feller2003 <- metaDigitise(dir = "../plots_to_digitize/Feller_2003/")
+
+# Zerihun 2004
+zerihun2004 <- metaDigitise(dir = "../plots_to_digitize/zerihun_2004/")
+zerihun2004 %>%
+  mutate(across(mean:sd, round, 3))
+
+# Li 2007
+li2007 <- metaDigitise(dir = "../plots_to_digitize/Li_2007/")
+li2007 %>% mutate(across(mean:se, round, 3))
+
+# Mendoza 2016
+mendoza2016 <- metaDigitise(dir = "../plots_to_digitize/Mendoza_2016/")
+mendoza2016 %>% mutate(across(mean:se, round, 3))
+
+# Bai 2014
+bai2014 <- metaDigitise(dir = "../plots_to_digitize/Bai_2014/")
+bai2014 %>% mutate(mean = ifelse(variable == "sla", 1/mean * 10000, mean),
+                   across(mean:se, round, 2),
+                   group_id = factor(group_id, levels = c("control", "n", "p", "np"))) %>%
+  arrange(variable, group_id)
+
+# Stocklin 1998
+stocklin1998 <- metaDigitise(dir = "../plots_to_digitize/Stocklin_1998/")
+stocklin1998 %>% mutate(across(mean:se, round, 1))
+
+# Cleveland 2006
+cleveland2006 <- metaDigitise(dir = "../plots_to_digitize/Cleveland_Townsend2006/")
+cleveland2006 %>% mutate(across(mean:se, round, 1))
+
+# Burslem 1995
+burslem1995 <- metaDigitise(dir = "../plots_to_digitize/Burslem1995/")
+burslem1995 %>% mutate(across(mean:se, round, 2))
+
+# Verhoeven 1991
+verhoeven1991 <- metaDigitise(dir = "../plots_to_digitize/verhoeven_schmitz1991/")
+verhoeven1991 %>% mutate(across(mean:se, round, 0))
+
+# Singh 2019
+singh2019 <- metaDigitise(dir = "../plots_to_digitize/singh2019/")
+singh2019 %>% mutate(across(mean:se, round, 2))
+
+# Zhao 2022
+zhao2022 <- metaDigitise(dir = "../plots_to_digitize/zhao2022/")
+zhao2022 %>% mutate(across(mean:se, round, 2))
+
+# Tissue 2010
+tissue2010 <- metaDigitise(dir = "../plots_to_digitize/tissue2010/")
+tissue2010 %>% mutate(across(mean:se, round, 2))
+
+# Thomas 2006
+thomas2006 <- metaDigitise(dir = "../plots_to_digitize/Thomas2006/")
+thomas2006 %>% mutate(across(mean:se, round, 2))
+
+# Lewis 1994
+lewis1994 <- metaDigitise(dir = "../plots_to_digitize/Lewis1994/")
+lewis1994 %>% mutate(across(mean:se, round, 2))
+
+# Rao 1995
+rao1995 <- metaDigitise(dir = "../plots_to_digitize/Rao1995/")
+rao1995 %>% mutate(across(mean:se, round, 2))
+
+# Ghannoum 2007
+ghannoum2007 <- metaDigitise(dir = "../plots_to_digitize/Ghannoum2007/")
+ghannoum2007 %>% 
+  separate(group_id, into = c("spp", "trt")) %>%
+  mutate(across(mean:se, round, 2),
+         trt = factor(trt, levels = c("control", "p")),
+         spp = factor(spp, levels = c("panicumLaxum", 
+                                      "panicumColoratum", 
+                                      "cicerCiliaris"))) %>%
+  arrange(variable, spp, trt)
+
+# Thuynsma 2016
+thuynsma2016 <- metaDigitise(dir = "../plots_to_digitize/Thuynsma2016/")
+thuynsma2016 %>% mutate(across(mean:se, round, 3))
+
+# Liu 2021
+liu2021 <- metaDigitise(dir = "../plots_to_digitize/Liu2021/")
+liu2021 %>% mutate(across(mean:se, round, 2))
+
+# Ulloa 2021
+ulloa2021 <- metaDigitise(dir = "../plots_to_digitize/Ulloa2021/")
+ulloa2021 %>% mutate(across(mean:se, round, 3))
+
+
+# Shi 2020
+shi2020 <- metaDigitise(dir = "../plots_to_digitize/Shi2020/")
+shi2020 %>% mutate(across(mean:se, round, 2))
+
+
+
+
+
+
