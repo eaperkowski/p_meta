@@ -376,8 +376,11 @@ ulloa2021 %>% mutate(across(mean:se, round, 3))
 shi2020 <- metaDigitise(dir = "../plots_to_digitize/Shi2020/")
 shi2020 %>% mutate(across(mean:se, round, 2))
 
-
-
+# Meng 2021
+meng2021 <- metaDigitise(dir = "../plots_to_digitize/Meng2021/")
+meng2021 %>% mutate(across(mean:se, round, 2)) %>%
+  mutate(group_id = factor(group_id, levels = c("control", "p"))) %>%
+  arrange(variable, group_id)
 
 
 
