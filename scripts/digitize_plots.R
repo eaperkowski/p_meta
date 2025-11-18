@@ -371,7 +371,6 @@ liu2021 %>% mutate(across(mean:se, round, 2))
 ulloa2021 <- metaDigitise(dir = "../plots_to_digitize/Ulloa2021/")
 ulloa2021 %>% mutate(across(mean:se, round, 3))
 
-
 # Shi 2020
 shi2020 <- metaDigitise(dir = "../plots_to_digitize/Shi2020/")
 shi2020 %>% mutate(across(mean:se, round, 2))
