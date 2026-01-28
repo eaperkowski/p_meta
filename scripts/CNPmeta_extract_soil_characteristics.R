@@ -28,7 +28,7 @@ soilGrids_nitrogen <- fetchSoilGrids(experiment_summary_field,
 # Calculate sum of 0-5 and 0-15 horizon
 soilGrids_nitrogen_sum <- aqp::horizons(soilGrids_nitrogen) %>%
   group_by(id) %>%
-  summarize(background_n_mgkg = sum(nitrogenmean, na.rm = TRUE) * 10) %>%
+  summarize(background_n_mgkg = sum(nitrogenmean, na.rm = TRUE) * 10 / 2) %>%
   dplyr::select(exp = id, background_n_mgkg)
 
 # Merge soil nitrogen data to compiled dataset

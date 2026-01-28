@@ -15,6 +15,7 @@ carate_df[, 5:10] <- lapply(carate_df[, 5:10], as.numeric)
 # Add a few calculations
 carate_df <- carate_df %>%
   mutate(sla_m2g = sla / 10000,
+         lma_gm2 = 1 / sla_m2g,
          agb = biomass_shoot + biomass_leaf,
          root_shoot = biomass_root / agb,
          rmf = biomass_root / (biomass_root + biomass_shoot + biomass_leaf),
@@ -31,6 +32,7 @@ carate_data_summary_plot <- carate_df %>%
             rootshoot_plot = mean(root_shoot, na.rm = TRUE),
             rmf_plot = mean(rmf, na.rm = TRUE),
             sla_plot = mean(sla, na.rm = TRUE),
+            lma_plot = mean(lma_gm2, na.rm = TRUE),
             nmass_plot = mean(leaf_N, na.rm = TRUE),
             narea_plot = mean(narea, na.rm = TRUE),
             pmass_plot = mean(leaf_P, na.rm = TRUE),
@@ -63,10 +65,15 @@ carate2013_data_summary <- carate_data_summary_plot %>%
     rmf_sd = sd(rmf_plot, na.rm = TRUE),
     rmf_se = rmf_sd / sqrt(rmf_n),
     
-    sla_n = sum(!is.na(nmass_plot)),
+    sla_n = sum(!is.na(sla_plot)),
     sla_mean = mean(sla_plot, na.rm = TRUE),
     sla_sd = sd(sla_plot, na.rm = TRUE),
     sla_se = sla_sd / sqrt(sla_n),
+    
+    lma_n = sum(!is.na(lma_plot)),
+    lma_mean = mean(lma_plot, na.rm = TRUE),
+    lma_sd = sd(lma_plot, na.rm = TRUE),
+    lma_se = lma_sd / sqrt(lma_n),
     
     nmass_n = sum(!is.na(nmass_plot)),
     nmass_mean = mean(nmass_plot, na.rm = TRUE),
@@ -100,11 +107,11 @@ carate_summary_control <- carate2013_data_summary %>%
   filter(trt == "con") %>%
   ungroup(trt) %>%
   select(-trt)
-names(carate_summary_control)[3:42] <- str_c(names(carate_summary_control)[3:42], "_control")
+names(carate_summary_control)[3:46] <- str_c(names(carate_summary_control)[3:46], "_control")
 
 carate_summary_treatment <- carate2013_data_summary %>%
   filter(trt != "con")
-names(carate_summary_treatment)[4:43] <- str_c(names(carate_summary_treatment)[4:43], "_trt")
+names(carate_summary_treatment)[4:47] <- str_c(names(carate_summary_treatment)[4:47], "_trt")
 
 # Format into easy merge into compiled datasheet, write to .csv
 carate_summary_control %>%
@@ -135,6 +142,11 @@ carate_summary_control %>%
                 sla_sd_control, sla_sd_trt, 
                 sla_se_control, sla_se_trt, 
                 sla_n_control, sla_n_trt,
+                
+                lma_mean_control, lma_mean_trt, 
+                lma_sd_control, lma_sd_trt, 
+                lma_se_control, lma_se_trt, 
+                lma_n_control, lma_n_trt,
                 
                 nmass_mean_control, nmass_mean_trt, 
                 nmass_sd_control, nmass_sd_trt, 
@@ -167,7 +179,7 @@ carate_summary_control %>%
   pivot_wider(names_from = stat:treatment,
               values_from = value) %>%
   mutate(trait = factor(trait, levels = c("agb", "bgb", "rootshoot", "rmf", 
-                                          "sla", "nmass", "narea", "pmass",
+                                          "sla", "lma", "nmass", "narea", "pmass",
                                           "parea", "leafnp")),
          trt = factor(trt, levels = c("N", "P", "NP")),
          Tree_species = gsub(tolower(Tree_species), pattern = " ", replacement = "_")) %>%

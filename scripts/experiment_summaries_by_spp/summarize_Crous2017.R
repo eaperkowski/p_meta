@@ -43,6 +43,11 @@ crous_data_summary <- crous_data %>%
     gsw_sd = sd(Gssat, na.rm = TRUE),
     gsw_se = gsw_sd / sqrt(gsw_n),
     
+    cica_n = sum(!is.na(Cisat)),
+    cica_mean = mean(Cisat / 400, na.rm = TRUE), # dividing by 400 because that was reference CO2 concentration
+    cica_sd = sd(Cisat / 400, na.rm = TRUE), # dividing by 400 because that was reference CO2 concentration
+    cica_se = cica_sd / sqrt(cica_n),   
+    
     rd_n = sum(!is.na(Rdark)),
     rd_mean = mean(Rdark, na.rm = TRUE),
     rd_sd = sd(Rdark, na.rm = TRUE),
@@ -96,12 +101,12 @@ crous_data_summary_control <- crous_data_summary %>%
   filter(Treatm == "LNLP") %>%
   mutate(exp = "crous2017") %>%
   select(-Treatm)
-names(crous_data_summary_control)[2:57] <- str_c(names(crous_data_summary_control)[2:57], "_control")
+names(crous_data_summary_control)[2:61] <- str_c(names(crous_data_summary_control)[2:61], "_control")
 
 crous_data_summary_treatment <- crous_data_summary %>%
   filter(Treatm != "LNLP") %>%
   mutate(exp = "crous2017")
-names(crous_data_summary_treatment)[3:58] <- str_c(names(crous_data_summary_treatment)[3:58], "_trt")
+names(crous_data_summary_treatment)[3:62] <- str_c(names(crous_data_summary_treatment)[3:62], "_trt")
 
 # Format into easy merge into compiled datasheet, write to .csv
 crous_data_summary_control %>%
@@ -132,6 +137,11 @@ crous_data_summary_control %>%
                 gsw_sd_control, gsw_sd_trt, 
                 gsw_se_control, gsw_se_trt, 
                 gsw_n_control, gsw_n_trt,
+                
+                cica_mean_control, cica_mean_trt, 
+                cica_sd_control, cica_sd_trt, 
+                cica_se_control, cica_se_trt, 
+                cica_n_control, cica_n_trt,
                 
                 rd_mean_control, rd_mean_trt, 
                 rd_sd_control, rd_sd_trt, 
@@ -185,7 +195,7 @@ crous_data_summary_control %>%
               values_from = value) %>%
   mutate(Treatm = factor(Treatm, levels = c("LNLP", "HNLP", "LNHP", "HNHP")),
          trait = factor(trait, levels = c("Asat", "Vcmax", "Jmax", "JmaxVcmax", "rd", "gsw",
-                                          "lma", "Nmass", "Narea", "Pmass",
+                                          "cica", "lma", "Nmass", "Narea", "Pmass",
                                           "Parea", "leafnp", "pnue", "ppue")),
          mean_control = ifelse(trait == "rd", abs(mean_control),
                                mean_control),

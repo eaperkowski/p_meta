@@ -37,6 +37,7 @@ borer2013 <- metaDigitise(dir = "../plots_to_digitize/Borer_2013/")
 
 # Bowman et al. 1993
 bowman1993 <- metaDigitise(dir = "../plots_to_digitize/Bowman_1993/")
+bowman1993
 
 # Davidson et al. 2004
 davidson2004 <- metaDigitise(dir = "../plots_to_digitize/Davidson_2004/")
@@ -70,6 +71,10 @@ harrington2001 <- metaDigitise(dir = "../plots_to_digitize/Harrington_2001/")
 
 # Haubensak 2011
 haubensak2011 <- metaDigitise(dir = "../plots_to_digitize/Haubensak_2011/")
+haubensak2011 %>% mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
+                         across(mean:se, \(x) round(x, 3))) %>%
+  arrange(variable, group_id)
+
 
 # Huff 2015
 huff2015 <- metaDigitise(dir = "../plots_to_digitize/Huff_2015/")
@@ -166,6 +171,10 @@ mo2021 <- metaDigitise(dir = "../plots_to_digitize/Mo_2021/")
 
 # Wang 2019
 wang2019 <- metaDigitise(dir = "../plots_to_digitize/Wang_2019/")
+wang2019 %>% 
+  mutate(group_id = factor(group_id, levels = c("control", "n", "p", "np")),
+         across(mean:se, \(x) round(x, 2))) %>%
+  arrange(variable, group_id)
 
 # Cunha 2024
 cunha2024 <- metaDigitise(dir = "../plots_to_digitize/Cunha_2024/")
@@ -381,5 +390,21 @@ meng2021 %>% mutate(across(mean:se, round, 2)) %>%
   mutate(group_id = factor(group_id, levels = c("control", "p"))) %>%
   arrange(variable, group_id)
 
+# Mayor 2013
+mayor2013 <- metaDigitise(dir = "../plots_to_digitize/Mayor_2013/")
 
+mayor2013 %>% 
+  separate(group_id, into = c("spp", "nut")) %>%
+  mutate(spp = factor(spp, levels = c("aBlackiana", "ablackiana", "hConcinna", "tPanamensis", "oMapora")),
+         nut = factor(nut, levels = c("control", "n", "p", "np")),
+         across(mean:se, \(x) round(x, 2))) %>%
+  arrange(variable, spp, nut)
+
+# Li 2016
+li2016 <- metaDigitise(dir = "../plots_to_digitize/Li2016/")
+li2016 %>% mutate(across(mean:se, round, 2)) %>%
+  separate(group_id, into = c("spp", "trt"), sep = "_") %>%
+  mutate(spp = factor(spp, levels = c("lolgensis", "lkaempferi")),
+         trt = factor(trt, levels = c("control", "n", "p", "np"))) %>%
+  arrange(variable, spp, trt)
 
