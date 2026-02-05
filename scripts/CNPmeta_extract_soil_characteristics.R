@@ -34,15 +34,32 @@ soilGrids_nitrogen_sum <- aqp::horizons(soilGrids_nitrogen) %>%
 # Merge soil nitrogen data to compiled dataset
 df_nitrogen <- df %>%
   full_join(soilGrids_nitrogen_sum, by = "exp")
-#write.csv(df_nitrogen, "../data/CNP_data_compiled.csv", row.names = F)
+write.csv(df_nitrogen, "../data/CNP_data_compiled.csv", row.names = F)
 
 # Read .tif with Olsen-P
 olsen_map <- raster::brick("../gridded_products/soil/OlsenP_kgha1_World_Aug2022_ver_COG.tif")
 plot(olsen_map)
 
-# Extract Olsen-P point data from each field experiment coordinate
-olsenP_site <- raster::extract(olsen_map, experiment_summary_field[, c("longitude", "latitude")])
+# Convert lat and long to spatial points
+experiment_summary_field_sp <- sp::SpatialPoints(
+  cbind(experiment_summary_field$longitude, experiment_summary_field$latitude),
+  proj4string = sp::CRS("+proj=longlat +datum=WGS84 +no_defs")  # EPSG:4326
+)
 
-ggplot(data = olsen_map) +
-  geom_raster(aes(x = x, y = y))
+# Transform spatial points to align with crs of olsen map
+experiment_summary_field_sptrans <- spTransform(experiment_summary_field_sp,
+                                                crs(olsen_map))
+
+# Extract Olsen-P point data from each field experiment coordinate
+olsenP_site <- raster::extract(olsen_map, experiment_summary_field_sptrans)
+
+olsenP_clean <- experiment_summary_field %>%
+  cbind(olsenP_site) %>%
+  mutate(olsenP_mgkg = Band_1) %>%
+  dplyr::select(exp:longitude, olsenP_mgkg)
+
+# Write final .csv
+df_nitrogen %>%
+  full_join(olsenP_clean, by = c("exp", "latitude", "longitude")) %>%
+  write.csv("../data/CNP_data_compiled.csv", row.names = F)
 

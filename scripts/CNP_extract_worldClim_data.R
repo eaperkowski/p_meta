@@ -14,12 +14,7 @@ library(rnaturalearth)
 library(naniar)
 library(lubridate)
 
-# Read data sources (MESI, NutNet, EAP manual compilation)
-mesi <- read.csv("../data/mesi_main_manual.csv")
-nutnet <- read.csv("../data/nutnet_main.csv")
-eap <- read.csv("../data/eap_main.csv")
-
-# Merge data sources into single data frame
+# Read data file
 full_df <- read.csv("../data/CNP_data_compiled.csv")
 
 # Create data frame with only field experiments (since field experiments
@@ -192,11 +187,8 @@ worldClim_sites <- z_extracted2 %>%
 
 # Merge climate summary with compiled dataset
 compiled_df <- full_df %>%
+  dplyr::select(-c(elevation:gs_ai)) %>%
   full_join(worldClim_sites, by = c("exp", "latitude", "longitude")) %>%
-  dplyr::select(source:elevation, z:gs_ai, ecosystem_type:npk, 
-                fert, n_c:rep_t)
-
-worldClim_sites %>%
-  filter(exp == "shihezi")
-
+  dplyr::select(source:longitude, z:gs_ai, ecosystem_type:npk, 
+                fert, n_c:rep_t, doi)
 
