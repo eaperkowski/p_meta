@@ -170,9 +170,7 @@ nadd_narea_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
                                      myvar == "leaf_n_area" & 
-                                     !is.na(gs_mat) & 
-                                     gs_ai < 2.5 & 
-                                     logr < 0.75))
+                                     !is.na(gs_mat)))
 
 nadd_narea_clim_summary <- data.frame(trait = "narea",
                                       nut_add = "n",
@@ -455,28 +453,28 @@ nadd_tbio_clim <- rma.mv(logr,
                           control = list(stepadj = 0.3), 
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
-                                     myvar == "total_biomass" & 
+                                     myvar == "tbio_gm2" & 
                                      !is.na(gs_mat)))
 
-nadd_tbio_clim_summary <- data.frame(trait = "tbio",
-                                      nut_add = "n",
-                                      mod = c("intrcpt", "gs_mat",
-                                              "gs_ai", "gs_par"),
-                                      coef(summary(nadd_tbio_clim)),
-                                      row.names = NULL)
+nadd_tbio_clim_summary <- data.frame(trait = "tbio_gm2",
+                                     nut_add = "n",
+                                     mod = c("intrcpt", "gs_mat",
+                                             "gs_ai", "gs_par"),
+                                     coef(summary(nadd_tbio_clim)),
+                                     row.names = NULL)
 
 # P addition
 padd_tbio_clim <- rma.mv(logr, 
-                          logr_var,
-                          method = "REML", 
-                          random = ~ 1 | exp, 
-                          mods = ~ gs_mat + gs_ai + gs_par,
-                          slab = exp, 
-                          control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "p" & 
-                                     myvar == "total_biomass" & 
-                                     !is.na(gs_mat)))
+                         logr_var,
+                         method = "REML", 
+                         random = ~ 1 | exp, 
+                         mods = ~ gs_mat + gs_ai + gs_par,
+                         slab = exp, 
+                         control = list(stepadj = 0.3), 
+                         data = meta_results %>% 
+                           filter(manip_type == "p" & 
+                                    myvar == "tbio_gm2" & 
+                                    !is.na(gs_mat)))
 
 padd_tbio_clim_summary <- data.frame(trait = "tbio",
                                       nut_add = "p",
@@ -495,7 +493,7 @@ npadd_tbio_clim <- rma.mv(logr,
                            control = list(stepadj = 0.3), 
                            data = meta_results %>% 
                              filter(manip_type == "np" & 
-                                      myvar == "total_biomass" & 
+                                      myvar == "tbio_gm2" & 
                                       !is.na(gs_mat)))
 
 npadd_tbio_clim_summary <- data.frame(trait = "tbio",
@@ -513,11 +511,11 @@ tbio_clim_summary <- rbind(nadd_tbio_clim_summary,
          across(zval:ci.ub, ~ round(.x, digits = 4)))
 
 ##############################################################################
-# Aboveground biomass climate moderators
+# Aboveground biomass (g/m2) climate moderators
 ##############################################################################
 
 # N addition
-nadd_agb_clim <- rma.mv(logr, 
+nadd_anpp_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
                          random = ~ 1 | exp, 
@@ -526,18 +524,18 @@ nadd_agb_clim <- rma.mv(logr,
                          control = list(stepadj = 0.3), 
                          data = meta_results %>% 
                            filter(manip_type == "n" & 
-                                    myvar == "agb" & 
+                                    myvar == "anpp" & 
                                     !is.na(gs_mat)))
 
-nadd_agb_clim_summary <- data.frame(trait = "agb",
-                                     nut_add = "n",
-                                     mod = c("intrcpt", "gs_mat",
-                                             "gs_ai", "gs_par"),
-                                     coef(summary(nadd_agb_clim)),
-                                     row.names = NULL)
+nadd_agb_clim_summary <- data.frame(trait = "anpp",
+                                    nut_add = "n",
+                                    mod = c("intrcpt", "gs_mat",
+                                            "gs_ai", "gs_par"),
+                                    coef(summary(nadd_anpp_clim)),
+                                    row.names = NULL)
 
 # P addition
-padd_agb_clim <- rma.mv(logr, 
+padd_anpp_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
                          random = ~ 1 | exp, 
@@ -546,18 +544,18 @@ padd_agb_clim <- rma.mv(logr,
                          control = list(stepadj = 0.3), 
                          data = meta_results %>% 
                            filter(manip_type == "p" & 
-                                    myvar == "agb" & 
+                                    myvar == "anpp" & 
                                     !is.na(gs_mat)))
 
-padd_agb_clim_summary <- data.frame(trait = "agb",
+padd_agb_clim_summary <- data.frame(trait = "anpp",
                                      nut_add = "p",
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
-                                     coef(summary(padd_agb_clim)),
+                                     coef(summary(padd_anpp_clim)),
                                      row.names = NULL)
 
 # N+P addition
-npadd_agb_clim <- rma.mv(logr, 
+npadd_anpp_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
                           random = ~ 1 | exp, 
@@ -566,14 +564,14 @@ npadd_agb_clim <- rma.mv(logr,
                           control = list(stepadj = 0.3), 
                           data = meta_results %>% 
                             filter(manip_type == "np" & 
-                                     myvar == "agb" & 
+                                     myvar == "anpp" & 
                                      !is.na(gs_mat)))
 
-npadd_agb_clim_summary <- data.frame(trait = "agb",
+npadd_agb_clim_summary <- data.frame(trait = "anpp",
                                       nut_add = "np",
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
-                                      coef(summary(npadd_agb_clim)),
+                                      coef(summary(npadd_anpp_clim)),
                                       row.names = NULL)
 
 ## Merge Parea moderator results, with some light cleaning
@@ -588,7 +586,7 @@ agb_clim_summary <- rbind(nadd_agb_clim_summary,
 ##############################################################################
 
 # N addition
-nadd_bgb_clim <- rma.mv(logr, 
+nadd_bnpp_clim <- rma.mv(logr, 
                         logr_var,
                         method = "REML", 
                         random = ~ 1 | exp, 
@@ -597,18 +595,18 @@ nadd_bgb_clim <- rma.mv(logr,
                         control = list(stepadj = 0.3), 
                         data = meta_results %>% 
                           filter(manip_type == "n" & 
-                                   myvar == "bgb" & 
+                                   myvar == "bnpp" & 
                                    !is.na(gs_mat)))
 
-nadd_bgb_clim_summary <- data.frame(trait = "bgb",
+nadd_bnpp_clim_summary <- data.frame(trait = "bnpp",
                                     nut_add = "n",
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
-                                    coef(summary(nadd_bgb_clim)),
+                                    coef(summary(nadd_bnpp_clim)),
                                     row.names = NULL)
 
 # P addition
-padd_bgb_clim <- rma.mv(logr, 
+padd_bnpp_clim <- rma.mv(logr, 
                         logr_var,
                         method = "REML", 
                         random = ~ 1 | exp, 
@@ -617,18 +615,18 @@ padd_bgb_clim <- rma.mv(logr,
                         control = list(stepadj = 0.3), 
                         data = meta_results %>% 
                           filter(manip_type == "p" & 
-                                   myvar == "bgb" & 
+                                   myvar == "bnpp" & 
                                    !is.na(gs_mat)))
 
-padd_bgb_clim_summary <- data.frame(trait = "bgb",
+padd_bnpp_clim_summary <- data.frame(trait = "bnpp",
                                     nut_add = "p",
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
-                                    coef(summary(padd_bgb_clim)),
+                                    coef(summary(padd_bnpp_clim)),
                                     row.names = NULL)
 
 # N+P addition
-npadd_bgb_clim <- rma.mv(logr, 
+npadd_bnpp_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
                          random = ~ 1 | exp, 
@@ -637,20 +635,20 @@ npadd_bgb_clim <- rma.mv(logr,
                          control = list(stepadj = 0.3), 
                          data = meta_results %>% 
                            filter(manip_type == "np" & 
-                                    myvar == "bgb" & 
+                                    myvar == "bnpp" & 
                                     !is.na(gs_mat)))
 
-npadd_bgb_clim_summary <- data.frame(trait = "bgb",
+npadd_bnpp_clim_summary <- data.frame(trait = "bnpp",
                                      nut_add = "np",
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
-                                     coef(summary(npadd_bgb_clim)),
+                                     coef(summary(npadd_bnpp_clim)),
                                      row.names = NULL)
 
 ## Merge Parea moderator results, with some light cleaning
-bgb_clim_summary <- rbind(nadd_bgb_clim_summary, 
-                          padd_bgb_clim_summary, 
-                          npadd_bgb_clim_summary) %>%
+bgb_clim_summary <- rbind(nadd_bnpp_clim_summary, 
+                          padd_bnpp_clim_summary, 
+                          npadd_bnpp_clim_summary) %>%
   mutate(across(estimate:se, ~ round(.x, digits = 4)),
          across(zval:ci.ub, ~ round(.x, digits = 4)))
 
@@ -1688,7 +1686,7 @@ nadd_tbio_photo <- rma.mv(logr,
                                      myvar == "total_biomass" & 
                                      !is.na(photo_path)))
 
-nadd_tbio_photo_summary <- data.frame(trait = "tbio", 
+nadd_tbio_photo_summary <- data.frame(trait = "total_biomass", 
                                       nut_add = "n",
                                       mod_results(nadd_tbio_photo, 
                                                   mod = "photo_path", 
@@ -1710,7 +1708,7 @@ padd_tbio_photo <- rma.mv(logr,
                                      myvar == "total_biomass" & 
                                      !is.na(photo_path)))
 
-padd_tbio_photo_summary <- data.frame(trait = "tbio", 
+padd_tbio_photo_summary <- data.frame(trait = "total_biomass", 
                                       nut_add = "p",
                                       mod_results(padd_tbio_photo, 
                                                   mod = "photo_path", 
@@ -1732,7 +1730,7 @@ npadd_tbio_photo <- rma.mv(logr,
                                       myvar == "total_biomass" & 
                                       !is.na(photo_path)))
 
-npadd_tbio_photo_summary <- data.frame(trait = "tbio", 
+npadd_tbio_photo_summary <- data.frame(trait = "total_biomass", 
                                        nut_add = "np",
                                        mod_results(npadd_tbio_photo, 
                                                    mod = "photo_path", 
@@ -1754,7 +1752,7 @@ tbio_photo_summary <- rbind(nadd_tbio_photo_summary,
 ##############################################################################
 
 # N addition
-nadd_agb_photo <- rma.mv(logr, 
+nadd_anpp_photo <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
                           random = ~ 1 | exp, 
@@ -1763,20 +1761,20 @@ nadd_agb_photo <- rma.mv(logr,
                           control = list(stepadj = 0.3), 
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
-                                     myvar == "agb" & 
+                                     myvar == "anpp" & 
                                      !is.na(photo_path)))
 
-nadd_agb_photo_summary <- data.frame(trait = "agb", 
+nadd_anpp_photo_summary <- data.frame(trait = "anpp", 
                                       nut_add = "n",
-                                      mod_results(nadd_agb_photo, 
+                                      mod_results(nadd_anpp_photo, 
                                                   mod = "photo_path", 
                                                   group = "exp")$mod_table,
-                                      z = coef(summary(nadd_agb_photo))[2,3],
-                                      p = coef(summary(nadd_agb_photo))[2, 4]) %>%
+                                      z = coef(summary(nadd_anpp_photo))[2,3],
+                                      p = coef(summary(nadd_anpp_photo))[2, 4]) %>%
   dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
 
 # P addition
-padd_agb_photo <- rma.mv(logr, 
+padd_anpp_photo <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
                           random = ~ 1 | exp, 
@@ -1785,20 +1783,20 @@ padd_agb_photo <- rma.mv(logr,
                           control = list(stepadj = 0.3), 
                           data = meta_results %>% 
                             filter(manip_type == "p" & 
-                                     myvar == "agb" & 
+                                     myvar == "anpp" & 
                                      !is.na(photo_path)))
 
-padd_agb_photo_summary <- data.frame(trait = "agb", 
+padd_anpp_photo_summary <- data.frame(trait = "anpp", 
                                       nut_add = "p",
-                                      mod_results(padd_agb_photo, 
+                                      mod_results(padd_anpp_photo, 
                                                   mod = "photo_path", 
                                                   group = "exp")$mod_table,
-                                      z = coef(summary(padd_agb_photo))[2,3],
-                                      p = coef(summary(padd_agb_photo))[2, 4]) %>%
+                                      z = coef(summary(padd_anpp_photo))[2,3],
+                                      p = coef(summary(padd_anpp_photo))[2, 4]) %>%
   dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
 
 # N+P addition
-npadd_agb_photo <- rma.mv(logr, 
+npadd_anpp_photo <- rma.mv(logr, 
                            logr_var,
                            method = "REML", 
                            random = ~ 1 | exp, 
@@ -1807,22 +1805,22 @@ npadd_agb_photo <- rma.mv(logr,
                            control = list(stepadj = 0.3), 
                            data = meta_results %>% 
                              filter(manip_type == "np" & 
-                                      myvar == "agb" & 
+                                      myvar == "anpp" & 
                                       !is.na(photo_path)))
 
-npadd_agb_photo_summary <- data.frame(trait = "agb", 
+npadd_anpp_photo_summary <- data.frame(trait = "anpp", 
                                        nut_add = "np",
-                                       mod_results(npadd_agb_photo, 
+                                       mod_results(npadd_anpp_photo, 
                                                    mod = "photo_path", 
                                                    group = "exp")$mod_table,
-                                       z = coef(summary(npadd_agb_photo))[2,3],
-                                       p = coef(summary(npadd_agb_photo))[2, 4]) %>%
+                                       z = coef(summary(npadd_anpp_photo))[2,3],
+                                       p = coef(summary(npadd_anpp_photo))[2, 4]) %>%
   dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
 
 ## Merge aboveground biomass moderator results, with some light cleaning
-agb_photo_summary <- rbind(nadd_agb_photo_summary, 
-                            padd_agb_photo_summary, 
-                            npadd_agb_photo_summary) %>%
+agb_photo_summary <- rbind(nadd_anpp_photo_summary, 
+                            padd_anpp_photo_summary, 
+                            npadd_anpp_photo_summary) %>%
   mutate(estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p)))
@@ -1832,7 +1830,7 @@ agb_photo_summary <- rbind(nadd_agb_photo_summary,
 ##############################################################################
 
 # N addition
-nadd_bgb_photo <- rma.mv(logr, 
+nadd_bnpp_photo <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
                          random = ~ 1 | exp, 
@@ -1841,20 +1839,20 @@ nadd_bgb_photo <- rma.mv(logr,
                          control = list(stepadj = 0.3), 
                          data = meta_results %>% 
                            filter(manip_type == "n" & 
-                                    myvar == "bgb" & 
+                                    myvar == "bnpp" & 
                                     !is.na(photo_path)))
 
-nadd_bgb_photo_summary <- data.frame(trait = "bgb", 
+nadd_bnpp_photo_summary <- data.frame(trait = "bnpp", 
                                      nut_add = "n",
-                                     mod_results(nadd_bgb_photo, 
+                                     mod_results(nadd_bnpp_photo, 
                                                  mod = "photo_path", 
                                                  group = "exp")$mod_table,
-                                     z = coef(summary(nadd_bgb_photo))[2,3],
-                                     p = coef(summary(nadd_bgb_photo))[2, 4]) %>%
+                                     z = coef(summary(nadd_bnpp_photo))[2,3],
+                                     p = coef(summary(nadd_bnpp_photo))[2, 4]) %>%
   dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
 
 # P addition
-padd_bgb_photo <- rma.mv(logr, 
+padd_bnpp_photo <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
                          random = ~ 1 | exp, 
@@ -1863,20 +1861,20 @@ padd_bgb_photo <- rma.mv(logr,
                          control = list(stepadj = 0.3), 
                          data = meta_results %>% 
                            filter(manip_type == "p" & 
-                                    myvar == "bgb" & 
+                                    myvar == "bnpp" & 
                                     !is.na(photo_path)))
 
-padd_bgb_photo_summary <- data.frame(trait = "bgb", 
+padd_bnpp_photo_summary <- data.frame(trait = "bnpp", 
                                      nut_add = "p",
-                                     mod_results(padd_bgb_photo, 
+                                     mod_results(padd_bnpp_photo, 
                                                  mod = "photo_path", 
                                                  group = "exp")$mod_table,
-                                     z = coef(summary(padd_bgb_photo))[2,3],
-                                     p = coef(summary(padd_agb_photo))[2, 4]) %>%
+                                     z = coef(summary(padd_bnpp_photo))[2,3],
+                                     p = coef(summary(padd_bnpp_photo))[2, 4]) %>%
   dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
 
 # N+P addition
-npadd_bgb_photo <- rma.mv(logr, 
+npadd_bnpp_photo <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
                           random = ~ 1 | exp, 
@@ -1885,22 +1883,22 @@ npadd_bgb_photo <- rma.mv(logr,
                           control = list(stepadj = 0.3), 
                           data = meta_results %>% 
                             filter(manip_type == "np" & 
-                                     myvar == "bgb" & 
+                                     myvar == "bnpp" & 
                                      !is.na(photo_path)))
 
-npadd_bgb_photo_summary <- data.frame(trait = "bgb", 
+npadd_bnpp_photo_summary <- data.frame(trait = "bnpp", 
                                       nut_add = "np",
-                                      mod_results(npadd_bgb_photo, 
+                                      mod_results(npadd_bnpp_photo, 
                                                   mod = "photo_path", 
                                                   group = "exp")$mod_table,
-                                      z = coef(summary(npadd_bgb_photo))[2,3],
-                                      p = coef(summary(npadd_bgb_photo))[2, 4]) %>%
+                                      z = coef(summary(npadd_bnpp_photo))[2,3],
+                                      p = coef(summary(npadd_bnpp_photo))[2, 4]) %>%
   dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
 
 ## Merge aboveground biomass moderator results, with some light cleaning
-bgb_photo_summary <- rbind(nadd_bgb_photo_summary, 
-                           padd_bgb_photo_summary, 
-                           npadd_bgb_photo_summary) %>%
+bnpp_photo_summary <- rbind(nadd_bnpp_photo_summary, 
+                           padd_bnpp_photo_summary, 
+                           npadd_bnpp_photo_summary) %>%
   mutate(estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p)))
@@ -1922,10 +1920,15 @@ marea_photo_summary %>%
   full_join(ppue_photo_summary) %>%
   full_join(tbio_photo_summary) %>%
   full_join(agb_photo_summary) %>%
-  full_join(bgb_photo_summary) %>%
+  full_join(bnpp_photo_summary) %>%
   mutate(estimate_perc = round((exp(estimate) - 1 ) * 100, digits = 3),
          lowerCL_perc = round((exp(lowerCL) - 1 ) * 100, digits = 3),
          upperCL_perc = round((exp(upperCL) - 1 ) * 100, digits = 3),
+         CLrange = str_c("[", 
+                         round(lowerCL, digits = 3), 
+                         ", ", 
+                         round(upperCL, digits = 3), 
+                         "]"),
          CLrange_perc = str_c("[", 
                               round(lowerCL_perc, digits = 3), 
                               ", ", 
@@ -2005,8 +2008,8 @@ npadd_marea_nfix_summary <- data.frame(trait = "marea",
 
 ## Merge Marea moderator results, with some light cleaning
 marea_nfix_summary <- rbind(nadd_marea_nfix_summary, 
-                             padd_marea_nfix_summary, 
-                             npadd_marea_nfix_summary) %>%
+                            padd_marea_nfix_summary, 
+                            npadd_marea_nfix_summary) %>%
   mutate(estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p)))
@@ -2808,6 +2811,11 @@ marea_nfix_summary %>%
   mutate(estimate_perc = round((exp(estimate) - 1 ) * 100, digits = 3),
          lowerCL_perc = round((exp(lowerCL) - 1 ) * 100, digits = 3),
          upperCL_perc = round((exp(upperCL) - 1 ) * 100, digits = 3),
+         CLrange = str_c("[", 
+                         round(lowerCL, digits = 3), 
+                         ", ", 
+                         round(upperCL, digits = 3), 
+                         "]"),
          CLrange_perc = str_c("[", 
                               round(lowerCL_perc, digits = 3), 
                               ", ", 
@@ -3042,7 +3050,7 @@ npadd_narea_myc_summary <- data.frame(trait = "narea",
                                        p = coef(summary(npadd_narea_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-## Merge Nmass moderator results, with some light cleaning
+## Merge moderator results, with some light cleaning
 narea_myc_summary <- rbind(nadd_narea_myc_summary, 
                             padd_narea_myc_summary, 
                             npadd_narea_myc_summary) %>%
@@ -3120,7 +3128,7 @@ npadd_pmass_myc_summary <- data.frame(trait = "pmass",
                                        p = coef(summary(npadd_pmass_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-## Merge Pmass moderator results, with some light cleaning
+## Merge moderator results, with some light cleaning
 pmass_myc_summary <- rbind(nadd_pmass_myc_summary, 
                             padd_pmass_myc_summary, 
                             npadd_pmass_myc_summary) %>%
@@ -3198,7 +3206,7 @@ npadd_parea_myc_summary <- data.frame(trait = "parea",
                                        p = coef(summary(npadd_parea_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-## Merge Parea moderator results, with some light cleaning
+## Merge moderator results, with some light cleaning
 parea_myc_summary <- rbind(nadd_parea_myc_summary, 
                             padd_parea_myc_summary, 
                             npadd_parea_myc_summary) %>%
@@ -3276,7 +3284,7 @@ npadd_leafnp_myc_summary <- data.frame(trait = "leaf_np",
                                       p = coef(summary(npadd_leafnp_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-## Merge leaf N:P moderator results, with some light cleaning
+## Merge moderator results, with some light cleaning
 leafnp_myc_summary <- rbind(nadd_leafnp_myc_summary, 
                            padd_leafnp_myc_summary, 
                            npadd_leafnp_myc_summary) %>%
@@ -3354,7 +3362,7 @@ npadd_asat_myc_summary <- data.frame(trait = "asat",
                                       p = coef(summary(npadd_asat_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-## Merge Asat moderator results, with some light cleaning
+## Merge moderator results, with some light cleaning
 asat_myc_summary <- rbind(nadd_asat_myc_summary, 
                            padd_asat_myc_summary, 
                            npadd_asat_myc_summary) %>%
@@ -3432,7 +3440,7 @@ npadd_vcmax_myc_summary <- data.frame(trait = "vcmax",
                                        p = coef(summary(npadd_vcmax_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-## Merge Vcmax moderator results, with some light cleaning
+## Merge moderator results, with some light cleaning
 vcmax_myc_summary <- rbind(nadd_vcmax_myc_summary, 
                             padd_vcmax_myc_summary, 
                             npadd_vcmax_myc_summary) %>%
@@ -3510,7 +3518,7 @@ npadd_jmax_myc_summary <- data.frame(trait = "jmax",
                                       p = coef(summary(npadd_jmax_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-## Merge Jmax moderator results, with some light cleaning
+## Merge moderator results, with some light cleaning
 jmax_myc_summary <- rbind(nadd_jmax_myc_summary, 
                            padd_jmax_myc_summary, 
                            npadd_jmax_myc_summary) %>%
@@ -3588,7 +3596,7 @@ npadd_pnue_myc_summary <- data.frame(trait = "pnue",
                                       p = coef(summary(npadd_pnue_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-## Merge PNUE moderator results, with some light cleaning
+## Merge moderator results, with some light cleaning
 pnue_myc_summary <- rbind(nadd_pnue_myc_summary, 
                            padd_pnue_myc_summary, 
                            npadd_pnue_myc_summary) %>%
@@ -3666,7 +3674,7 @@ npadd_ppue_myc_summary <- data.frame(trait = "ppue",
                                       p = coef(summary(npadd_ppue_myc))[2, 4]) %>%
   dplyr::select(trait, nut_add, myc = name, estimate, z, p, lowerCL, upperCL)
 
-## Merge Jmax moderator results, with some light cleaning
+## Merge moderator results, with some light cleaning
 ppue_myc_summary <- rbind(nadd_ppue_myc_summary, 
                            padd_ppue_myc_summary, 
                            npadd_ppue_myc_summary) %>%
@@ -3691,6 +3699,11 @@ marea_myc_summary %>%
   mutate(estimate_perc = round((exp(estimate) - 1 ) * 100, digits = 3),
          lowerCL_perc = round((exp(lowerCL) - 1 ) * 100, digits = 3),
          upperCL_perc = round((exp(upperCL) - 1 ) * 100, digits = 3),
+         CLrange = str_c("[", 
+                         round(lowerCL, digits = 3), 
+                         ", ", 
+                         round(upperCL, digits = 3), 
+                         "]"),
          CLrange_perc = str_c("[", 
                                round(lowerCL_perc, digits = 3), 
                                ", ", 
@@ -3699,6 +3712,302 @@ marea_myc_summary %>%
   write.csv("../data/CNPmeta_myc_moderators.csv", row.names = F)
 
 
+##############################################################################
+# Soil moderators - Marea
+##############################################################################
 
+# N addition
+nadd_marea_soil <- rma.mv(logr, 
+                        logr_var,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ background_n_mgkg + olsenP_mgkg,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results %>% 
+                          filter(manip_type == "n" & 
+                                   myvar == "lma" & 
+                                   !is.na(olsenP_mgkg)))
 
+nadd_marea_soil_summary <- data.frame(trait = "marea",
+                                      nut_add = "n",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(nadd_marea_soil)),
+                                      row.names = NULL)
 
+# P addition
+padd_marea_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "p" & 
+                                     myvar == "lma" & 
+                                     !is.na(olsenP_mgkg)))
+
+padd_marea_soil_summary <- data.frame(trait = "marea",
+                                      nut_add = "p",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(padd_marea_soil)),
+                                      row.names = NULL)
+
+# N+P addition
+npadd_marea_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "np" & 
+                                     myvar == "lma" & 
+                                     !is.na(olsenP_mgkg)))
+
+npadd_marea_soil_summary <- data.frame(trait = "marea",
+                                      nut_add = "np",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(npadd_marea_soil)),
+                                      row.names = NULL)
+
+## Merge moderator results, with some light cleaning
+marea_soil_summary <- rbind(npadd_marea_soil_summary, 
+                            padd_marea_soil_summary, 
+                            npadd_marea_soil_summary) %>%
+  mutate(estimate = round(estimate, digits = 3),
+         across(zval:ci.ub, ~ round(.x, digits = 3)),
+         pval = as.character(ifelse(pval < 0.001, "<0.001", pval)))
+
+##############################################################################
+# Soil moderators - Nmass
+##############################################################################
+
+# N addition
+nadd_nmass_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "n" & 
+                                     myvar == "leaf_n_mass" & 
+                                     !is.na(olsenP_mgkg)))
+
+nadd_nmass_soil_summary <- data.frame(trait = "nmass",
+                                      nut_add = "n",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(nadd_nmass_soil)),
+                                      row.names = NULL)
+
+# P addition
+padd_nmass_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "p" & 
+                                     myvar == "leaf_n_mass" & 
+                                     !is.na(olsenP_mgkg)))
+
+padd_nmass_soil_summary <- data.frame(trait = "nmass",
+                                      nut_add = "p",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(padd_nmass_soil)),
+                                      row.names = NULL)
+
+# N+P addition
+npadd_nmass_soil <- rma.mv(logr, 
+                           logr_var,
+                           method = "REML", 
+                           random = ~ 1 | exp, 
+                           mods = ~ background_n_mgkg + olsenP_mgkg,
+                           slab = exp, 
+                           control = list(stepadj = 0.3), 
+                           data = meta_results %>% 
+                             filter(manip_type == "np" & 
+                                      myvar == "leaf_n_mass" & 
+                                      !is.na(olsenP_mgkg)))
+
+npadd_nmass_soil_summary <- data.frame(trait = "nmass",
+                                       nut_add = "np",
+                                       mod = c("intrcpt", 
+                                               "background_n_mgkg",
+                                               "olsenP_mgkg"),
+                                       coef(summary(npadd_nmass_soil)),
+                                       row.names = NULL)
+
+## Merge moderator results, with some light cleaning
+nmass_soil_summary <- rbind(npadd_nmass_soil_summary, 
+                            padd_nmass_soil_summary, 
+                            npadd_nmass_soil_summary) %>%
+  mutate(estimate = round(estimate, digits = 3),
+         across(zval:ci.ub, ~ round(.x, digits = 3)),
+         pval = as.character(ifelse(pval < 0.001, "<0.001", pval)))
+
+##############################################################################
+# Soil moderators - Narea
+##############################################################################
+
+# N addition
+nadd_narea_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "n" & 
+                                     myvar == "leaf_n_area" & 
+                                     !is.na(olsenP_mgkg)))
+
+nadd_narea_soil_summary <- data.frame(trait = "narea",
+                                      nut_add = "n",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(nadd_narea_soil)),
+                                      row.names = NULL)
+
+# P addition
+padd_narea_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "p" & 
+                                     myvar == "leaf_n_area" & 
+                                     !is.na(olsenP_mgkg)))
+
+padd_narea_soil_summary <- data.frame(trait = "narea",
+                                      nut_add = "p",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(padd_narea_soil)),
+                                      row.names = NULL)
+
+# N+P addition
+npadd_narea_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "np" & 
+                                     myvar == "leaf_n_area" & 
+                                     !is.na(olsenP_mgkg)))
+
+npadd_narea_soil_summary <- data.frame(trait = "narea",
+                                       nut_add = "np",
+                                       mod = c("intrcpt", 
+                                               "background_n_mgkg",
+                                               "olsenP_mgkg"),
+                                       coef(summary(npadd_narea_soil)),
+                                       row.names = NULL)
+
+## Merge moderator results, with some light cleaning
+narea_soil_summary <- rbind(npadd_narea_soil_summary, 
+                            padd_narea_soil_summary, 
+                            npadd_narea_soil_summary) %>%
+  mutate(estimate = round(estimate, digits = 3),
+         across(zval:ci.ub, ~ round(.x, digits = 3)),
+         pval = as.character(ifelse(pval < 0.001, "<0.001", pval)))
+
+##############################################################################
+# Soil moderators - Pmass
+##############################################################################
+
+# N addition
+nadd_pmass_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "n" & 
+                                     myvar == "leaf_p_mass" & 
+                                     !is.na(olsenP_mgkg)))
+
+nadd_pmass_soil_summary <- data.frame(trait = "pmass",
+                                      nut_add = "n",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(nadd_pmass_soil)),
+                                      row.names = NULL)
+
+# P addition
+padd_pmass_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "p" & 
+                                     myvar == "leaf_p_mass" & 
+                                     !is.na(olsenP_mgkg)))
+
+padd_narea_soil_summary <- data.frame(trait = "narea",
+                                      nut_add = "p",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(padd_pmass_soil)),
+                                      row.names = NULL)
+
+# N+P addition
+npadd_pmass_soil <- rma.mv(logr, 
+                           logr_var,
+                           method = "REML", 
+                           random = ~ 1 | exp, 
+                           mods = ~ background_n_mgkg + olsenP_mgkg,
+                           slab = exp, 
+                           control = list(stepadj = 0.3), 
+                           data = meta_results %>% 
+                             filter(manip_type == "np" & 
+                                      myvar == "leaf_p_mass" & 
+                                      !is.na(olsenP_mgkg)))
+
+npadd_pmass_soil_summary <- data.frame(trait = "pmass",
+                                       nut_add = "np",
+                                       mod = c("intrcpt", 
+                                               "background_n_mgkg",
+                                               "olsenP_mgkg"),
+                                       coef(summary(npadd_pmass_soil)),
+                                       row.names = NULL)
+
+## Merge moderator results, with some light cleaning
+narea_soil_summary <- rbind(npadd_pmass_soil_summary, 
+                            padd_pmass_soil_summary, 
+                            npadd_pmass_soil_summary) %>%
+  mutate(estimate = round(estimate, digits = 3),
+         across(zval:ci.ub, ~ round(.x, digits = 3)),
+         pval = as.character(ifelse(pval < 0.001, "<0.001", pval)))

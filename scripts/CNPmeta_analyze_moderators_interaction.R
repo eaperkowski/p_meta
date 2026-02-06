@@ -22,7 +22,7 @@ head(meta_results_int)
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "lma" & !is.na(gs_mat)) %>%
+  filter(response == "lma" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -36,7 +36,7 @@ int_marea_clim <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "lma" & 
+                           filter(response == "lma" & 
                                     !is.na(gs_mat) & dNPi < 2))
 
 # Summary
@@ -53,7 +53,7 @@ int_marea_clim_summary <- data.frame(trait = "marea",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "leaf_n_mass" & !is.na(gs_mat)) %>%
+  filter(response == "leaf_n_mass" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -67,7 +67,7 @@ int_nmass_clim <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_n_mass" & 
+                           filter(response == "leaf_n_mass" & 
                                     !is.na(gs_mat) & dNPi > -2))
 
 # Summary
@@ -84,7 +84,7 @@ int_nmass_clim_summary <- data.frame(trait = "nmass",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "leaf_n_area" & !is.na(gs_mat)) %>%
+  filter(response == "leaf_n_area" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -98,8 +98,8 @@ int_narea_clim <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_n_area" & 
-                                    !is.na(gs_mat) & dNPi < 2))
+                           filter(response == "leaf_n_area" & 
+                                    !is.na(gs_mat)))
 
 # Summary
 int_narea_clim_summary <- data.frame(trait = "narea",
@@ -115,7 +115,7 @@ int_narea_clim_summary <- data.frame(trait = "narea",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "leaf_p_mass" & !is.na(gs_mat)) %>%
+  filter(response == "leaf_p_mass" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -129,9 +129,8 @@ int_pmass_clim <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_p_mass" & 
+                           filter(response == "leaf_p_mass" & 
                                     !is.na(gs_mat)))
-
 
 # Summary
 int_pmass_clim_summary <- data.frame(trait = "pmass",
@@ -147,7 +146,7 @@ int_pmass_clim_summary <- data.frame(trait = "pmass",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "leaf_p_area" & !is.na(gs_mat)) %>%
+  filter(response == "leaf_p_area" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -161,7 +160,7 @@ int_parea_clim <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_p_area" & 
+                           filter(response == "leaf_p_area" & 
                                     !is.na(gs_mat) & dNPi < 2))
 
 # Summary
@@ -178,7 +177,7 @@ int_parea_clim_summary <- data.frame(trait = "parea",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "leaf_np" & !is.na(gs_mat)) %>%
+  filter(response == "leaf_np" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -192,7 +191,7 @@ int_leafnp_clim <- rma.mv(yi = dNPi,
                              slab = exp, 
                              control = list(stepadj = 0.3), 
                              data = meta_results_int %>% 
-                               filter(myvar == "leaf_np" & 
+                               filter(response == "leaf_np" & 
                                         !is.na(gs_mat)))
 
 # Summary
@@ -210,7 +209,7 @@ int_leafnp_clim_summary <- data.frame(trait = "leaf_np",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "total_biomass" & !is.na(gs_mat)) %>%
+  filter(response == "tbio_gm2" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -224,11 +223,11 @@ int_tbio_clim <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "total_biomass" & 
+                           filter(response == "tbio_gm2" & 
                                     !is.na(gs_mat)))
 
 # Summary
-int_tbio_clim_summary <- data.frame(trait = "tbio",
+int_tbio_clim_summary <- data.frame(trait = "tbio_gm2",
                                      nut_add = "int",
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
@@ -241,12 +240,12 @@ int_tbio_clim_summary <- data.frame(trait = "tbio",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "agb" & !is.na(gs_mat)) %>%
+  filter(response == "anpp" & !is.na(gs_mat) & dNPi < 2 & dNPi > -2) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
 # Model
-int_agb_clim <- rma.mv(yi = dNPi,
+int_anpp_clim <- rma.mv(yi = dNPi,
                         V = vNPi,
                         W = wNPi,
                         method = "REML", 
@@ -255,15 +254,15 @@ int_agb_clim <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "agb" & 
-                                   !is.na(gs_mat) & dNPi < 2))
+                          filter(response == "anpp" & 
+                                   !is.na(gs_mat) & dNPi < 2 & dNPi > -2))
 
 # Summary
-int_agb_clim_summary <- data.frame(trait = "agb",
+int_anpp_clim_summary <- data.frame(trait = "anpp",
                                     nut_add = "int",
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
-                                    coef(summary(int_agb_clim)),
+                                    coef(summary(int_anpp_clim)),
                                     row.names = NULL)
 
 ##############################################################################
@@ -272,12 +271,12 @@ int_agb_clim_summary <- data.frame(trait = "agb",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "bgb" & !is.na(gs_mat)) %>%
+  filter(response == "bnpp" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
 # Model
-int_bgb_clim <- rma.mv(yi = dNPi,
+int_bnpp_clim <- rma.mv(yi = dNPi,
                        V = vNPi,
                        W = wNPi,
                        method = "REML", 
@@ -286,15 +285,15 @@ int_bgb_clim <- rma.mv(yi = dNPi,
                        slab = exp, 
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
-                         filter(myvar == "bgb" & 
+                         filter(response == "bgb" & 
                                   !is.na(gs_mat)))
 
 # Summary
-int_bgb_clim_summary <- data.frame(trait = "bgb",
+int_bnpp_clim_summary <- data.frame(trait = "bnpp",
                                    nut_add = "int",
                                    mod = c("intrcpt", "gs_mat",
                                            "gs_ai", "gs_par"),
-                                   coef(summary(int_bgb_clim)),
+                                   coef(summary(int_bnpp_clim)),
                                    row.names = NULL)
 
 ##############################################################################
@@ -303,7 +302,7 @@ int_bgb_clim_summary <- data.frame(trait = "bgb",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "rmf" & !is.na(gs_mat)) %>%
+  filter(response == "rmf" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -317,7 +316,7 @@ int_rmf_clim <- rma.mv(yi = dNPi,
                        slab = exp, 
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
-                         filter(myvar == "rmf" & 
+                         filter(response == "rmf" & 
                                   !is.na(gs_mat)))
 
 # Summary
@@ -334,7 +333,7 @@ int_rmf_clim_summary <- data.frame(trait = "rmf",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(myvar == "rootshoot" & !is.na(gs_mat)) %>%
+  filter(response == "rootshoot" & !is.na(gs_mat)) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -348,7 +347,7 @@ int_rootshoot_clim <- rma.mv(yi = dNPi,
                              slab = exp, 
                              control = list(stepadj = 0.3), 
                              data = meta_results_int %>% 
-                               filter(myvar == "rootshoot" & 
+                               filter(response == "rootshoot" & 
                                         !is.na(gs_mat)))
 
 # Summary
@@ -369,8 +368,8 @@ int_marea_clim_summary %>%
   full_join(int_parea_clim_summary) %>%
   full_join(int_leafnp_clim_summary) %>%
   full_join(int_tbio_clim_summary) %>%
-  full_join(int_agb_clim_summary) %>%
-  full_join(int_bgb_clim_summary) %>%
+  full_join(int_anpp_clim_summary) %>%
+  full_join(int_bnpp_clim_summary) %>%
   full_join(int_rmf_clim_summary) %>%
   full_join(int_rootshoot_clim_summary) %>%
   mutate(estimate_perc = (exp(estimate) - 1) * 100,
@@ -398,7 +397,7 @@ int_marea_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "lma" & 
+                            filter(response == "lma" & 
                                      !is.na(photo_path)))
 
 # Model summary
@@ -425,7 +424,7 @@ int_nmass_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "leaf_n_mass" & 
+                            filter(response == "leaf_n_mass" & 
                                      !is.na(photo_path)))
 
 # Model summary
@@ -452,7 +451,7 @@ int_narea_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "leaf_n_area" & 
+                            filter(response == "leaf_n_area" & 
                                      !is.na(photo_path)))
 
 # Model summary
@@ -479,7 +478,7 @@ int_pmass_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "leaf_p_mass" & 
+                            filter(response == "leaf_p_mass" & 
                                      !is.na(photo_path)))
 
 # Model summary
@@ -506,7 +505,7 @@ int_parea_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "leaf_p_area" & 
+                            filter(response == "leaf_p_area" & 
                                      !is.na(photo_path)))
 
 # Model summary
@@ -534,7 +533,7 @@ int_leafnp_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "leaf_np" & 
+                            filter(response == "leaf_np" & 
                                      !is.na(photo_path)))
 
 
@@ -563,7 +562,7 @@ int_asat_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "asat" & 
+                            filter(response == "asat" & 
                                      !is.na(photo_path)))
 
 # Model summary
@@ -590,7 +589,7 @@ int_vcmax_photo <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "vcmax" & 
+                           filter(response == "vcmax" & 
                                     !is.na(photo_path)))
 
 # Model summary
@@ -617,7 +616,7 @@ int_jmax_photo <- rma.mv(yi = dNPi,
                           slab = exp, 
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
-                            filter(myvar == "jmax" & 
+                            filter(response == "jmax" & 
                                      !is.na(photo_path)))
 
 # Model summary
@@ -644,7 +643,7 @@ int_pnue_photo <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_pnue" & 
+                           filter(response == "leaf_pnue" & 
                                     !is.na(photo_path)))
 
 # Model summary
@@ -671,7 +670,7 @@ int_ppue_photo <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_ppue" & 
+                           filter(response == "leaf_ppue" & 
                                     !is.na(photo_path)))
 
 # Model summary
@@ -698,7 +697,7 @@ int_tbio_photo <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "total_biomass" & 
+                           filter(response == "total_biomass" & 
                                     !is.na(photo_path)))
 
 # Model summary
@@ -716,7 +715,7 @@ int_tbio_photo_summary <- data.frame(trait = "total_biomass",
 ##############################################################################
 
 # Model
-int_agb_photo <- rma.mv(yi = dNPi,
+int_anpp_photo <- rma.mv(yi = dNPi,
                          V = vNPi,
                          W = wNPi,
                          method = "REML", 
@@ -725,17 +724,17 @@ int_agb_photo <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "agb" & 
+                           filter(response == "anpp" & 
                                     !is.na(photo_path)))
 
 # Model summary
-int_agb_photo_summary <- data.frame(trait = "agb", 
+int_anpp_photo_summary <- data.frame(trait = "anpp", 
                                      nut_add = "int",
-                                     mod_results(int_agb_photo, 
+                                     mod_results(int_anpp_photo, 
                                                  mod = "photo_path", 
                                                  group = "exp")$mod_table,
-                                     z = coef(summary(int_agb_photo))[2,3],
-                                     p = coef(summary(int_agb_photo))[2, 4]) %>%
+                                     z = coef(summary(int_anpp_photo))[2,3],
+                                     p = coef(summary(int_anpp_photo))[2, 4]) %>%
   dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
 
 
@@ -744,7 +743,7 @@ int_agb_photo_summary <- data.frame(trait = "agb",
 ##############################################################################
 
 # Model
-int_bgb_photo <- rma.mv(yi = dNPi,
+int_bnpp_photo <- rma.mv(yi = dNPi,
                         V = vNPi,
                         W = wNPi,
                         method = "REML", 
@@ -753,17 +752,17 @@ int_bgb_photo <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "bgb" & 
+                          filter(response == "bnpp" & 
                                    !is.na(photo_path)))
 
 # Model summary
-int_bgb_photo_summary <- data.frame(trait = "bgb", 
+int_bnpp_photo_summary <- data.frame(trait = "bnpp", 
                                     nut_add = "int",
-                                    mod_results(int_bgb_photo, 
+                                    mod_results(int_bnpp_photo, 
                                                 mod = "photo_path", 
                                                 group = "exp")$mod_table,
-                                    z = coef(summary(int_bgb_photo))[2,3],
-                                    p = coef(summary(int_bgb_photo))[2, 4]) %>%
+                                    z = coef(summary(int_bnpp_photo))[2,3],
+                                    p = coef(summary(int_bnpp_photo))[2, 4]) %>%
   dplyr::select(trait, nut_add, photo = name, estimate, z, p, lowerCL, upperCL)
 
 ##############################################################################
@@ -781,8 +780,8 @@ int_marea_photo_summary %>%
   full_join(int_pnue_photo_summary) %>%
   full_join(int_ppue_photo_summary) %>%
   full_join(int_tbio_photo_summary) %>%
-  full_join(int_agb_photo_summary) %>%
-  full_join(int_bgb_photo_summary) %>%
+  full_join(int_anpp_photo_summary) %>%
+  full_join(int_bnpp_photo_summary) %>%
   mutate(estimate_perc = (exp(estimate) - 1) * 100,
          lowerCL_perc = (exp(lowerCL) - 1) * 100,
          upperCL_perc = (exp(upperCL) - 1) * 100,
@@ -805,7 +804,7 @@ int_marea_nfix <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "lma" & 
+                           filter(response == "lma" & 
                                     !is.na(n_fixer)))
 
 # Model summary
@@ -832,7 +831,7 @@ int_nmass_nfix <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_n_mass" & 
+                           filter(response == "leaf_n_mass" & 
                                     !is.na(n_fixer)))
 
 # Model summary
@@ -859,7 +858,7 @@ int_narea_nfix <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_n_area" & 
+                           filter(response == "leaf_n_area" & 
                                     !is.na(n_fixer)))
 
 # Model summary
@@ -886,7 +885,7 @@ int_pmass_nfix <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_p_mass" & 
+                           filter(response == "leaf_p_mass" & 
                                     !is.na(n_fixer)))
 
 # Model summary
@@ -913,7 +912,7 @@ int_parea_nfix <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "leaf_p_area" & 
+                           filter(response == "leaf_p_area" & 
                                     !is.na(n_fixer)))
 
 # Model summary
@@ -940,7 +939,7 @@ int_leafnp_nfix <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "leaf_np" & 
+                          filter(response == "leaf_np" & 
                                    !is.na(n_fixer)))
 
 # Model summary
@@ -967,7 +966,7 @@ int_asat_nfix <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "asat" & 
+                           filter(response == "asat" & 
                                     !is.na(n_fixer)))
 
 # Model summary
@@ -994,7 +993,7 @@ int_vcmax_nfix <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "vcmax" & 
+                           filter(response == "vcmax" & 
                                     !is.na(n_fixer)))
 
 # Model summary
@@ -1021,7 +1020,7 @@ int_jmax_nfix <- rma.mv(yi = dNPi,
                          slab = exp, 
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
-                           filter(myvar == "jmax" & 
+                           filter(response == "jmax" & 
                                     !is.na(n_fixer)))
 
 # Model summary
@@ -1048,7 +1047,7 @@ int_pnue_nfix <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "leaf_pnue" & 
+                          filter(response == "leaf_pnue" & 
                                    !is.na(n_fixer)))
 
 # Model summary
@@ -1075,7 +1074,7 @@ int_ppue_nfix <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "leaf_ppue" & 
+                          filter(response == "leaf_ppue" & 
                                    !is.na(n_fixer)))
 
 # Model summary
@@ -1107,7 +1106,7 @@ int_marea_nfix_summary %>%
          upperCL_perc = (exp(upperCL) - 1) * 100,
          across(estimate:upperCL_perc, ~round(.x, 3)),
          ci.range = str_c("[", lowerCL, ", ", upperCL, "]"),
-         ci.range_perc = str_c("[", lowerCL_perc, ", ", upperCL_perc, "]"))
+         ci.range_perc = str_c("[", lowerCL_perc, ", ", upperCL_perc, "]")) %>%
   write.csv("../data/CNPmeta_nfix_moderators_int.csv", row.names = F)
 
 
@@ -1125,7 +1124,7 @@ int_marea_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "lma" & 
+                          filter(response == "lma" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1152,7 +1151,7 @@ int_nmass_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "leaf_n_mass" & 
+                          filter(response == "leaf_n_mass" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1179,7 +1178,7 @@ int_narea_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "leaf_n_area" & 
+                          filter(response == "leaf_n_area" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1206,7 +1205,7 @@ int_pmass_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "leaf_p_mass" & 
+                          filter(response == "leaf_p_mass" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1233,7 +1232,7 @@ int_parea_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "leaf_p_area" & 
+                          filter(response == "leaf_p_area" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1260,7 +1259,7 @@ int_leafnp_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "leaf_np" & 
+                          filter(response == "leaf_np" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1287,7 +1286,7 @@ int_asat_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "asat" & 
+                          filter(response == "asat" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1314,7 +1313,7 @@ int_vcmax_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "vcmax" & 
+                          filter(response == "vcmax" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1341,7 +1340,7 @@ int_jmax_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "jmax" & 
+                          filter(response == "jmax" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1368,7 +1367,7 @@ int_pnue_myc <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(myvar == "leaf_pnue" & 
+                          filter(response == "leaf_pnue" & 
                                    !is.na(myc_nas)))
 
 # Model summary
@@ -1395,7 +1394,7 @@ int_ppue_myc <- rma.mv(yi = dNPi,
                        slab = exp, 
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
-                         filter(myvar == "leaf_ppue" & 
+                         filter(response == "leaf_ppue" & 
                                   !is.na(myc_nas)))
 
 # Model summary
