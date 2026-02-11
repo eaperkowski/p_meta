@@ -3975,7 +3975,7 @@ padd_pmass_soil <- rma.mv(logr,
                                      myvar == "leaf_p_mass" & 
                                      !is.na(olsenP_mgkg)))
 
-padd_narea_soil_summary <- data.frame(trait = "narea",
+padd_pmass_soil_summary <- data.frame(trait = "pmass",
                                       nut_add = "p",
                                       mod = c("intrcpt", 
                                               "background_n_mgkg",
@@ -4005,9 +4005,476 @@ npadd_pmass_soil_summary <- data.frame(trait = "pmass",
                                        row.names = NULL)
 
 ## Merge moderator results, with some light cleaning
-narea_soil_summary <- rbind(npadd_pmass_soil_summary, 
+pmass_soil_summary <- rbind(npadd_pmass_soil_summary, 
                             padd_pmass_soil_summary, 
                             npadd_pmass_soil_summary) %>%
   mutate(estimate = round(estimate, digits = 3),
          across(zval:ci.ub, ~ round(.x, digits = 3)),
          pval = as.character(ifelse(pval < 0.001, "<0.001", pval)))
+
+##############################################################################
+# Soil moderators - Parea
+##############################################################################
+
+# N addition
+nadd_parea_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "n" & 
+                                     myvar == "leaf_p_area" & 
+                                     !is.na(olsenP_mgkg)))
+
+nadd_parea_soil_summary <- data.frame(trait = "parea",
+                                      nut_add = "n",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(nadd_parea_soil)),
+                                      row.names = NULL)
+
+# P addition
+padd_parea_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "p" & 
+                                     myvar == "leaf_p_area" & 
+                                     !is.na(olsenP_mgkg)))
+
+padd_parea_soil_summary <- data.frame(trait = "parea",
+                                      nut_add = "p",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(padd_parea_soil)),
+                                      row.names = NULL)
+
+# N+P addition
+npadd_parea_soil <- rma.mv(logr, 
+                           logr_var,
+                           method = "REML", 
+                           random = ~ 1 | exp, 
+                           mods = ~ background_n_mgkg + olsenP_mgkg,
+                           slab = exp, 
+                           control = list(stepadj = 0.3), 
+                           data = meta_results %>% 
+                             filter(manip_type == "np" & 
+                                      myvar == "leaf_p_area" & 
+                                      !is.na(olsenP_mgkg)))
+
+npadd_parea_soil_summary <- data.frame(trait = "parea",
+                                       nut_add = "np",
+                                       mod = c("intrcpt", 
+                                               "background_n_mgkg",
+                                               "olsenP_mgkg"),
+                                       coef(summary(npadd_parea_soil)),
+                                       row.names = NULL)
+
+## Merge moderator results, with some light cleaning
+parea_soil_summary <- rbind(npadd_parea_soil_summary, 
+                            padd_parea_soil_summary, 
+                            npadd_parea_soil_summary) %>%
+  mutate(estimate = round(estimate, digits = 3),
+         across(zval:ci.ub, ~ round(.x, digits = 3)),
+         pval = as.character(ifelse(pval < 0.001, "<0.001", pval)))
+
+##############################################################################
+# Soil moderators - leaf N:P
+##############################################################################
+
+# N addition
+nadd_leafnp_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "n" & 
+                                     myvar == "leaf_np" & 
+                                     !is.na(olsenP_mgkg)))
+
+nadd_leafnp_soil_summary <- data.frame(trait = "leaf_np",
+                                      nut_add = "n",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(nadd_leafnp_soil)),
+                                      row.names = NULL)
+
+# P addition
+padd_leafnp_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "p" & 
+                                     myvar == "leaf_np" & 
+                                     !is.na(olsenP_mgkg)))
+
+padd_leafnp_soil_summary <- data.frame(trait = "leaf_np",
+                                      nut_add = "p",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(padd_leafnp_soil)),
+                                      row.names = NULL)
+
+# N+P addition
+npadd_leafnp_soil <- rma.mv(logr, 
+                           logr_var,
+                           method = "REML", 
+                           random = ~ 1 | exp, 
+                           mods = ~ background_n_mgkg + olsenP_mgkg,
+                           slab = exp, 
+                           control = list(stepadj = 0.3), 
+                           data = meta_results %>% 
+                             filter(manip_type == "np" & 
+                                      myvar == "leaf_p_mass" & 
+                                      !is.na(olsenP_mgkg)))
+
+npadd_leafnp_soil_summary <- data.frame(trait = "leaf_np",
+                                       nut_add = "np",
+                                       mod = c("intrcpt", 
+                                               "background_n_mgkg",
+                                               "olsenP_mgkg"),
+                                       coef(summary(npadd_leafnp_soil)),
+                                       row.names = NULL)
+
+## Merge moderator results, with some light cleaning
+leafnp_soil_summary <- rbind(npadd_leafnp_soil_summary, 
+                            padd_leafnp_soil_summary, 
+                            npadd_leafnp_soil_summary) %>%
+  mutate(estimate = round(estimate, digits = 3),
+         across(zval:ci.ub, ~ round(.x, digits = 3)),
+         pval = as.character(ifelse(pval < 0.001, "<0.001", pval)))
+
+##############################################################################
+# Soil moderators - anpp
+##############################################################################
+
+# N addition
+nadd_anpp_soil <- rma.mv(logr, 
+                           logr_var,
+                           method = "REML", 
+                           random = ~ 1 | exp, 
+                           mods = ~ background_n_mgkg + olsenP_mgkg,
+                           slab = exp, 
+                           control = list(stepadj = 0.3), 
+                           data = meta_results %>% 
+                             filter(manip_type == "n" & 
+                                      myvar == "anpp" & 
+                                      !is.na(olsenP_mgkg)))
+
+nadd_anpp_soil_summary <- data.frame(trait = "anpp",
+                                       nut_add = "n",
+                                       mod = c("intrcpt", 
+                                               "background_n_mgkg",
+                                               "olsenP_mgkg"),
+                                       coef(summary(nadd_anpp_soil)),
+                                       row.names = NULL)
+
+# P addition
+padd_anpp_soil <- rma.mv(logr, 
+                           logr_var,
+                           method = "REML", 
+                           random = ~ 1 | exp, 
+                           mods = ~ background_n_mgkg + olsenP_mgkg,
+                           slab = exp, 
+                           control = list(stepadj = 0.3), 
+                           data = meta_results %>% 
+                             filter(manip_type == "p" & 
+                                      myvar == "anpp" & 
+                                      !is.na(olsenP_mgkg)))
+
+padd_anpp_soil_summary <- data.frame(trait = "anpp",
+                                       nut_add = "p",
+                                       mod = c("intrcpt", 
+                                               "background_n_mgkg",
+                                               "olsenP_mgkg"),
+                                       coef(summary(padd_anpp_soil)),
+                                       row.names = NULL)
+
+# N+P addition
+npadd_anpp_soil <- rma.mv(logr, 
+                            logr_var,
+                            method = "REML", 
+                            random = ~ 1 | exp, 
+                            mods = ~ background_n_mgkg + olsenP_mgkg,
+                            slab = exp, 
+                            control = list(stepadj = 0.3), 
+                            data = meta_results %>% 
+                              filter(manip_type == "np" & 
+                                       myvar == "anpp" & 
+                                       !is.na(olsenP_mgkg)))
+
+npadd_anpp_soil_summary <- data.frame(trait = "anpp",
+                                        nut_add = "np",
+                                        mod = c("intrcpt", 
+                                                "background_n_mgkg",
+                                                "olsenP_mgkg"),
+                                        coef(summary(npadd_anpp_soil)),
+                                        row.names = NULL)
+
+## Merge moderator results, with some light cleaning
+anpp_soil_summary <- rbind(npadd_anpp_soil_summary, 
+                             padd_anpp_soil_summary, 
+                             npadd_anpp_soil_summary) %>%
+  mutate(estimate = round(estimate, digits = 3),
+         across(zval:ci.ub, ~ round(.x, digits = 3)),
+         pval = as.character(ifelse(pval < 0.001, "<0.001", pval)))
+
+##############################################################################
+# Belowground biomass climate moderators
+##############################################################################
+
+# N addition
+nadd_bnpp_soil <- rma.mv(logr, 
+                         logr_var,
+                         method = "REML", 
+                         random = ~ 1 | exp, 
+                         mods = ~ background_n_mgkg + olsenP_mgkg,
+                         slab = exp, 
+                         control = list(stepadj = 0.3), 
+                         data = meta_results %>% 
+                           filter(manip_type == "n" & 
+                                    myvar == "bnpp" & 
+                                    !is.na(olsenP_mgkg)))
+
+nadd_bnpp_soil_summary <- data.frame(trait = "bnpp",
+                                     nut_add = "n",
+                                     mod = c("intrcpt", 
+                                             "background_n_mgkg",
+                                             "olsenP_mgkg"),
+                                     coef(summary(nadd_bnpp_soil)),
+                                     row.names = NULL)
+
+# P addition
+padd_bnpp_soil <- rma.mv(logr, 
+                         logr_var,
+                         method = "REML", 
+                         random = ~ 1 | exp, 
+                         mods = ~ background_n_mgkg + olsenP_mgkg,
+                         slab = exp, 
+                         control = list(stepadj = 0.3), 
+                         data = meta_results %>% 
+                           filter(manip_type == "p" & 
+                                    myvar == "bnpp" & 
+                                    !is.na(olsenP_mgkg)))
+
+padd_bnpp_soil_summary <- data.frame(trait = "bnpp",
+                                     nut_add = "p",
+                                     mod = c("intrcpt", 
+                                             "background_n_mgkg",
+                                             "olsenP_mgkg"),
+                                     coef(summary(padd_bnpp_soil)),
+                                     row.names = NULL)
+
+# N+P addition
+npadd_bnpp_soil <- rma.mv(logr, 
+                         logr_var,
+                         method = "REML", 
+                         random = ~ 1 | exp, 
+                         mods = ~ background_n_mgkg + olsenP_mgkg,
+                         slab = exp, 
+                         control = list(stepadj = 0.3), 
+                         data = meta_results %>% 
+                           filter(manip_type == "np" & 
+                                    myvar == "bnpp" & 
+                                    !is.na(olsenP_mgkg)))
+
+npadd_bnpp_soil_summary <- data.frame(trait = "bnpp",
+                                     nut_add = "np",
+                                     mod = c("intrcpt", 
+                                             "background_n_mgkg",
+                                             "olsenP_mgkg"),
+                                     coef(summary(npadd_bnpp_soil)),
+                                     row.names = NULL)
+
+## Merge Parea moderator results, with some light cleaning
+bnpp_soil_summary <- rbind(nadd_bnpp_soil_summary, 
+                          padd_bnpp_soil_summary, 
+                          npadd_bnpp_soil_summary) %>%
+  mutate(across(estimate:se, ~ round(.x, digits = 4)),
+         across(zval:ci.ub, ~ round(.x, digits = 4)))
+
+##############################################################################
+# Root mass fraction climate moderators
+##############################################################################
+
+# N addition
+nadd_rmf_soil <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ background_n_mgkg + olsenP_mgkg,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(manip_type == "n" & 
+                                     myvar == "rmf" & 
+                                     !is.na(olsenP_mgkg)))
+
+nadd_rmf_soil_summary <- data.frame(trait = "rmf",
+                                      nut_add = "np",
+                                      mod = c("intrcpt", 
+                                              "background_n_mgkg",
+                                              "olsenP_mgkg"),
+                                      coef(summary(nadd_rmf_soil)),
+                                      row.names = NULL)
+
+# P addition
+padd_rmf_clim <- rma.mv(logr, 
+                        logr_var,
+                        method = "REML", 
+                        random = ~ 1 | exp, 
+                        mods = ~ gs_mat + gs_ai + gs_par,
+                        slab = exp, 
+                        control = list(stepadj = 0.3), 
+                        data = meta_results %>% 
+                          filter(manip_type == "p" & 
+                                   myvar == "rmf" & 
+                                   !is.na(gs_mat)))
+
+padd_rmf_clim_summary <- data.frame(trait = "rmf",
+                                    nut_add = "p",
+                                    mod = c("intrcpt", "gs_mat",
+                                            "gs_ai", "gs_par"),
+                                    coef(summary(padd_rmf_clim)),
+                                    row.names = NULL)
+
+# N+P addition
+npadd_rmf_clim <- rma.mv(logr, 
+                         logr_var,
+                         method = "REML", 
+                         random = ~ 1 | exp, 
+                         mods = ~ gs_mat + gs_ai + gs_par,
+                         slab = exp, 
+                         control = list(stepadj = 0.3), 
+                         data = meta_results %>% 
+                           filter(manip_type == "np" & 
+                                    myvar == "rmf" & 
+                                    !is.na(gs_mat)))
+
+npadd_rmf_clim_summary <- data.frame(trait = "rmf",
+                                     nut_add = "np",
+                                     mod = c("intrcpt", "gs_mat",
+                                             "gs_ai", "gs_par"),
+                                     coef(summary(npadd_rmf_clim)),
+                                     row.names = NULL)
+
+## Merge Parea moderator results, with some light cleaning
+rmf_clim_summary <- rbind(nadd_rmf_clim_summary, 
+                          padd_rmf_clim_summary, 
+                          npadd_rmf_clim_summary) %>%
+  mutate(across(estimate:se, ~ round(.x, digits = 4)),
+         across(zval:ci.ub, ~ round(.x, digits = 4)))
+
+##############################################################################
+# Root:shoot climate moderators
+##############################################################################
+
+# N addition
+nadd_rootshoot_clim <- rma.mv(logr, 
+                              logr_var,
+                              method = "REML", 
+                              random = ~ 1 | exp, 
+                              mods = ~ gs_mat + gs_ai + gs_par,
+                              slab = exp, 
+                              control = list(stepadj = 0.3), 
+                              data = meta_results %>% 
+                                filter(manip_type == "n" & 
+                                         myvar == "rootshoot" & 
+                                         !is.na(gs_mat)))
+
+nadd_rootshoot_clim_summary <- data.frame(trait = "rootshoot",
+                                          nut_add = "n",
+                                          mod = c("intrcpt", "gs_mat",
+                                                  "gs_ai", "gs_par"),
+                                          coef(summary(nadd_rootshoot_clim)),
+                                          row.names = NULL)
+
+# P addition
+padd_rootshoot_clim <- rma.mv(logr, 
+                              logr_var,
+                              method = "REML", 
+                              random = ~ 1 | exp, 
+                              mods = ~ gs_mat + gs_ai + gs_par,
+                              slab = exp, 
+                              control = list(stepadj = 0.3), 
+                              data = meta_results %>% 
+                                filter(manip_type == "p" & 
+                                         myvar == "rootshoot" & 
+                                         !is.na(gs_mat)))
+
+padd_rootshoot_clim_summary <- data.frame(trait = "rmf",
+                                          nut_add = "p",
+                                          mod = c("intrcpt", "gs_mat",
+                                                  "gs_ai", "gs_par"),
+                                          coef(summary(padd_rootshoot_clim)),
+                                          row.names = NULL)
+
+# N+P addition
+npadd_rootshoot_clim <- rma.mv(logr, 
+                               logr_var,
+                               method = "REML", 
+                               random = ~ 1 | exp, 
+                               mods = ~ gs_mat + gs_ai + gs_par,
+                               slab = exp, 
+                               control = list(stepadj = 0.3), 
+                               data = meta_results %>% 
+                                 filter(manip_type == "np" & 
+                                          myvar == "rootshoot" & 
+                                          !is.na(gs_mat)))
+
+npadd_rootshoot_clim_summary <- data.frame(trait = "rootshoot",
+                                           nut_add = "np",
+                                           mod = c("intrcpt", "gs_mat",
+                                                   "gs_ai", "gs_par"),
+                                           coef(summary(npadd_rootshoot_clim)),
+                                           row.names = NULL)
+
+## Merge Parea moderator results, with some light cleaning
+rootshoot_clim_summary <- rbind(nadd_rootshoot_clim_summary, 
+                                padd_rootshoot_clim_summary, 
+                                npadd_rootshoot_clim_summary) %>%
+  mutate(across(estimate:se, ~ round(.x, digits = 4)),
+         across(zval:ci.ub, ~ round(.x, digits = 4)))
+
+
+
+
+marea_myc_summary %>%
+  full_join(nmass_myc_summary) %>%
+  full_join(narea_myc_summary) %>%
+  full_join(pmass_myc_summary) %>%
+  full_join(parea_myc_summary) %>%
+  full_join(leafnp_myc_summary) %>%
+  full_join(anpp_soil_summary) %>%
+  mutate(estimate_perc = round((exp(estimate) - 1 ) * 100, digits = 3),
+         lowerCL_perc = round((exp(lowerCL) - 1 ) * 100, digits = 3),
+         upperCL_perc = round((exp(upperCL) - 1 ) * 100, digits = 3),
+         CLrange = str_c("[", 
+                         round(lowerCL, digits = 3), 
+                         ", ", 
+                         round(upperCL, digits = 3), 
+                         "]"),
+         CLrange_perc = str_c("[", 
+                              round(lowerCL_perc, digits = 3), 
+                              ", ", 
+                              round(upperCL_perc, digits = 3), 
+                              "]")) %>%
+  write.csv("../data/CNPmeta_myc_moderators.csv", row.names = F)
