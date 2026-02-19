@@ -30,7 +30,6 @@ species_summary <- full_df %>%
   dplyr::select(species:myc_assoc) %>%
   slice(-1)
 
-
 # How many experiments?
 unique(experiment_summary$citation)
 
@@ -448,9 +447,9 @@ df_box_n %>%
   filter(!is.na(middle)) %>%
   mutate(manip_type = factor(manip_type, levels = c("np", "p", "n")),
          var = factor(var, 
-                        levels = c("rootshoot", "rmf", "bgb", "agb_p", 
-                                   "agb_p_mass", "agb_n", "agb_n_mass",
-                                   "agb", "total_biomass", 
+                        levels = c("rootshoot", "rmf", "bgb", "bnpp", "anpp_p", 
+                                   "anpp_p_mass", "anpp_n", "anpp_n_mass",
+                                   "agb", "anpp", "total_biomass", 
                                    "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax",
                                    "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
                                    "leaf_structural_p", "leaf_nucleic_p", 
@@ -471,14 +470,15 @@ df_box_n %>%
 # Factor interaction effect size variables in a certain order
 df_box_int %>%
   mutate(var = factor(var, 
-                      levels = c("rootshoot", "rmf", "bgb", "agb_p", 
-                                 "agb_n", "agb", "total_biomass", 
-                                 "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax", 
-                                 "jmax", "vcmax", "asat", "leaf_residual_p", 
+                      levels = c("rootshoot", "rmf", "bgb", "bnpp", "anpp_p", 
+                                 "anpp_p_mass", "anpp_n", "anpp_n_mass",
+                                 "agb", "anpp", "total_biomass", 
+                                 "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax",
+                                 "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
                                  "leaf_structural_p", "leaf_nucleic_p", 
-                                 "leaf_metabolic_p", "leaf_sugar_p", "leaf_pi", 
+                                 "leaf_metabolic_p", "leaf_pi", 
                                  "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                 "leaf_n_area", "leaf_n_mass", "lma", "sla")),
+                                 "leaf_n_area", "leaf_n_mass", "lma")),
          int_type = ifelse(var == "leaf_np", 
                            "synergistic",
                            ifelse(var == "agb", 
