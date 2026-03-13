@@ -12,22 +12,22 @@ meta_results_int <- read.csv("../data/CNPmeta_logr_results_int.csv")
 # Load meta-analysis confidence intervals
 meta_ci <- read.csv("../data/CNPmeta_ci.csv") %>%
   filter(var %in% c("leaf_np", "leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
-                    "lma", "leaf_ppue", "leaf_pnue", "jmax_vcmax", "jmax", "vcmax", "asat",
+                    "lma", "leaf_ppue", "leaf_pnue", "jmax_vcmax", "jmax", "vcmax", "gsw", "asat",
                     "rootshoot", "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass")) %>%
   mutate(var = factor(var, levels = c("leaf_np", "leaf_p_area", "leaf_p_mass", 
                                       "leaf_n_area", "leaf_n_mass",
                                       "lma", "leaf_ppue", "leaf_pnue", 
-                                      "jmax_vcmax", "jmax", "vcmax", "asat", "rootshoot",
+                                      "jmax_vcmax", "jmax", "vcmax", "gsw", "asat", "rootshoot",
                                       "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass")))
 
 meta_ci_int <- read.csv("../data/CNPmeta_ci_int.csv") %>%
   filter(var %in% c("leaf_np", "leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
-                    "lma", "leaf_ppue", "leaf_pnue", "jmax_vcmax", "jmax", "vcmax", "asat",
+                    "lma", "leaf_ppue", "leaf_pnue", "jmax_vcmax", "jmax", "vcmax", "gsw", "asat",
                     "rootshoot", "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass")) %>%
   mutate(var = factor(var, levels = c("leaf_np", "leaf_p_area", "leaf_p_mass", 
                                       "leaf_n_area", "leaf_n_mass",
                                       "lma", "leaf_ppue", "leaf_pnue", 
-                                      "jmax_vcmax", "jmax", "vcmax", "asat", "rootshoot",
+                                      "jmax_vcmax", "jmax", "vcmax", "gsw", "asat", "rootshoot",
                                       "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass")))
 
 # Load species moderator results for individual effects
@@ -72,7 +72,7 @@ nadd_chemistry_plot <- ggplot(data = meta_ci %>%
                               expression("N"["mass"]),
                               expression("M"["area"]))) +
   geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
-  scale_y_continuous(limits = c(-0.5, 0.5), breaks = seq(-0.5, 0.5, 0.25)) +
+  scale_y_continuous(limits = c(-1.2, 1.2), breaks = seq(-1.2, 1.2, 0.6)) +
   labs(x = "", 
        y = NULL) +
   coord_flip() +
@@ -86,7 +86,8 @@ nadd_chemistry_plot
 nadd_photo_plot <- ggplot(data = meta_ci %>% 
                             drop_na(var) %>% 
                             filter(manip_type == "n") %>%
-                            filter(var %in% c("asat", 
+                            filter(var %in% c("asat",
+                                              "gsw",
                                               "vcmax", 
                                               "jmax",
                                               "leaf_pnue", 
@@ -94,16 +95,17 @@ nadd_photo_plot <- ggplot(data = meta_ci %>%
                           aes(x = var, y = middle)) +
   geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "red", shape = 21) +
-  geom_text(aes(label = k_sig), y = 95, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 0.95, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
-                              expression("J"["max"]),
-                              expression("V"["cmax"]),
-                              expression("A"["sat"]))) +
+                              expression(italic("J")["max"]),
+                              expression(italic("V")["cmax"]),
+                              expression(italic("g")["sw"]),
+                              expression(italic("A")["sat"]))) +
   scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
   scale_fill_manual(values = "red") +
-  labs(x = "", y = "Response to N addition (%)") +
+  labs(x = "", y = "Log response to N addition") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -125,7 +127,7 @@ nadd_bio_plot <- ggplot(data = meta_ci %>%
                         aes(x = var, y = middle)) +
   geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "red", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 1.8, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
@@ -134,7 +136,7 @@ nadd_bio_plot <- ggplot(data = meta_ci %>%
                               "AGB",
                               "ANPP",
                               "Total biomass")) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
   labs(x = "", 
        y = NULL)  +
   coord_flip() +
@@ -168,7 +170,7 @@ padd_chemistry_plot <- ggplot(data = meta_ci %>%
                               expression("N"["mass"]),
                               expression("M"["area"]))) +
   geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  scale_y_continuous(limits = c(-1.2, 1.2), breaks = seq(-1.2, 1.2, 0.6)) +
   labs(x = "", 
        y = NULL) +
   coord_flip() +
@@ -190,7 +192,7 @@ padd_photo_plot <- ggplot(data = meta_ci %>%
                           aes(x = var, y = middle)) +
   geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 0.95, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
@@ -199,7 +201,7 @@ padd_photo_plot <- ggplot(data = meta_ci %>%
                               expression("A"["sat"]))) +
   scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
   scale_fill_manual(values = "blue") +
-  labs(x = "", y = "Response to P addition (%)") +
+  labs(x = "", y = "Log response to P addition") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -222,7 +224,7 @@ padd_bio_plot <- ggplot(data = meta_ci %>%
   geom_errorbar(aes(ymin = ymin, ymax = ymax), 
                 size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 2, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 1.8, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
@@ -266,7 +268,7 @@ npadd_chemistry_plot <- ggplot(data = meta_ci %>%
                               expression("N"["mass"]),
                               expression("M"["area"]))) +
   geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  scale_y_continuous(limits = c(-1.2, 1.2), breaks = seq(-1.2, 1.2, 0.6)) +
   labs(x = "", 
        y = NULL) +
   coord_flip() +
@@ -288,7 +290,7 @@ npadd_photo_plot <- ggplot(data = meta_ci %>%
                            aes(x = var, y = middle)) +
   geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "magenta", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 0.95, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
@@ -296,7 +298,7 @@ npadd_photo_plot <- ggplot(data = meta_ci %>%
                               expression("V"["cmax"]),
                               expression("A"["sat"]))) +
   scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
-  labs(x = "", y = "Response to N+P addition (%)") +
+  labs(x = "", y = "Log response to N+P addition") +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -318,7 +320,7 @@ npadd_bio_plot <- ggplot(data = meta_ci %>%
                          aes(x = var, y = middle)) +
   geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "magenta", shape = 21) +
-  geom_text(aes(label = k_sig), y = 2, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 1.8, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
@@ -327,7 +329,7 @@ npadd_bio_plot <- ggplot(data = meta_ci %>%
                               "AGB",
                               "ANPP",
                               "Total biomass")) +
-  scale_y_continuous(limits = c(-1, 2), breaks = seq(-1, 2, 1)) +
+  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
   labs(x = "", 
        y = NULL)  +
   coord_flip() +
@@ -465,9 +467,9 @@ nmass_tg_plot <- mod_results(nadd_nmass_clim, mod = "gs_mat",
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "red") +
   geom_smooth(method = "loess", linewidth = 2, color = "red") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  geom_hline(yintercept = 0, color = "black") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
-  scale_y_continuous(limits = c(-25, 100), breaks = seq(-25, 100, 25)) +
+  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
   labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
        y = expression(bold("N"["mass"]*" response to N addition (%)")),
@@ -480,18 +482,18 @@ nmass_tg_plot
 # Nmass - aridity plot
 nmass_ai_plot <- mod_results(nadd_nmass_clim, mod = "gs_ai",
                              group = "exp", subset = TRUE)$mod_table %>%
-  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
+  ggplot(aes(x = moderator, y = estimate)) +
   geom_point(data = subset(meta_results, myvar == "leaf_n_mass" & 
                              manip_type == "n" & !is.na(gs_ai) & 
                              logr > -0.2),
-             aes(x = gs_ai, y = (exp(logr) - 1) * 100, size = 1/logr_se), 
+             aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
-  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "red") +
   geom_smooth(method = "loess", linewidth = 2, color = "red", linetype = "dashed") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  geom_hline(yintercept = 0, color = "black") +
   scale_x_continuous(limits = c(0, 3.4), breaks = seq(0, 3, 1)) +
-  scale_y_continuous(limits = c(-25, 100), breaks = seq(-25, 100, 25)) +
+  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
   labs(x = expression(bold("MI"["g"]*" (unitless)")),
        y = expression(bold("N"["mass"]*" response to N addition (%)")),
@@ -505,17 +507,17 @@ nmass_ai_plot
 nmass_photo_plot <- ggplot(data = meta_photo_results %>% 
                              filter(trait == "nmass" &
                                       nut_add == "n"),
-                           aes(x = photo, y = (exp(estimate) - 1) * 100)) +
-  geom_errorbar(aes(ymin = (exp(lowerCL) - 1) * 100, 
-                    ymax = (exp(upperCL) - 1) * 100),
+                           aes(x = photo, y = estimate)) +
+  geom_errorbar(aes(ymin = lowerCL, 
+                    ymax = upperCL),
                 width = 0.3, linewidth = 1) +
   geom_point(aes(fill = photo), shape = 21, size = 5) +
-  geom_bracket(xmin = "C3", xmax = "C4", y.position = 98, size = 1,
+  geom_bracket(xmin = "C3", xmax = "C4", y.position = 0.5, size = 1,
                label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 100, label = "**", size = 6) +
+  geom_text(x = 1.5, y = 0.52, label = "**", size = 6) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   scale_fill_manual(values = c("pink", "darkred")) +
-  scale_y_continuous(limits = c(-25, 100), breaks = seq(-25, 100, 25)) +
+  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
   labs(x = "Photosynthetic pathway",
        y = expression(bold("N"["mass"]*" response to N addition"))) +
   guides(fill = "none") +
@@ -528,19 +530,19 @@ nmass_photo_plot
 nmass_nfix_plot <- ggplot(data = meta_nfix_results %>% 
                              filter(trait == "nmass" &
                                       nut_add == "n"),
-                           aes(x = nfix, y = (exp(estimate) - 1) * 100)) +
-  geom_errorbar(aes(ymin = (exp(lowerCL) - 1) * 100, ymax = (exp(upperCL) - 1) * 100),
+                           aes(x = nfix, y = estimate)) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
                 width = 0.3, linewidth = 1) +
   geom_point(aes(fill = nfix), shape = 21, size = 5) +
-  geom_bracket(xmin = "No", xmax = "Yes", y.position = 98, size = 1,
+  geom_bracket(xmin = "No", xmax = "Yes", y.position = 0.5, size = 1,
                label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 100, label = "***", size = 6) +
+  geom_text(x = 1.5, y = 0.52, label = "***", size = 6) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   scale_fill_manual(values = c("pink", "darkred")) +
   scale_x_discrete(labels = c("non-fixer", expression("N"["2"]*"-fixer"))) +
-  scale_y_continuous(limits = c(-25, 100), breaks = seq(-25, 100, 25)) +
+  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
   labs(x = expression(bold("N"["2"]*" fixation ability")),
-       y = expression(bold("N"["mass"]*" response to N addition (%)"))) +
+       y = expression(bold("N"["mass"]*" response to N addition"))) +
   guides(fill = "none") +
   theme_classic(base_size = 20) +
   theme(axis.title = element_text(face = "bold"),
@@ -551,17 +553,17 @@ nmass_nfix_plot
 nmass_myc_plot <- ggplot(data = meta_myc_results %>% 
                             filter(trait == "nmass" &
                                      nut_add == "n"),
-                          aes(x = myc, y = (exp(estimate) - 1) * 100)) +
-  geom_errorbar(aes(ymin = (exp(lowerCL) - 1) * 100, ymax = (exp(upperCL) - 1) * 100),
+                          aes(x = myc, y =  estimate)) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
                 width = 0.3, linewidth = 1) +
   geom_point(aes(fill = myc), shape = 21, size = 5) +
-  geom_bracket(xmin = "Mining", xmax = "Scavenging", y.position = 98, size = 1,
+  geom_bracket(xmin = "Mining", xmax = "Scavenging", y.position = 0.5, size = 1,
                label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 102, label = "NS", size = 6) +
+  geom_text(x = 1.5, y = 0.52, label = "NS", size = 6) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   scale_fill_manual(values = c("pink", "darkred")) +
   scale_x_discrete(labels = c("mining", "scavenging")) +
-  scale_y_continuous(limits = c(-25, 100), breaks = seq(-25, 100, 25)) +
+  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
   labs(x = expression(bold("Mycorrhizal-NAS")),
        y = expression(bold("N"["mass"]*" response to N addition (%)"))) +
   guides(fill = "none") +
@@ -820,7 +822,7 @@ agb_int_ai_plot <- mod_results(int_agb_clim,
 #####################################################################
 
 # Figure 1 - individual effects
-png("../plots/CNP_fig1_indEffects.png", height = 12, width = 16, 
+png("../plots/CNP_fig1_indEffects2.png", height = 12, width = 16, 
     units = "in", res = 600)
 ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
           padd_chemistry_plot, padd_photo_plot, padd_bio_plot,

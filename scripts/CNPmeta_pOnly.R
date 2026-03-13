@@ -132,8 +132,8 @@ padd_chemistry_plot <- ggplot(data = df_box_p %>%
                               expression("N"["area"]),
                               expression("N"["mass"]),
                               expression("M"["area"]))) +
-  geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  geom_text(aes(label = k_sig), y = 1.3, fontface = "bold", size = 5) +
+  scale_y_continuous(limits = c(-1, 1.5), breaks = seq(-1, 1.5, 0.5)) +
   labs(x = "", 
        y = NULL) +
   coord_flip() +
@@ -154,7 +154,7 @@ padd_photo_plot <- ggplot(data = df_box_p %>%
                           aes(x = var, y = middle)) +
   geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1.5, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 1.3, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
@@ -163,7 +163,7 @@ padd_photo_plot <- ggplot(data = df_box_p %>%
                               expression("A"["sat"]))) +
   scale_y_continuous(limits = c(-1, 1.5), breaks = seq(-1, 1.5, 0.5)) +
   scale_fill_manual(values = "blue") +
-  labs(x = "", y = "Log response to P addition") +
+  labs(x = "", y = NULL) +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -183,7 +183,7 @@ padd_bio_plot <- ggplot(data = df_box_p %>%
   geom_errorbar(aes(ymin = ymin, ymax = ymax), 
                 size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1.5, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 1.3, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
@@ -192,7 +192,7 @@ padd_bio_plot <- ggplot(data = df_box_p %>%
                               "Total biomass")) +
   scale_y_continuous(limits = c(-1, 1.5), breaks = seq(-1, 1.5, 0.5)) +
   labs(x = "", 
-       y = NULL)  +
+       y = "Log response to P addition")  +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -213,7 +213,7 @@ padd_pfract_plot <- ggplot(data = df_box_p %>%
   geom_errorbar(aes(ymin = ymin, ymax = ymax), 
                 size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 3, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_sig), y = 2.5, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Leaf residual P",
                               "Leaf structural P",
@@ -222,7 +222,7 @@ padd_pfract_plot <- ggplot(data = df_box_p %>%
                               "Leaf inorganic P")) +
   scale_y_continuous(limits = c(-1, 3), breaks = seq(-1, 3, 1)) +
   labs(x = "", 
-       y = NULL)  +
+       y = "Log response to P addition")  +
   coord_flip() +
   theme_classic(base_size = 18) +
   theme(legend.position = "right",
@@ -233,5 +233,19 @@ padd_pfract_plot
 
 
 
+# Figure 1 - individual effects
+png("../plots/CNP_pOnly_indEffects.png", height = 10, width = 6, 
+    units = "in", res = 600)
+ggarrange(padd_chemistry_plot, padd_photo_plot, padd_bio_plot,
+          nrow = 3, ncol = 1, labels = c("(a)", "(b)", "(c)"), 
+          font.label = list(size = 18),
+          align = "hv")
+dev.off()
+
+# Figure 2 - P fractionation
+png("../plots/CNP_pOnly_Pfraction.png", height = 5, width = 8, 
+    units = "in", res = 600)
+padd_pfract_plot
+dev.off()
 
 
