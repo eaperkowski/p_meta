@@ -34,7 +34,7 @@ species_summary <- full_df %>%
 unique(experiment_summary$citation)
 
 # How many sites?
-unique(experiment_summary$exp)
+unique(filter(experiment_summary, experiment_type == "field")$exp)
 
 # How many field experiments?
 unique(filter(experiment_summary, experiment_type == "field")$citation)
@@ -85,7 +85,8 @@ nfert_responses <- nfert_only %>%
   mutate(myvar = ifelse(myvar %in% c("amax", "anet", "asat"),
                         "asat", myvar),
          myvar = ifelse(myvar %in% c("bgb", "fine_root_biomass"),
-                        "bgb", myvar))
+                        "bgb", myvar),
+         myvar = ifelse(myvar %in% "lai", "tla", myvar))
 
 use_vars_n <- unique(nfert_responses$myvar)
 
@@ -114,16 +115,16 @@ names(out_n) <- use_vars_n
 df_box_n_k <- data.frame(var = use_vars_n,
                           k = c("(15)", "(12)", "(114)", "(147)", "(141)",
                                 "(95)", "(33)", "(54)", "(47)", "(19)",
-                                "(116)", "(5)", "(37)", "(9)", "(48)",
+                                "(116)", "(14)", "(37)",  "(48)",
                                 "(23)", "(123)", "(17)", "(40)", "(87)",
                                 "(82)", "(42)", "(40)", "(32)", "(32)",
                                 "(65)", "(66)", "(23)", "(24)", "(24)",
                                 "(23)", "(5)", "(5)", "(5)"),
                          sig.level = c("***", "***", "***", "***", "** ",
                                        "** ", "   ", "   ", "***", "   ",
-                                       "*   ", "   ", "***", "***", "   ",
+                                       "*   ", "** ", "***",  "   ",
                                        "*   ", "***", "   ", "   ", "** ",
-                                       "   ", "   ", "   ", "   .", "***",
+                                       "   ", "   ", "   ", ".  ", "***",
                                        "   ", "** ", "   ", "   ", "   ",
                                        "   ", "   ", "   ", "   "))
 df_box_n_k$k_sig <- str_c(df_box_n_k$k, df_box_n_k$sig.level)
@@ -164,7 +165,8 @@ pfert_responses <- pfert_only %>%
   mutate(myvar = ifelse(myvar %in% c("amax", "anet", "asat"),
                         "asat", myvar),
          myvar = ifelse(myvar %in% c("bgb", "fine_root_biomass"),
-                        "bgb", myvar))
+                        "bgb", myvar),
+         myvar = ifelse(myvar %in% "lai", "tla", myvar))
 
 use_vars_p <- unique(pfert_responses$myvar)
 
@@ -189,13 +191,13 @@ names(out_p) <- use_vars_p
 df_box_p_k <- data.frame(var = use_vars_p,
                          k = c("(15)", "(12)", "(114)", "(147)", "(141)", "(95)",
                                "(33)", "(54)", "(47)", "(19)", "(116)",
-                               "(5)", "(37)", "(9)", "(48)", "(23)", "(123)", 
+                               "(14)", "(37)", "(48)", "(23)", "(123)", 
                                "(17)", "(40)", "(87)", "(82)", "(42)", "(40)", 
                                "(32)", "(32)", "(65)", "(66)", "(23)", "(24)",
                                "(24)", "(23)", "(5)", "(5)", "(5)"),
                          sig.level = c("   ", "***", "***", "   ", "***", "   ",
                                        ".  ", "   ", "*  ", ".  ", "   ", 
-                                       ".  ", ".  ", "** ", "*  ", "*  ", "***",
+                                       "** ", ".  ", "*  ", "*  ", "***",
                                        "** ", "   ", "   ", "***", "   ", "*  ", 
                                        "   ", "*  ", ".  ", ".  ", "   ", "** ",
                                        "   ", "*  ", "** ", "   ", "   "))
@@ -237,7 +239,8 @@ npfert_responses <- npfert_only %>%
   mutate(myvar = ifelse(myvar %in% c("amax", "anet", "asat"),
                         "asat", myvar),
          myvar = ifelse(myvar %in% c("bgb", "fine_root_biomass"),
-                        "bgb", myvar))
+                        "bgb", myvar),
+         myvar = ifelse(myvar %in% "lai", "tla", myvar))
 
 
 use_vars_np <- unique(npfert_responses$myvar)
@@ -263,13 +266,13 @@ names(out_np) <- use_vars_np
 df_box_np_k <- data.frame(var = use_vars_np,
                           k = c("(15)", "(12)", "(114)", "(147)", "(141)", "(95)",
                                 "(33)", "(54)", "(47)", "(19)", "(116)",
-                                "(5)", "(37)", "(9)", "(48)", "(23)", "(123)", 
+                                "(14)", "(37)", "(48)", "(23)", "(123)", 
                                 "(17)", "(40)", "(87)", "(82)", "(42)", "(40)", 
                                 "(32)", "(32)", "(65)", "(66)", "(23)", "(24)",
                                 "(24)", "(23)", "(5)", "(5)", "(5)"),
                           sig.level = c("***", "***", "***", "***", "***", "** ",
                                         "***", "   ", "***", ".  ", "** ", 
-                                        "***", "** ", "*  ", "*  ", "** ", "***",
+                                        "***", "** ", "*  ", "** ", "***",
                                         "** ", "*  ", "***", "***", ".  ", "***", 
                                         "***", "***", "   ", "   ", "   ", "** ",
                                         "   ", "   ", "** ", "   ", "   "))
@@ -378,7 +381,8 @@ CNP_effect_sizes_reduced <- CNP_effect_sizes %>%
   mutate(response = ifelse(response %in% c("amax", "anet", "asat"),
                         "asat", response),
          response = ifelse(response %in% c("bgb", "fine_root_biomass"),
-                        "bgb", response))
+                        "bgb", response),
+         response = ifelse(response %in% "lai", "tla", response))
 
 write.csv(CNP_effect_sizes_reduced, "../data/CNPmeta_logr_results_int.csv", row.names = F)
 
@@ -400,13 +404,13 @@ names(out_int) <- use_vars_int
 df_box_int_k <- data.frame(var = use_vars_int,
                            k = c("(15)", "(12)", "(112)", "(147)", "(141)", "(95)",
                                  "(33)", "(54)", "(47)", "(19)", "(116)",
-                                 "(5)", "(37)", "(9)", "(48)", "(23)", "(123)", 
+                                 "(14)", "(37)", "(48)", "(23)", "(123)", 
                                  "(17)", "(40)", "(87)", "(82)", "(42)", "(40)", 
                                  "(32)", "(32)", "(65)", "(66)", "(23)", "(24)",
                                  "(24)", "(23)", "(5)", "(5)", "(5)"),
                            sig.level = c("   ", "   ", "** ", "   ", ".  ", "   ",
                                          "   ", "   ", "   ", "   ", "   ",
-                                         "   ", "   ", "   ", "   ", "   ", "** ",
+                                         "   ", "   ", "   ", "   ", "** ",
                                          "   ", ".  ", "   ", "   ", "   ", "   ",
                                          "   ", "   ", "   ", "   ", "   ", "   ",
                                          "   ", ".  ", "   ", "   ", "   "))
@@ -421,6 +425,7 @@ df_box_int <- purrr::map_dfr(out_int, "df_box") |>
       summarise(intES_min = min(dNPi), intES_max = max(dNPi)) |> 
       rename(var = response),
     by = "var")
+
 
 ##############################################################################
 # Plot prep
@@ -441,21 +446,20 @@ nfert_lnRR %>%
   write.csv("../data/CNPmeta_logr_results.csv", row.names = F)
 
 # Merge N, P, and NP meta results
-df_box_n %>%
+help <- df_box_n %>%
   full_join(df_box_p) %>%
   full_join(df_box_np) %>%
   filter(!is.na(middle)) %>%
   mutate(manip_type = factor(manip_type, levels = c("np", "p", "n")),
          var = factor(var, 
-                        levels = c("rootshoot", "rmf", "bgb", "bnpp", "anpp_p", 
-                                   "anpp_p_mass", "anpp_n", "anpp_n_mass",
-                                   "agb", "anpp", "total_biomass", 
-                                   "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax",
-                                   "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
-                                   "leaf_structural_p", "leaf_nucleic_p", 
-                                   "leaf_metabolic_p", "leaf_pi", 
-                                   "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                   "leaf_n_area", "leaf_n_mass", "lma"))) %>%
+                      levels = c("rootshoot", "rmf", "bgb", "bnpp", "anpp_p", 
+                                 "anpp_n", "agb", "anpp", "total_biomass", "tbio_gm2", 
+                                 "tla", "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax",
+                                 "jmax", "vcmax", "gsw", "rd", "asat", "leaf_residual_p", 
+                                 "leaf_structural_p", "leaf_nucleic_p", 
+                                 "leaf_metabolic_p", "leaf_pi", "leaf_pre",
+                                 "leaf_nre", "leaf_np", "leaf_p_area", "leaf_p_mass", 
+                                 "leaf_n_area", "leaf_n_mass", "lma"))) %>%
   mutate(middle_fixed = ifelse(middle >= 0,
                                sprintf(" %.3f", middle),
                                sprintf("%.3f", middle)),
@@ -464,26 +468,22 @@ df_box_n %>%
                           "bold", "plain"),
          middle_perc = (exp(middle) - 1) * 100,
          upper_perc = (exp(ymax) - 1) * 100,
-         lower_perc = (exp(ymin) - 1) * 100) %>%
-  write.csv("../data/CNPmeta_ci.csv", row.names = F)
+         lower_perc = (exp(ymin) - 1) * 100) #%>%
+  #write.csv("../data/CNPmeta_ci.csv", row.names = F)
 
 # Factor interaction effect size variables in a certain order
 df_box_int %>%
   mutate(var = factor(var, 
                       levels = c("rootshoot", "rmf", "bgb", "bnpp", "anpp_p", 
-                                 "anpp_p_mass", "anpp_n", "anpp_n_mass",
-                                 "agb", "anpp", "total_biomass", 
-                                 "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax",
-                                 "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
+                                 "anpp_n", "agb", "anpp", "total_biomass", "tbio_gm2", 
+                                 "tla", "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax",
+                                 "jmax", "vcmax", "gsw", "rd", "asat", "leaf_residual_p", 
                                  "leaf_structural_p", "leaf_nucleic_p", 
-                                 "leaf_metabolic_p", "leaf_pi", 
-                                 "leaf_np", "leaf_p_area", "leaf_p_mass", 
+                                 "leaf_metabolic_p", "leaf_pi", "leaf_pre",
+                                 "leaf_nre", "leaf_np", "leaf_p_area", "leaf_p_mass", 
                                  "leaf_n_area", "leaf_n_mass", "lma")),
-         int_type = ifelse(var == "leaf_np", 
-                           "synergistic",
-                           ifelse(var == "agb", 
-                                  "synergistic",
-                                  "additive")),
+         int_type = ifelse(var %in% c("leaf_np", "anpp", "leaf_p_mass"),
+                           "synergistic", "additive"),
          middle_perc = (exp(middle) - 1) * 100,
          upper_perc = (exp(ymax) - 1) * 100,
          lower_perc = (exp(ymin) - 1) * 100) %>%

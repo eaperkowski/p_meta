@@ -12,23 +12,28 @@ meta_results_int <- read.csv("../data/CNPmeta_logr_results_int.csv")
 # Load meta-analysis confidence intervals
 meta_ci <- read.csv("../data/CNPmeta_ci.csv") %>%
   filter(var %in% c("leaf_np", "leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
-                    "lma", "leaf_ppue", "leaf_pnue", "jmax_vcmax", "jmax", "vcmax", "gsw", "asat",
-                    "rootshoot", "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass")) %>%
-  mutate(var = factor(var, levels = c("leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                      "leaf_n_area", "leaf_n_mass",
-                                      "lma", "leaf_ppue", "leaf_pnue", 
-                                      "jmax_vcmax", "jmax", "vcmax", "gsw", "asat", "rootshoot",
-                                      "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass")))
+                    "lma", "leaf_ppue", "leaf_pnue", "jmax_vcmax", "jmax", "vcmax", "gsw", "rd", "asat",
+                    "rootshoot", "rmf", "bgb", "bnpp", "agb", "anpp_p", "anpp_n", "anpp", "total_biomass",
+                    "tbio_gm2", "tla")) %>%
+  mutate(var = factor(var, levels = c("rootshoot", "rmf", "bgb", "bnpp", "agb", "anpp_p", "anpp_n",
+                                      "anpp", "total_biomass", "tbio_gm2", "leaf_ppue", "leaf_pnue", 
+                                      "jmax_vcmax", "jmax", "vcmax", "gsw", "rd", "asat",
+                                      "leaf_np", "leaf_p_area", "leaf_p_mass", 
+                                      "leaf_n_area", "leaf_n_mass", "lma", "tla")),
+         manip_type = factor(manip_type, levels = c("np", "p", "n")),
+         ci_range = str_c("[", sprintf("%.3f", ymin), ", ", sprintf("%.3f", ymax), "]"),
+         k_plot = str_c("(", k, ")"))
 
 meta_ci_int <- read.csv("../data/CNPmeta_ci_int.csv") %>%
   filter(var %in% c("leaf_np", "leaf_p_area", "leaf_p_mass", "leaf_n_area", "leaf_n_mass",
-                    "lma", "leaf_ppue", "leaf_pnue", "jmax_vcmax", "jmax", "vcmax", "gsw", "asat",
-                    "rootshoot", "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass")) %>%
+                    "lma", "leaf_ppue", "leaf_pnue", "jmax_vcmax", "jmax", "vcmax", "gsw", "rd", "asat",
+                    "rootshoot", "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass", "tla", "tbio_gm2", "tla")) %>%
   mutate(var = factor(var, levels = c("leaf_np", "leaf_p_area", "leaf_p_mass", 
                                       "leaf_n_area", "leaf_n_mass",
                                       "lma", "leaf_ppue", "leaf_pnue", 
-                                      "jmax_vcmax", "jmax", "vcmax", "gsw", "asat", "rootshoot",
-                                      "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass")))
+                                      "jmax_vcmax", "jmax", "vcmax", "gsw", "rd", "asat", "rootshoot",
+                                      "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass", "tbio_gm2", "tla")),
+         ci_range = str_c("[", sprintf("%.3f", ymin), ", ", sprintf("%.3f", ymax), "]"))
 
 # Load species moderator results for individual effects
 meta_photo_results <- read.csv("../data/CNPmeta_photo_moderators.csv")
@@ -50,295 +55,309 @@ head(meta_nfix_results)
 head(meta_myc_results)
 
 #####################################################################
-# N addition plots
+# Chemistry individual and interaction plots
 #####################################################################
-nadd_chemistry_plot <- ggplot(data = meta_ci %>% 
-                                drop_na(var) %>% 
-                                filter(manip_type == "n") %>%
-                                filter(var %in% c("lma", 
-                                                  "leaf_n_mass", 
-                                                  "leaf_n_area", 
-                                                  "leaf_p_mass", 
-                                                  "leaf_p_area",
-                                                  "leaf_np")),
-                              aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "red", shape = 21) +
+# Individual plot
+chemistry_ind_plot <- ggplot(data = meta_ci %>% 
+                               drop_na(var) %>% 
+                               filter(var %in% c("lma", 
+                                                 "leaf_n_mass", 
+                                                 "leaf_n_area", 
+                                                 "leaf_p_mass", 
+                                                 "leaf_p_area",
+                                                 "leaf_np")),
+                             aes(x = var, y = middle, 
+                                 group = factor(manip_type, 
+                                                levels = c("np", "p", "n")))) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), 
+                position = position_dodge(0.75), size = 1, width = 0.6) +
+  geom_point(aes(fill = manip_type),
+             position = position_dodge(0.75), size = 4, shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  geom_text(aes(label = k_plot, y = 1.1), size = 6) +
+  scale_fill_manual(values = c("red", "blue", "magenta"),
+                    breaks = c("n", "p", "np")) +
   scale_x_discrete(labels = c("Leaf N:P",
-                              expression("P"["area"]), 
-                              expression("P"["mass"]), 
-                              expression("N"["area"]),
-                              expression("N"["mass"]),
-                              expression("M"["area"]))) +
-  geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
-  scale_y_continuous(limits = c(-1.2, 1.2), breaks = seq(-1.2, 1.2, 0.6)) +
-  labs(x = "", 
-       y = NULL) +
+                              expression(italic("P")["area"]), 
+                              expression(italic("P")["mass"]), 
+                              expression(italic("N")["area"]),
+                              expression(italic("N")["mass"]),
+                              expression(italic("M")["area"]))) +
+  scale_y_continuous(limits = c(-0.6, 1.2), breaks = seq(-0.6, 1.2, 0.6)) +
+  labs(title = "Leaf chemistry N, P, and N+P effects",
+       x = "", 
+       y = "",
+       fill = "Nutrient addition") +
   coord_flip() +
   theme_classic(base_size = 18) +
-  theme(legend.position = "right",
+  theme(title = element_text(face = "bold"),
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"),
-        axis.text.y = element_text(size = 18, color = "black"))
-nadd_chemistry_plot
+        axis.title.x = element_text(face = "plain"),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 18, color = "black"),
+        panel.grid = element_blank())
+chemistry_ind_plot
 
-nadd_photo_plot <- ggplot(data = meta_ci %>% 
-                            drop_na(var) %>% 
-                            filter(manip_type == "n") %>%
-                            filter(var %in% c("asat",
-                                              "gsw",
-                                              "vcmax", 
-                                              "jmax",
-                                              "leaf_pnue", 
-                                              "leaf_ppue")),
-                          aes(x = var, y = middle)) +
+# Interaction plot
+chemistry_int_plot <- ggplot(data = meta_ci_int %>% 
+                               drop_na(var) %>% 
+                               filter(var %in% c("lma", 
+                                                 "leaf_n_mass", 
+                                                 "leaf_n_area", 
+                                                 "leaf_p_mass", 
+                                                 "leaf_p_area",
+                                                 "leaf_np")),
+                             aes(x = var, y = middle)) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
   geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "red", shape = 21) +
-  geom_text(aes(label = k_sig), y = 0.95, fontface = "bold", size = 5) +
+  geom_point(aes(fill = int_type), size = 4, shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  geom_text(aes(label = k, y = 0.95), size = 6) +
+  scale_fill_manual(values = c("black", "red")) +
+  scale_x_discrete(labels = c("Leaf N:P",
+                              expression(italic("P")["area"]), 
+                              expression(italic("P")["mass"]), 
+                              expression(italic("N")["area"]),
+                              expression(italic("N")["mass"]),
+                              expression(italic("M")["area"]))) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(title = "Leaf chemistry N+P interaction effects",
+       x = "", 
+       y = "",
+       fill = "Interaction type") +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "plain"),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 18, color = "black"),
+        panel.grid = element_blank())
+chemistry_int_plot
+
+#####################################################################
+# Photosynthesis individual and interaction plots
+#####################################################################
+photo_ind_plot <- ggplot(data = meta_ci %>% 
+                                    drop_na(var) %>% 
+                                    filter(var %in% c("asat",
+                                                      "rd",
+                                                      "gsw",
+                                                      "vcmax", 
+                                                      "jmax",
+                                                      "leaf_pnue", 
+                                                      "leaf_ppue")),
+                                  aes(x = var, y = middle, 
+                                      group = factor(manip_type, 
+                                                     levels = c("np", "p", "n")))) +
+  geom_rect(aes(xmin = 1.5, xmax = 2.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 3.5, xmax = 4.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 5.5, xmax = 6.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), 
+                position = position_dodge(0.75), size = 1, width = 0.6) +
+  geom_point(aes(fill = manip_type),
+             position = position_dodge(0.75), size = 4, shape = 21) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  geom_text(aes(label = k_plot, y = 1.1), size = 6) +
+  #geom_text(aes(label = ci_range, y = 1.2, fontface = bold_yn), size = 5,
+  #          position = position_dodge(0.75), hjust = 1) +
+  scale_fill_manual(values = c("red", "blue", "magenta"),
+                    breaks = c("n", "p", "np")) +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression(italic("J")["max"]),
                               expression(italic("V")["cmax"]),
                               expression(italic("g")["sw"]),
+                              expression(italic("R")["d"]),
+                              expression(italic("A")["sat"]))) +
+  scale_y_continuous(limits = c(-0.6, 1.2), breaks = seq(-0.6, 1.2, 0.6)) +
+  labs(title = "Photosynthetic N, P, and N+P effects",
+       x = NULL, 
+       y = "",
+       fill = "Nutrient addition") +
+  coord_flip() +
+  theme_classic(base_size = 18) +
+  theme(title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "plain"),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 18, color = "black"),
+        panel.grid = element_blank())
+photo_ind_plot
+
+# Interaction plot
+photo_int_plot <- ggplot(data = meta_ci_int %>% 
+                               drop_na(var) %>% 
+                               filter(var %in% c("asat",
+                                                 "rd",
+                                                 "gsw",
+                                                 "vcmax", 
+                                                 "jmax",
+                                                 "leaf_pnue", 
+                                                 "leaf_ppue")),
+                             aes(x = var, y = middle)) +
+  geom_rect(aes(xmin = 1.5, xmax = 2.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 3.5, xmax = 4.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 5.5, xmax = 6.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+  geom_point(aes(fill = int_type), size = 4, shape = 21) +
+  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  geom_text(aes(label = k, y = 0.95), size = 6) +
+  scale_fill_manual(values = c("black", "red")) +
+  scale_x_discrete(labels = c("PPUE",
+                              "PNUE",
+                              expression(italic("J")["max"]),
+                              expression(italic("V")["cmax"]),
+                              expression(italic("g")["sw"]),
+                              expression(italic("R")["d"]),
                               expression(italic("A")["sat"]))) +
   scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
-  scale_fill_manual(values = "red") +
-  labs(x = "", y = "Log response to N addition") +
+  labs(title = "Photosynthetic N+P interaction effects",
+       x = "", 
+       y = "",
+       fill = "Interaction type") +
   coord_flip() +
   theme_classic(base_size = 18) +
-  theme(legend.position = "right",
+  theme(title = element_text(face = "bold"),
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold", size = 16),
-        axis.text.y = element_text(size = 18, color = "black"))
-nadd_photo_plot
+        axis.title.x = element_text(face = "plain"),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 18, color = "black"),
+        panel.grid = element_blank())
+photo_int_plot
 
-nadd_bio_plot <- ggplot(data = meta_ci %>% 
-                          drop_na(var) %>% 
-                          filter(manip_type == "n") %>%
-                          filter(var %in% c("rootshoot", 
-                                            "rmf", 
-                                            "bgb",
-                                            "bnpp", 
-                                            "agb",
-                                            "anpp", 
-                                            "total_biomass")),
-                        aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "red", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1.8, fontface = "bold", size = 5) +
+#####################################################################
+# Biomass individual and interaction plot
+#####################################################################
+bio_ind_plot <- ggplot(data = meta_ci %>% 
+                         drop_na(var) %>% 
+                         filter(var %in% c("rootshoot", 
+                                           "rmf", 
+                                           "bnpp",
+                                           "anpp",
+                                           "tbio_gm2",
+                                           "tla")),
+                       aes(x = var, y = middle, 
+                           group = factor(manip_type, 
+                                          levels = c("np", "p", "n")))) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax), 
+                position = position_dodge(0.75), size = 1, width = 0.6) +
+  geom_point(aes(fill = manip_type),
+             position = position_dodge(0.75), size = 4, shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  geom_text(aes(label = k_plot, y = 1.1), size = 6) +
+  #geom_text(aes(label = ci_range, y = 1.5, fontface = bold_yn), size = 5,
+  #          position = position_dodge(0.75), hjust = 1) +
+  scale_fill_manual(values = c("red", "blue", "magenta"),
+                    breaks = c("n", "p", "np")) +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
-                              "BGB",
                               "BNPP",
-                              "AGB",
                               "ANPP",
-                              "Total biomass")) +
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  labs(x = "", 
-       y = NULL)  +
+                              "Biomass prod.",
+                              "Leaf prod.")) +
+  scale_y_continuous(limits = c(-0.6, 1.2), breaks = seq(-0.6, 1.2, 0.6)) +
+  labs(title = "Biomass N, P, and N+P effects",
+       x = NULL, 
+       y = "Log-response ratio",
+       fill = "Nutrient addition ") +
   coord_flip() +
   theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"),
-        axis.text.y = element_text(size = 18, color = "black"))
-nadd_bio_plot
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "plain"),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 18, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+bio_ind_plot
 
-#####################################################################
-# P addition plots
-#####################################################################
-padd_chemistry_plot <- ggplot(data = meta_ci %>% 
-                                drop_na(var) %>% 
-                                filter(manip_type == "p") %>%
-                                filter(var %in% c("lma", 
-                                                  "leaf_n_mass", 
-                                                  "leaf_n_area", 
-                                                  "leaf_p_mass", 
-                                                  "leaf_p_area",
-                                                  "leaf_np")),
-                              aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("Leaf N:P",
-                              expression("P"["area"]),
-                              expression("P"["mass"]),
-                              expression("N"["area"]),
-                              expression("N"["mass"]),
-                              expression("M"["area"]))) +
-  geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
-  scale_y_continuous(limits = c(-1.2, 1.2), breaks = seq(-1.2, 1.2, 0.6)) +
-  labs(x = "", 
-       y = NULL) +
-  coord_flip() +
-  theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"),
-        axis.text.y = element_text(size = 18, color = "black"))
-padd_chemistry_plot
-
-padd_photo_plot <- ggplot(data = meta_ci %>% 
-                            drop_na(var) %>% 
-                            filter(manip_type == "p") %>%
-                            filter(var %in% c("asat", 
-                                              "vcmax", 
-                                              "jmax",
-                                              "leaf_pnue", 
-                                              "leaf_ppue")),
-                          aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 0.95, fontface = "bold", size = 5) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("PPUE",
-                              "PNUE",
-                              expression("J"["max"]),
-                              expression("V"["cmax"]),
-                              expression("A"["sat"]))) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
-  scale_fill_manual(values = "blue") +
-  labs(x = "", y = "Log response to P addition") +
-  coord_flip() +
-  theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold", size = 16),
-        axis.text.y = element_text(size = 18, color = "black"))
-padd_photo_plot
-
-padd_bio_plot <- ggplot(data = meta_ci %>% 
-                          drop_na(var) %>% 
-                          filter(manip_type == "p") %>%
-                          filter(var %in% c("rootshoot", 
-                                            "rmf", 
-                                            "bgb",
-                                            "bnpp", 
-                                            "agb",
-                                            "anpp", 
-                                            "total_biomass")),
-                        aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), 
-                size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1.8, fontface = "bold", size = 5) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("Root:shoot",
-                              "RMF",
-                              "BGB",
-                              "BNPP",
-                              "AGB",
-                              "ANPP",
-                              "Total biomass")) +
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  labs(x = "", 
-       y = NULL)  +
-  coord_flip() +
-  theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"),
-        axis.text.y = element_text(size = 18, color = "black"))
-padd_bio_plot
-
-#####################################################################
-# N+P addition plots
-#####################################################################
-npadd_chemistry_plot <- ggplot(data = meta_ci %>% 
-                                 drop_na(var) %>% 
-                                 filter(manip_type == "np") %>%
-                                 filter(var %in% c("lma", 
-                                                   "leaf_n_mass", 
-                                                   "leaf_n_area", 
-                                                   "leaf_p_mass", 
-                                                   "leaf_p_area",
-                                                   "leaf_np")),
-                               aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), 
-                size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "magenta", shape = 21) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("Leaf N:P",
-                              expression("P"["area"]), 
-                              expression("P"["mass"]), 
-                              expression("N"["area"]),
-                              expression("N"["mass"]),
-                              expression("M"["area"]))) +
-  geom_text(aes(label = k_sig), y = 1, fontface = "bold", size = 5) +
-  scale_y_continuous(limits = c(-1.2, 1.2), breaks = seq(-1.2, 1.2, 0.6)) +
-  labs(x = "", 
-       y = NULL) +
-  coord_flip() +
-  theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"),
-        axis.text.y = element_text(size = 18, color = "black"))
-npadd_chemistry_plot
-
-npadd_photo_plot <- ggplot(data = meta_ci %>% 
-                             drop_na(var) %>% 
-                             filter(manip_type == "np") %>%
-                             filter(var %in% c("asat", 
-                                               "vcmax", 
-                                               "jmax",
-                                               "leaf_pnue", 
-                                               "leaf_ppue")),
-                           aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "magenta", shape = 21) +
-  geom_text(aes(label = k_sig), y = 0.95, fontface = "bold", size = 5) +
-  geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  scale_x_discrete(labels = c("PPUE",
-                              "PNUE",
-                              expression("J"["max"]),
-                              expression("V"["cmax"]),
-                              expression("A"["sat"]))) +
-  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
-  labs(x = "", y = "Log response to N+P addition") +
-  coord_flip() +
-  theme_classic(base_size = 18) +
-  theme(legend.position = "right",
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold", size = 16),
-        axis.text.y = element_text(size = 18, color = "black"))
-npadd_photo_plot
-
-npadd_bio_plot <- ggplot(data = meta_ci %>% 
+# Interaction plot
+bio_int_plot <- ggplot(data = meta_ci_int %>% 
                            drop_na(var) %>% 
-                           filter(manip_type == "np") %>%
                            filter(var %in% c("rootshoot", 
                                              "rmf", 
-                                             "bgb",
-                                             "bnpp", 
-                                             "agb",
-                                             "anpp", 
-                                             "total_biomass")),
+                                             "bnpp",
+                                             "anpp",
+                                             "tbio_gm2",
+                                             "tla")),
                          aes(x = var, y = middle)) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
   geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
-  geom_point(size = 4, fill = "magenta", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1.8, fontface = "bold", size = 5) +
+  geom_point(aes(fill = int_type), size = 4, shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
+  geom_text(aes(label = k, y = 0.95), size = 6) +
+  scale_fill_manual(values = c("black", "red")) +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
-                              "BGB",
                               "BNPP",
-                              "AGB",
                               "ANPP",
-                              "Total biomass")) +
-  scale_y_continuous(limits = c(-2, 2), breaks = seq(-2, 2, 1)) +
-  labs(x = "", 
-       y = NULL)  +
+                              "Biomass prod.",
+                              "Leaf prod.")) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  labs(title = "Biomass N+P interaction effects",
+       x = "", 
+       y = expression("Interaction effect size (Hedge's "*bar(italic("d")[NP])*")"),
+       fill = "Interaction type") +
   coord_flip() +
   theme_classic(base_size = 18) +
-  theme(legend.position = "right",
+  theme(title = element_text(face = "bold"),
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold", size = 18),
-        axis.text.y = element_text(size = 18, color = "black"))
-npadd_bio_plot
+        axis.title.x = element_text(face = "plain"),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 18, color = "black"),
+        panel.grid = element_blank())
+bio_int_plot
+
+
+#####################################################################
+# Write plot that summarizes individual and interactive effects of
+# N and P addition on leaf chemistry, photosynthesis, and biomass
+# target variables
+#####################################################################
+
+png("../plots/fig2_full_responses.png", height = 16, width = 16,
+    units = "in", res = 600)
+ggarrange(ggarrange(chemistry_ind_plot, photo_ind_plot, bio_ind_plot,
+                    ncol = 1, nrow = 3, align = "hv",
+                    common.legend = TRUE, legend = "bottom",
+                    labels = c("(a)", "(c)", "(e)"),
+                    font.label = list(size = 20, face = "bold")),
+          ggarrange(chemistry_int_plot, photo_int_plot, bio_int_plot,
+                    ncol = 1, nrow = 3, align = "hv",
+                    common.legend = TRUE, legend = "bottom",
+                    labels = c("(b)", "(d)", "(e)"),
+                    font.label = list(size = 20, face = "bold")),
+          ncol = 2, nrow = 1, align = "hv")
+dev.off()
+
 
 #####################################################################
 # N+P interaction plots

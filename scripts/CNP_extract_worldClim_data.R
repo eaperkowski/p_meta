@@ -22,6 +22,8 @@ full_df <- read.csv("../data/CNP_data_compiled.csv")
 full_df_field <- full_df %>%
   filter(experiment_type == "field")
 
+df_field_zhao22 <- full_df_field %>% filter(citation == "zhao2022")
+
 # Create file that includes the latitude and longitude of all unique
 # sites in meta-analysis
 experiment_summary_field <- distinct(full_df_field, exp, .keep_all = TRUE) %>%
@@ -191,4 +193,5 @@ compiled_df <- full_df %>%
   full_join(worldClim_sites, by = c("exp", "latitude", "longitude")) %>%
   dplyr::select(source:longitude, z:gs_ai, ecosystem_type:npk, 
                 fert, n_c:rep_t, doi)
+
 

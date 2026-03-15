@@ -71,7 +71,6 @@ analyse_meta_int <- function(df, nam_target){
     modl <- try(metafor::rma.mv( 
       yi = dNPi,
       V = vNPi,
-      W = wNPi,
       method = "REML", 
       random = ~ 1 | exp, 
       slab = exp,
