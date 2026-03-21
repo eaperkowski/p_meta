@@ -109,34 +109,30 @@ nfert_lnRR <- nfert_responses %>%
 # factor for random intercepts
 out_n <- purrr::map(as.list(use_vars_n),
                     ~analyse_meta(nfert_lnRR %>%
-                                    rename(var = myvar), nam_target = .))
+                                    rename(var = myvar), 
+                                  nam_target = .))
 names(out_n) <- use_vars_n
 
-df_box_n_k <- data.frame(var = use_vars_n,
-                          k = c("(15)", "(12)", "(114)", "(147)", "(141)",
-                                "(95)", "(33)", "(54)", "(47)", "(19)",
-                                "(116)", "(14)", "(37)",  "(48)",
-                                "(23)", "(123)", "(17)", "(40)", "(87)",
-                                "(82)", "(42)", "(40)", "(32)", "(32)",
-                                "(65)", "(66)", "(23)", "(24)", "(24)",
-                                "(23)", "(5)", "(5)", "(5)"),
-                         sig.level = c("***", "***", "***", "***", "** ",
-                                       "** ", "   ", "   ", "***", "   ",
-                                       "*   ", "** ", "***",  "   ",
-                                       "*   ", "***", "   ", "   ", "** ",
-                                       "   ", "   ", "   ", ".  ", "***",
-                                       "   ", "** ", "   ", "   ", "   ",
-                                       "   ", "   ", "   ", "   "))
-df_box_n_k$k_sig <- str_c(df_box_n_k$k, df_box_n_k$sig.level)
+# Extract summary statistics for each model
+out_n_modl <- lapply(out_n, `[[`, "modl")
 
-df_box_n <- purrr::map_dfr(out_n, "df_box") |> 
-  full_join(df_box_n_k) |>
-  left_join(
-    nfert_lnRR |> 
-      group_by(myvar) |> 
-      summarise(logr_min = min(logr), logr_max = max(logr)) |> 
-      rename(var = myvar),
-    by = "var")
+out_n_modl_df <- data.frame(
+  var = names(out_n_modl),
+  nut_add = "n",
+  k = sapply(out_n_modl, \(x) x$k),
+  estimate = sapply(out_n_modl, \(x) as.numeric(coef(x))[1]),
+  SE = sapply(out_n_modl, \(x) x$se[1]),
+  zval = sapply(out_n_modl, \(x) x$zval[1]),
+  pval = sapply(out_n_modl, \(x) x$pval[1]),
+  ci.lb = sapply(out_n_modl, \(x) x$ci.lb[1]),
+  ci.ub = sapply(out_n_modl, \(x) x$ci.ub[1]),
+  row.names = NULL) |>
+  mutate(across(estimate:zval, \(x) round(x, 3)),
+         across(ci.lb:ci.ub, \(x) round(x, 3)),
+         pval = ifelse(pval < 0.001, "<0.001",
+                       round(pval, digits = 3)))
+
+
 
 #####################################################################
 # Set up and carry out P fertilization meta-analysis
@@ -188,29 +184,24 @@ out_p <- purrr::map(as.list(use_vars_p),
                                     rename(var = myvar), nam_target = .))
 names(out_p) <- use_vars_p
 
-df_box_p_k <- data.frame(var = use_vars_p,
-                         k = c("(15)", "(12)", "(114)", "(147)", "(141)", "(95)",
-                               "(33)", "(54)", "(47)", "(19)", "(116)",
-                               "(14)", "(37)", "(48)", "(23)", "(123)", 
-                               "(17)", "(40)", "(87)", "(82)", "(42)", "(40)", 
-                               "(32)", "(32)", "(65)", "(66)", "(23)", "(24)",
-                               "(24)", "(23)", "(5)", "(5)", "(5)"),
-                         sig.level = c("   ", "***", "***", "   ", "***", "   ",
-                                       ".  ", "   ", "*  ", ".  ", "   ", 
-                                       "** ", ".  ", "*  ", "*  ", "***",
-                                       "** ", "   ", "   ", "***", "   ", "*  ", 
-                                       "   ", "*  ", ".  ", ".  ", "   ", "** ",
-                                       "   ", "*  ", "** ", "   ", "   "))
-df_box_p_k$k_sig <- str_c(df_box_p_k$k, df_box_p_k$sig.level)
+# Extract summary statistics for each model
+out_p_modl <- lapply(out_p, `[[`, "modl")
 
-df_box_p <- purrr::map_dfr(out_p, "df_box") |> 
-  full_join(df_box_p_k) |>
-  left_join(
-    pfert_lnRR |> 
-      group_by(myvar) |> 
-      summarise(logr_min = min(logr), logr_max = max(logr)) |> 
-      rename(var = myvar),
-    by = "var")
+out_p_modl_df <- data.frame(
+  var = names(out_p_modl),
+  nut_add = "p",
+  k = sapply(out_p_modl, \(x) x$k),
+  estimate = sapply(out_p_modl, \(x) as.numeric(coef(x))[1]),
+  SE = sapply(out_p_modl, \(x) x$se[1]),
+  zval = sapply(out_p_modl, \(x) x$zval[1]),
+  pval = sapply(out_p_modl, \(x) x$pval[1]),
+  ci.lb = sapply(out_p_modl, \(x) x$ci.lb[1]),
+  ci.ub = sapply(out_p_modl, \(x) x$ci.ub[1]),
+  row.names = NULL) |>
+  mutate(across(estimate:zval, \(x) round(x, 3)),
+         across(ci.lb:ci.ub, \(x) round(x, 3)),
+         pval = ifelse(pval < 0.001, "<0.001",
+                       round(pval, digits = 3)))
 
 #####################################################################
 # Set up and carry out N+P fertilization meta-analysis
@@ -263,30 +254,24 @@ out_np <- purrr::map(as.list(use_vars_np),
                                     rename(var = myvar), nam_target = .))
 names(out_np) <- use_vars_np
 
-df_box_np_k <- data.frame(var = use_vars_np,
-                          k = c("(15)", "(12)", "(114)", "(147)", "(141)", "(95)",
-                                "(33)", "(54)", "(47)", "(19)", "(116)",
-                                "(14)", "(37)", "(48)", "(23)", "(123)", 
-                                "(17)", "(40)", "(87)", "(82)", "(42)", "(40)", 
-                                "(32)", "(32)", "(65)", "(66)", "(23)", "(24)",
-                                "(24)", "(23)", "(5)", "(5)", "(5)"),
-                          sig.level = c("***", "***", "***", "***", "***", "** ",
-                                        "***", "   ", "***", ".  ", "** ", 
-                                        "***", "** ", "*  ", "** ", "***",
-                                        "** ", "*  ", "***", "***", ".  ", "***", 
-                                        "***", "***", "   ", "   ", "   ", "** ",
-                                        "   ", "   ", "** ", "   ", "   "))
+# Extract summary statistics for each model
+out_np_modl <- lapply(out_np, `[[`, "modl")
 
-df_box_np_k$k_sig <- str_c(df_box_np_k$k, df_box_np_k$sig.level)
-
-df_box_np <- purrr::map_dfr(out_np, "df_box") |> 
-  full_join(df_box_np_k) %>%
-  left_join(
-    npfert_lnRR |> 
-      group_by(myvar) |> 
-      summarise(logr_min = min(logr), logr_max = max(logr)) |> 
-      rename(var = myvar),
-    by = "var")
+out_np_modl_df <- data.frame(
+  var = names(out_np_modl),
+  nut_add = "np",
+  k = sapply(out_np_modl, \(x) x$k),
+  estimate = sapply(out_np_modl, \(x) as.numeric(coef(x))[1]),
+  SE = sapply(out_np_modl, \(x) x$se[1]),
+  zval = sapply(out_np_modl, \(x) x$zval[1]),
+  pval = sapply(out_np_modl, \(x) x$pval[1]),
+  ci.lb = sapply(out_np_modl, \(x) x$ci.lb[1]),
+  ci.ub = sapply(out_np_modl, \(x) x$ci.ub[1]),
+  row.names = NULL) |>
+  mutate(across(estimate:zval, \(x) round(x, 3)),
+         across(ci.lb:ci.ub, \(x) round(x, 3)),
+         pval = ifelse(pval < 0.001, "<0.001",
+                       round(pval, digits = 3)))
 
 ##############################################################################
 # Some prep work for calculating interaction effect sizes (need
@@ -401,43 +386,33 @@ out_int <- purrr::map(as.list(use_vars_int),
                                           rename(var = response), nam_target = .))
 names(out_int) <- use_vars_int
 
-df_box_int_k <- data.frame(var = use_vars_int,
-                           k = c("(15)", "(12)", "(112)", "(147)", "(141)", "(95)",
-                                 "(33)", "(54)", "(47)", "(19)", "(116)",
-                                 "(14)", "(37)", "(48)", "(23)", "(123)", 
-                                 "(17)", "(40)", "(87)", "(82)", "(42)", "(40)", 
-                                 "(32)", "(32)", "(65)", "(66)", "(23)", "(24)",
-                                 "(24)", "(23)", "(5)", "(5)", "(5)"),
-                           sig.level = c("   ", "   ", "** ", "   ", ".  ", "   ",
-                                         "   ", "   ", "   ", "   ", "   ",
-                                         "   ", "   ", "   ", "   ", "** ",
-                                         "   ", ".  ", "   ", "   ", "   ", "   ",
-                                         "   ", "   ", "   ", "   ", "   ", "   ",
-                                         "   ", ".  ", "   ", "   ", "   "))
-df_box_int_k$k_sig <- str_c(df_box_int_k$k, df_box_int_k$sig.level)
+# Extract summary statistics for each model
+out_int_modl <- lapply(out_int, `[[`, "modl")
 
-
-df_box_int <- purrr::map_dfr(out_int, "df_box") |> 
-  full_join(df_box_int_k) |>
-  left_join(
-    CNP_effect_sizes_reduced |> 
-      group_by(response) |> 
-      summarise(intES_min = min(dNPi), intES_max = max(dNPi)) |> 
-      rename(var = response),
-    by = "var")
+out_int_modl_df <- data.frame(
+  var = names(out_int_modl),
+  nut_add = "n",
+  k = sapply(out_int_modl, \(x) x$k),
+  estimate = sapply(out_int_modl, \(x) as.numeric(coef(x))[1]),
+  SE = sapply(out_int_modl, \(x) x$se[1]),
+  zval = sapply(out_int_modl, \(x) x$zval[1]),
+  pval = sapply(out_int_modl, \(x) x$pval[1]),
+  ci.lb = sapply(out_int_modl, \(x) x$ci.lb[1]),
+  ci.ub = sapply(out_int_modl, \(x) x$ci.ub[1]),
+  row.names = NULL) |>
+  mutate(across(estimate:zval, \(x) round(x, 3)),
+         across(ci.lb:ci.ub, \(x) round(x, 3)),
+         pval = ifelse(pval < 0.001, "<0.001",
+                       round(pval, digits = 3)))
 
 
 ##############################################################################
 # Plot prep
 ##############################################################################
 # Add exp type to all data frames to merge together
-df_box_np$manip_type <- "np"
-df_box_p$manip_type <- "p"
-df_box_n$manip_type <- "n"
-
-npfert_lnRR$manip_type <- "np"
-pfert_lnRR$manip_type <- "p"
-nfert_lnRR$manip_type <- "n"
+npfert_lnRR$nut_add <- "np"
+pfert_lnRR$nut_add <- "p"
+nfert_lnRR$nut_add <- "n"
 
 # Merge N, P, and NP meta results
 nfert_lnRR %>%
@@ -446,11 +421,10 @@ nfert_lnRR %>%
   write.csv("../data/CNPmeta_logr_results.csv", row.names = F)
 
 # Merge N, P, and NP meta results
-help <- df_box_n %>%
-  full_join(df_box_p) %>%
-  full_join(df_box_np) %>%
-  filter(!is.na(middle)) %>%
-  mutate(manip_type = factor(manip_type, levels = c("np", "p", "n")),
+out_n_modl_df %>%
+  full_join(out_p_modl_df) %>%
+  full_join(out_np_modl_df) %>%
+  mutate(nut_add = factor(nut_add, levels = c("n", "p", "np")),
          var = factor(var, 
                       levels = c("rootshoot", "rmf", "bgb", "bnpp", "anpp_p", 
                                  "anpp_n", "agb", "anpp", "total_biomass", "tbio_gm2", 
@@ -459,20 +433,15 @@ help <- df_box_n %>%
                                  "leaf_structural_p", "leaf_nucleic_p", 
                                  "leaf_metabolic_p", "leaf_pi", "leaf_pre",
                                  "leaf_nre", "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                 "leaf_n_area", "leaf_n_mass", "lma"))) %>%
-  mutate(middle_fixed = ifelse(middle >= 0,
-                               sprintf(" %.3f", middle),
-                               sprintf("%.3f", middle)),
-         plot_label = paste0("paste('", middle_fixed, "'^'", sig.level, "')"),
-         bold_yn = ifelse(sig.level %in% c("*", "**", "***"),
-                          "bold", "plain"),
-         middle_perc = (exp(middle) - 1) * 100,
-         upper_perc = (exp(ymax) - 1) * 100,
-         lower_perc = (exp(ymin) - 1) * 100) #%>%
+                                 "leaf_n_area", "leaf_n_mass", "lma")),
+         estimate_se = str_c(estimate, "±", SE),
+         ci_range = str_c("[", ci.lb, ", ", ci.ub, "]")) %>%
+  arrange(var, nut_add) %>%
+  dplyr::select(var:SE, estimate_se, zval:pval, ci.lb, ci.ub, ci_range) #%>%
   #write.csv("../data/CNPmeta_ci.csv", row.names = F)
 
 # Factor interaction effect size variables in a certain order
-df_box_int %>%
+out_int_modl_df %>%
   mutate(var = factor(var, 
                       levels = c("rootshoot", "rmf", "bgb", "bnpp", "anpp_p", 
                                  "anpp_n", "agb", "anpp", "total_biomass", "tbio_gm2", 
@@ -484,7 +453,8 @@ df_box_int %>%
                                  "leaf_n_area", "leaf_n_mass", "lma")),
          int_type = ifelse(var %in% c("leaf_np", "anpp", "leaf_p_mass"),
                            "synergistic", "additive"),
-         middle_perc = (exp(middle) - 1) * 100,
-         upper_perc = (exp(ymax) - 1) * 100,
-         lower_perc = (exp(ymin) - 1) * 100) %>%
-  write.csv("../data/CNPmeta_ci_int.csv", row.names = F)
+         estimate_se = str_c(estimate, "±", SE),
+         ci_range = str_c("[", ci.lb, ", ", ci.ub, "]")) %>%
+  arrange(var, nut_add) %>%
+  dplyr::select(var:SE, estimate_se, zval:pval, ci.lb, ci.ub, ci_range) # %>%
+  #write.csv("../data/CNPmeta_ci_int.csv", row.names = F)

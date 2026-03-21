@@ -1258,13 +1258,13 @@ int_marea_pft_results %>%
   full_join(int_parea_pft_results) %>%
   full_join(int_leafnp_pft_results) %>%
   full_join(int_asat_pft_results) %>%
+  full_join(int_rd_pft_results) %>%
+  full_join(int_gsw_pft_results) %>%
   full_join(int_vcmax_pft_results) %>%
   full_join(int_jmax_pft_results) %>%
+  full_join(int_jmaxvcmax_pft_results)
   full_join(int_pnue_pft_results) %>%
   full_join(int_ppue_pft_results) %>%
-  mutate(estimate_perc = (exp(estimate) - 1) * 100,
-         lowerCL_perc = (exp(lowerCL) - 1) * 100,
-         upperCL_perc = (exp(upperCL) - 1) * 100,
-         across(estimate:upperCL_perc, ~round(as.numeric(.x), 3)),
+  mutate(across(estimate:upperCL_perc, ~round(as.numeric(.x), 3)),
          ci.range = str_c("[", lowerCL, ", ", upperCL, "]")) %>%
   write.csv("../data/CNPmeta_moderators_int.csv", row.names = F)
