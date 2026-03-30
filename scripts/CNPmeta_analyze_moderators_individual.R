@@ -16,6 +16,10 @@ head(meta_results_int)
 ##############################################################################
 # Marea climate moderators
 ##############################################################################
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "lma" & 
+                                        !is.na(gs_mat) & logr > -0.5 & logr < 0.6 & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
 
 # N addition
 nadd_marea_clim <- rma.mv(logr, 
@@ -28,17 +32,22 @@ nadd_marea_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
                                      myvar == "lma" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & logr > -0.5 & gs_ai < 3))
 
 nadd_marea_clim_summary <- data.frame(trait = "marea",
                                       nut_add = "n",
-                                      k = 81,
+                                      k = 78,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(nadd_marea_clim)),
                                       row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "lma" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -0.5 & logr < 0.7)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_marea_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -49,17 +58,22 @@ padd_marea_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "p" & 
                                      myvar == "lma" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3 & logr > -0.5 & logr < 0.7))
 
 padd_marea_clim_summary <- data.frame(trait = "marea",
                                       nut_add = "p",
-                                      k = 81,
+                                      k = 77,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(padd_marea_clim)),
                                       row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "lma" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -0.5)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_marea_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -70,11 +84,11 @@ npadd_marea_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "np" & 
                                      myvar == "lma" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3 & logr > -0.5))
 
 npadd_marea_clim_summary <- data.frame(trait = "marea",
                                        nut_add = "np",
-                                       k = 81,
+                                       k = 76,
                                        mod = c("intrcpt", "gs_mat",
                                                "gs_ai", "gs_par"),
                                        coef(summary(npadd_marea_clim)),
@@ -92,6 +106,12 @@ marea_clim_summary <- rbind(nadd_marea_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "leaf_n_mass" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
+
 nadd_nmass_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -102,17 +122,22 @@ nadd_nmass_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
                                      myvar == "leaf_n_mass" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3))
 
 nadd_nmass_clim_summary <- data.frame(trait = "nmass",
                                       nut_add = "n",
-                                      k = 105,
+                                      k = 103,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(nadd_nmass_clim)),
                                       row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "leaf_n_mass" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr < 0.5)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_nmass_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -123,17 +148,22 @@ padd_nmass_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "p" & 
                                      myvar == "leaf_n_mass" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3 & logr < 0.5))
 
 padd_nmass_clim_summary <- data.frame(trait = "nmass",
                                       nut_add = "p",
-                                      k = 105,
+                                      k = 103,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(padd_nmass_clim)),
                                       row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "leaf_n_mass" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr < 0.7 & logr > -0.3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_nmass_clim <- rma.mv(logr, 
                            logr_var,
                            method = "REML", 
@@ -144,11 +174,11 @@ npadd_nmass_clim <- rma.mv(logr,
                            data = meta_results %>% 
                              filter(manip_type == "np" & 
                                       myvar == "leaf_n_mass" & 
-                                      !is.na(gs_mat)))
+                                      !is.na(gs_mat) & logr < 0.7 & logr > -0.3))
 
 npadd_nmass_clim_summary <- data.frame(trait = "nmass",
                                        nut_add = "np",
-                                       k = 105,
+                                       k = 103,
                                        mod = c("intrcpt", "gs_mat",
                                                "gs_ai", "gs_par"),
                                        coef(summary(npadd_nmass_clim)),
@@ -166,6 +196,11 @@ nmass_clim_summary <- rbind(nadd_nmass_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "leaf_n_area" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -1)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 nadd_narea_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -176,7 +211,7 @@ nadd_narea_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
                                      myvar == "leaf_n_area" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & logr > -1))
 
 nadd_narea_clim_summary <- data.frame(trait = "narea",
                                       nut_add = "n",
@@ -187,6 +222,11 @@ nadd_narea_clim_summary <- data.frame(trait = "narea",
                                       row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "leaf_n_area" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -1)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_narea_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -197,17 +237,22 @@ padd_narea_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "p" & 
                                      myvar == "leaf_n_area" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3 & logr > -1))
 
 padd_narea_clim_summary <- data.frame(trait = "narea",
                                       nut_add = "p",
-                                      k = 52,
+                                      k = 49,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(padd_narea_clim)),
                                       row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "leaf_n_area" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -0.5)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_narea_clim <- rma.mv(logr, 
                            logr_var,
                            method = "REML", 
@@ -218,11 +263,11 @@ npadd_narea_clim <- rma.mv(logr,
                            data = meta_results %>% 
                              filter(manip_type == "np" & 
                                       myvar == "leaf_n_area" & 
-                                      !is.na(gs_mat)))
+                                      !is.na(gs_mat) & gs_ai < 3 & logr > -0.5))
 
 npadd_narea_clim_summary <- data.frame(trait = "narea",
                                        nut_add = "np",
-                                       k = 52,
+                                       k = 48,
                                        mod = c("intrcpt", "gs_mat",
                                                "gs_ai", "gs_par"),
                                        coef(summary(npadd_narea_clim)),
@@ -240,6 +285,11 @@ narea_clim_summary <- rbind(nadd_narea_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "leaf_p_mass" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -0.7)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 nadd_pmass_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -250,17 +300,22 @@ nadd_pmass_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
                                      myvar == "leaf_p_mass" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3 & logr > -0.7))
 
 nadd_pmass_clim_summary <- data.frame(trait = "pmass",
                                       nut_add = "n",
-                                      k = 99,
+                                      k = 95,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(nadd_pmass_clim)),
                                       row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "leaf_p_mass" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_pmass_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -271,17 +326,22 @@ padd_pmass_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "p" & 
                                      myvar == "leaf_p_mass" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3))
 
 padd_pmass_clim_summary <- data.frame(trait = "pmass",
                                       nut_add = "p",
-                                      k = 99,
+                                      k = 97,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(padd_pmass_clim)),
                                       row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "leaf_p_mass" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_pmass_clim <- rma.mv(logr, 
                            logr_var,
                            method = "REML", 
@@ -292,11 +352,11 @@ npadd_pmass_clim <- rma.mv(logr,
                            data = meta_results %>% 
                              filter(manip_type == "np" & 
                                       myvar == "leaf_p_mass" & 
-                                      !is.na(gs_mat)))
+                                      !is.na(gs_mat) & gs_ai < 3))
 
 npadd_pmass_clim_summary <- data.frame(trait = "pmass",
                                        nut_add = "np",
-                                       k = 99,
+                                       k = 97,
                                        mod = c("intrcpt", "gs_mat",
                                                "gs_ai", "gs_par"),
                                        coef(summary(npadd_pmass_clim)),
@@ -314,6 +374,11 @@ pmass_clim_summary <- rbind(nadd_pmass_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "leaf_p_area" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 nadd_parea_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -324,17 +389,22 @@ nadd_parea_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
                                      myvar == "leaf_p_area" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3))
 
 nadd_parea_clim_summary <- data.frame(trait = "parea",
                                       nut_add = "n",
-                                      k = 47,
+                                      k = 45,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(nadd_parea_clim)),
                                       row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "leaf_p_area" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_parea_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -345,18 +415,23 @@ padd_parea_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "p" & 
                                      myvar == "leaf_p_area" & 
-                                     !is.na(gs_mat) & logr > -1))
+                                     !is.na(gs_mat) & gs_ai < 3 & logr > -1))
 
 
 padd_parea_clim_summary <- data.frame(trait = "parea",
                                       nut_add = "p",
-                                      k = 47,
+                                      k = 44,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(padd_parea_clim)),
                                       row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "leaf_p_area" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -1 & logr < 1.5)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_parea_clim <- rma.mv(logr, 
                            logr_var,
                            method = "REML", 
@@ -367,11 +442,11 @@ npadd_parea_clim <- rma.mv(logr,
                            data = meta_results %>% 
                              filter(manip_type == "np" & 
                                       myvar == "leaf_p_area" & 
-                                      !is.na(gs_mat)))
+                                      !is.na(gs_mat) & gs_ai < 3 & logr > -1 & logr < 1.5))
 
 npadd_parea_clim_summary <- data.frame(trait = "parea",
                                        nut_add = "np",
-                                       k = 47,
+                                       k = 43,
                                        mod = c("intrcpt", "gs_mat",
                                                "gs_ai", "gs_par"),
                                        coef(summary(npadd_parea_clim)),
@@ -389,6 +464,11 @@ parea_clim_summary <- rbind(nadd_parea_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "leaf_np" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 nadd_leafnp_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -399,17 +479,22 @@ nadd_leafnp_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
                                      myvar == "leaf_np" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3))
 
 nadd_leafnp_clim_summary <- data.frame(trait = "leaf_np",
                                       nut_add = "n",
-                                      k = 86,
+                                      k = 84,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(nadd_leafnp_clim)),
                                       row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "leaf_np" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -1.6)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_leafnp_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -420,17 +505,22 @@ padd_leafnp_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "p" & 
                                      myvar == "leaf_np" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3 & logr > -1.6))
 
 padd_leafnp_clim_summary <- data.frame(trait = "leaf_np",
                                       nut_add = "p",
-                                      k = 86,
+                                      k = 83,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(padd_leafnp_clim)),
                                       row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "leaf_np" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_leafnp_clim <- rma.mv(logr, 
                            logr_var,
                            method = "REML", 
@@ -441,11 +531,11 @@ npadd_leafnp_clim <- rma.mv(logr,
                            data = meta_results %>% 
                              filter(manip_type == "np" & 
                                       myvar == "leaf_np" & 
-                                      !is.na(gs_mat)))
+                                      !is.na(gs_mat) & gs_ai < 3))
 
 npadd_leafnp_clim_summary <- data.frame(trait = "leaf_np",
                                        nut_add = "np",
-                                       k = 86,
+                                       k = 84,
                                        mod = c("intrcpt", "gs_mat",
                                                "gs_ai", "gs_par"),
                                        coef(summary(npadd_leafnp_clim)),
@@ -463,6 +553,11 @@ leafnp_clim_summary <- rbind(nadd_leafnp_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "tbio_gm2" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -0.75)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 nadd_tbio_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -473,17 +568,22 @@ nadd_tbio_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "n" & 
                                      myvar == "tbio_gm2" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3 & logr > -0.75))
 
 nadd_tbio_clim_summary <- data.frame(trait = "tbio_gm2",
                                      nut_add = "n",
-                                     k = 31,
+                                     k = 29,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(nadd_tbio_clim)),
                                      row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "tbio_gm2" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_tbio_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
@@ -494,17 +594,22 @@ padd_tbio_clim <- rma.mv(logr,
                          data = meta_results %>% 
                            filter(manip_type == "p" & 
                                     myvar == "tbio_gm2" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & gs_ai < 3))
 
 padd_tbio_clim_summary <- data.frame(trait = "tbio",
                                      nut_add = "p",
-                                     k = 31,
+                                     k = 30,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(padd_tbio_clim)),
                                      row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "tbio_gm2" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_tbio_clim <- rma.mv(logr, 
                            logr_var,
                            method = "REML", 
@@ -515,11 +620,11 @@ npadd_tbio_clim <- rma.mv(logr,
                            data = meta_results %>% 
                              filter(manip_type == "np" & 
                                       myvar == "tbio_gm2" & 
-                                      !is.na(gs_mat)))
+                                      !is.na(gs_mat) & gs_ai < 3))
 
 npadd_tbio_clim_summary <- data.frame(trait = "tbio",
                                       nut_add = "np",
-                                      k = 31,
+                                      k = 30,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(npadd_tbio_clim)),
@@ -537,6 +642,11 @@ tbio_clim_summary <- rbind(nadd_tbio_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "anpp" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr < 1.5)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 nadd_anpp_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
@@ -547,17 +657,22 @@ nadd_anpp_clim <- rma.mv(logr,
                          data = meta_results %>% 
                            filter(manip_type == "n" & 
                                     myvar == "anpp" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & gs_ai < 3 & logr < 1.5))
 
 nadd_agb_clim_summary <- data.frame(trait = "anpp",
                                     nut_add = "n",
-                                    k = 113,
+                                    k = 111,
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
                                     coef(summary(nadd_anpp_clim)),
                                     row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "anpp" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr < 2 & logr > -0.8)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_anpp_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
@@ -568,17 +683,22 @@ padd_anpp_clim <- rma.mv(logr,
                          data = meta_results %>% 
                            filter(manip_type == "p" & 
                                     myvar == "anpp" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & gs_ai < 3 & logr < 2 & logr > -0.8))
 
 padd_agb_clim_summary <- data.frame(trait = "anpp",
                                     nut_add = "p",
-                                    k = 113,
+                                    k = 109,
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
                                     coef(summary(padd_anpp_clim)),
                                     row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "anpp" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr < 2 & logr > -0.5)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_anpp_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -589,11 +709,11 @@ npadd_anpp_clim <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "np" & 
                                      myvar == "anpp" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3 & logr < 2 & logr > -0.5))
 
 npadd_agb_clim_summary <- data.frame(trait = "anpp",
                                      nut_add = "np",
-                                     k = 113,
+                                     k = 104,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(npadd_anpp_clim)),
@@ -611,6 +731,11 @@ agb_clim_summary <- rbind(nadd_agb_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "bnpp" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -0.9 & logr < 0.75)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 nadd_bnpp_clim <- rma.mv(logr, 
                         logr_var,
                         method = "REML", 
@@ -621,17 +746,22 @@ nadd_bnpp_clim <- rma.mv(logr,
                         data = meta_results %>% 
                           filter(manip_type == "n" & 
                                    myvar == "bnpp" & 
-                                   !is.na(gs_mat)))
+                                   !is.na(gs_mat) & gs_ai < 3 & logr > -0.9 & logr < 0.75))
 
 nadd_bnpp_clim_summary <- data.frame(trait = "bnpp",
                                      nut_add = "n",
-                                     k = 53,
+                                     k = 45,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(nadd_bnpp_clim)),
                                      row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "bnpp" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr < 1)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_bnpp_clim <- rma.mv(logr, 
                         logr_var,
                         method = "REML", 
@@ -642,17 +772,22 @@ padd_bnpp_clim <- rma.mv(logr,
                         data = meta_results %>% 
                           filter(manip_type == "p" & 
                                    myvar == "bnpp" & 
-                                   !is.na(gs_mat)))
+                                   !is.na(gs_mat) & gs_ai < 3 & logr < 1))
 
 padd_bnpp_clim_summary <- data.frame(trait = "bnpp",
                                      nut_add = "p",
-                                     k = 53,
+                                     k = 51,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(padd_bnpp_clim)),
                                      row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "bnpp" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -2 & logr < 1.5)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_bnpp_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
@@ -663,11 +798,11 @@ npadd_bnpp_clim <- rma.mv(logr,
                          data = meta_results %>% 
                            filter(manip_type == "np" & 
                                     myvar == "bnpp" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & gs_ai < 3 & logr > -2 & logr < 1.5))
 
 npadd_bnpp_clim_summary <- data.frame(trait = "bnpp",
                                       nut_add = "np",
-                                      k = 53,
+                                      k = 50,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(npadd_bnpp_clim)),
@@ -685,6 +820,11 @@ bgb_clim_summary <- rbind(nadd_bnpp_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "rmf" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 nadd_rmf_clim <- rma.mv(logr, 
                         logr_var,
                         method = "REML", 
@@ -695,17 +835,22 @@ nadd_rmf_clim <- rma.mv(logr,
                         data = meta_results %>% 
                           filter(manip_type == "n" & 
                                    myvar == "rmf" & 
-                                   !is.na(gs_mat)))
+                                   !is.na(gs_mat) & gs_ai < 3))
 
 nadd_rmf_clim_summary <- data.frame(trait = "rmf",
                                     nut_add = "n",
-                                    k = 35,
+                                    k = 34,
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
                                     coef(summary(nadd_rmf_clim)),
                                     row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "rmf" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_rmf_clim <- rma.mv(logr, 
                         logr_var,
                         method = "REML", 
@@ -716,17 +861,22 @@ padd_rmf_clim <- rma.mv(logr,
                         data = meta_results %>% 
                           filter(manip_type == "p" & 
                                    myvar == "rmf" & 
-                                   !is.na(gs_mat)))
+                                   !is.na(gs_mat) & gs_ai < 3 & logr > -1))
 
 padd_rmf_clim_summary <- data.frame(trait = "rmf",
                                     nut_add = "p",
-                                    k = 35,
+                                    k = 33,
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
                                     coef(summary(padd_rmf_clim)),
                                     row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "rmf" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_rmf_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
@@ -737,11 +887,11 @@ npadd_rmf_clim <- rma.mv(logr,
                          data = meta_results %>% 
                            filter(manip_type == "np" & 
                                     myvar == "rmf" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & gs_ai < 3))
 
 npadd_rmf_clim_summary <- data.frame(trait = "rmf",
                                      nut_add = "np",
-                                     k = 35,
+                                     k = 34,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(npadd_rmf_clim)),
@@ -759,6 +909,11 @@ rmf_clim_summary <- rbind(nadd_rmf_clim_summary,
 ##############################################################################
 
 # N addition
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "rootshoot" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -1.5)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 nadd_rootshoot_clim <- rma.mv(logr, 
                         logr_var,
                         method = "REML", 
@@ -769,38 +924,48 @@ nadd_rootshoot_clim <- rma.mv(logr,
                         data = meta_results %>% 
                           filter(manip_type == "n" & 
                                    myvar == "rootshoot" & 
-                                   !is.na(gs_mat)))
+                                   !is.na(gs_mat) & gs_ai < 3 & logr > -1.5))
 
 nadd_rootshoot_clim_summary <- data.frame(trait = "rootshoot",
                                           nut_add = "n",
-                                          k = 37,
+                                          k = 34,
                                           mod = c("intrcpt", "gs_mat",
                                                   "gs_ai", "gs_par"),
                                           coef(summary(nadd_rootshoot_clim)),
                                           row.names = NULL)
 
 # P addition
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "rootshoot" & 
+                                        !is.na(gs_mat) & gs_ai < 3 & logr > -1.5)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 padd_rootshoot_clim <- rma.mv(logr, 
-                        logr_var,
-                        method = "REML", 
-                        random = ~ 1 | exp, 
-                        mods = ~ gs_mat + gs_ai + gs_par,
-                        slab = exp, 
-                        control = list(stepadj = 0.3), 
-                        data = meta_results %>% 
-                          filter(manip_type == "p" & 
-                                   myvar == "rootshoot" & 
-                                   !is.na(gs_mat)))
+                              logr_var,
+                              method = "REML", 
+                              random = ~ 1 | exp, 
+                              mods = ~ gs_mat + gs_ai + gs_par,
+                              slab = exp, 
+                              control = list(stepadj = 0.3), 
+                              data = meta_results %>% 
+                                filter(manip_type == "p" & 
+                                         myvar == "rootshoot" & 
+                                         !is.na(gs_mat) & gs_ai < 3 & logr > -1.5))
 
 padd_rootshoot_clim_summary <- data.frame(trait = "rmf",
                                           nut_add = "p",
-                                          k = 37,
+                                          k = 34,
                                           mod = c("intrcpt", "gs_mat",
                                                   "gs_ai", "gs_par"),
                                           coef(summary(padd_rootshoot_clim)),
                                           row.names = NULL)
 
 # N+P addition
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "rootshoot" & 
+                                        !is.na(gs_mat) & gs_ai < 3)) +
+  geom_point(aes(x = gs_mat, y = logr))
+
 npadd_rootshoot_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
@@ -811,11 +976,11 @@ npadd_rootshoot_clim <- rma.mv(logr,
                          data = meta_results %>% 
                            filter(manip_type == "np" & 
                                     myvar == "rootshoot" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & gs_ai < 3))
 
 npadd_rootshoot_clim_summary <- data.frame(trait = "rootshoot",
                                            nut_add = "np",
-                                           k = 37,
+                                           k = 36,
                                            mod = c("intrcpt", "gs_mat",
                                                    "gs_ai", "gs_par"),
                                            coef(summary(npadd_rootshoot_clim)),
@@ -842,8 +1007,11 @@ marea_clim_summary %>%
   full_join(bgb_clim_summary) %>%
   full_join(rmf_clim_summary) %>%
   full_join(rootshoot_clim_summary) %>%
-  write.csv("../data/CNPmeta_clim_moderators.csv", 
-            row.names = F)
+  mutate(across(estimate:ci.ub, \(x) round(x, digits = 3)),
+         ci_range = str_c("[", sprintf("%.3f", ci.lb), ", ", sprintf("%.3f", ci.ub), "]")) %>%
+  write.csv("../data/CNPmeta_clim_moderators.csv", row.names = F)
+
+
 
 ##############################################################################
 # Marea
@@ -852,6 +1020,13 @@ marea_clim_summary %>%
 #############
 # N addition
 #############
+
+# Visualize data distribution
+ggplot(data = meta_results %>% filter(manip_type == "n" & 
+                                        myvar == "lma" & 
+                                        !is.na(photo_path))) +
+  geom_point(aes(x = photo_path, y = logr))
+
 # Model 
 nadd_marea_pft <- rma.mv(logr, 
                          logr_var,
@@ -863,7 +1038,7 @@ nadd_marea_pft <- rma.mv(logr,
                          data = meta_results %>% 
                            filter(manip_type == "n" & 
                                     myvar == "lma" & 
-                                    !is.na(photo_path)))
+                                    !is.na(photo_path) & logr > -0.5))
 
 # Extract photosynthetic pathway summary statistics
 nadd_marea_photo <- data.frame(trait = "marea", 
@@ -901,11 +1076,19 @@ nadd_marea_nfix <- data.frame(trait = "marea",
 # Merge summary statistics into single data frame
 nadd_marea_pft_results <- nadd_marea_photo %>% 
   rbind(nadd_marea_myc) %>% 
-  rbind(nadd_marea_nfix)
+  rbind(nadd_marea_nfix) %>%
+  mutate(k = 112)
 
 #############
 # P addition
 #############
+
+# Visualize data distribution
+ggplot(data = meta_results %>% filter(manip_type == "p" & 
+                                        myvar == "lma" & 
+                                        !is.na(photo_path) & logr > -1 & logr < 0.8)) +
+  geom_point(aes(x = photo_path, y = logr))
+
 # Model
 padd_marea_pft <- rma.mv(logr, 
                           logr_var,
@@ -917,7 +1100,7 @@ padd_marea_pft <- rma.mv(logr,
                           data = meta_results %>% 
                             filter(manip_type == "p" & 
                                      myvar == "lma" & 
-                                     !is.na(photo_path)))
+                                     !is.na(photo_path) & logr > -1 & logr < 0.8))
 
 # Extract photosynthetic pathway summary statistics
 padd_marea_photo <- data.frame(trait = "marea", 
@@ -955,11 +1138,19 @@ padd_marea_nfix <- data.frame(trait = "marea",
 # Merge summary statistics into single data frame
 padd_marea_pft_results <- padd_marea_photo %>% 
   rbind(padd_marea_myc) %>% 
-  rbind(padd_marea_nfix)
+  rbind(padd_marea_nfix) %>%
+  mutate(k = 111)
 
 #############
 # N+P addition
 #############
+
+# Visualize data distribution
+ggplot(data = meta_results %>% filter(manip_type == "np" & 
+                                        myvar == "lma" & 
+                                        !is.na(photo_path) & logr > -1 & logr < 1)) +
+  geom_point(aes(x = photo_path, y = logr))
+
 # Model
 npadd_marea_pft <- rma.mv(logr, 
                            logr_var,
@@ -971,7 +1162,7 @@ npadd_marea_pft <- rma.mv(logr,
                            data = meta_results %>% 
                              filter(manip_type == "np" & 
                                       myvar == "lma" & 
-                                      !is.na(photo_path)))
+                                      !is.na(photo_path) & logr > -1 & logr < 1))
 
 # Extract photosynthetic pathway summary statistics
 npadd_marea_photo <- data.frame(trait = "marea", 
@@ -1009,7 +1200,12 @@ npadd_marea_nfix <- data.frame(trait = "marea",
 # Merge summary statistics into single data frame
 npadd_marea_pft_results <- npadd_marea_photo %>% 
   rbind(npadd_marea_myc) %>% 
-  rbind(npadd_marea_nfix)
+  rbind(npadd_marea_nfix) %>%
+  mutate(k = 111)
+
+
+############### stopped here 03/30/2026 ###############
+
 
 #############
 # Merge Marea moderator results, with some light cleaning

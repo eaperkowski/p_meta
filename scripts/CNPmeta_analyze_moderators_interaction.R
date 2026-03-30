@@ -22,7 +22,7 @@ head(meta_results_int)
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "lma" & !is.na(gs_mat)) %>%
+  filter(response == "lma" & !is.na(gs_mat) & gs_ai < 3 & dNPi < 2) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -36,11 +36,12 @@ int_marea_clim <- rma.mv(yi = dNPi,
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
                            filter(response == "lma" & 
-                                    !is.na(gs_mat) & dNPi < 2))
+                                    !is.na(gs_mat) & gs_ai < 3 & dNPi < 2))
 
 # Summary
 int_marea_clim_summary <- data.frame(trait = "marea",
                                      nut_add = "int",
+                                     k = 78,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(int_marea_clim)),
@@ -52,7 +53,7 @@ int_marea_clim_summary <- data.frame(trait = "marea",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "leaf_n_mass" & !is.na(gs_mat)) %>%
+  filter(response == "leaf_n_mass" & !is.na(gs_mat) & gs_ai < 3 & dNPi > -1.9) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
@@ -66,11 +67,12 @@ int_nmass_clim <- rma.mv(yi = dNPi,
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
                            filter(response == "leaf_n_mass" & 
-                                    !is.na(gs_mat) & dNPi > -2))
+                                    !is.na(gs_mat) & gs_ai < 3 & dNPi > -1.9))
 
 # Summary
 int_nmass_clim_summary <- data.frame(trait = "nmass",
                                      nut_add = "int",
+                                     k = 101,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(int_nmass_clim)),
@@ -79,6 +81,12 @@ int_nmass_clim_summary <- data.frame(trait = "nmass",
 ##############################################################################
 # Narea climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_n_area" & !is.na(gs_mat) & gs_ai < 3) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_narea_clim <- rma.mv(yi = dNPi,
@@ -90,11 +98,12 @@ int_narea_clim <- rma.mv(yi = dNPi,
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
                            filter(response == "leaf_n_area" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & gs_ai < 3))
 
 # Summary
 int_narea_clim_summary <- data.frame(trait = "narea",
                                      nut_add = "int",
+                                     k = 50,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(int_narea_clim)),
@@ -103,6 +112,12 @@ int_narea_clim_summary <- data.frame(trait = "narea",
 ##############################################################################
 # Pmass climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_p_mass" & !is.na(gs_mat) & gs_ai < 3) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_pmass_clim <- rma.mv(yi = dNPi,
@@ -114,11 +129,12 @@ int_pmass_clim <- rma.mv(yi = dNPi,
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
                            filter(response == "leaf_p_mass" & 
-                                    !is.na(gs_mat)))
+                                    !is.na(gs_mat) & gs_ai < 3))
 
 # Summary
 int_pmass_clim_summary <- data.frame(trait = "pmass",
                                      nut_add = "int",
+                                     k = 97,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(int_pmass_clim)),
@@ -127,6 +143,12 @@ int_pmass_clim_summary <- data.frame(trait = "pmass",
 ##############################################################################
 # Parea climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_p_area" & !is.na(gs_mat) & gs_ai < 3 & dNPi < 2) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_parea_clim <- rma.mv(yi = dNPi,
@@ -138,11 +160,12 @@ int_parea_clim <- rma.mv(yi = dNPi,
                          control = list(stepadj = 0.3), 
                          data = meta_results_int %>% 
                            filter(response == "leaf_p_area" & 
-                                    !is.na(gs_mat) & dNPi < 2))
+                                    !is.na(gs_mat) & gs_ai < 3 & dNPi < 2))
 
 # Summary
 int_parea_clim_summary <- data.frame(trait = "parea",
                                      nut_add = "int",
+                                     k = 44,
                                      mod = c("intrcpt", "gs_mat",
                                              "gs_ai", "gs_par"),
                                      coef(summary(int_parea_clim)),
@@ -151,6 +174,12 @@ int_parea_clim_summary <- data.frame(trait = "parea",
 ##############################################################################
 # Leaf N:P climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_np" & !is.na(gs_mat) & gs_ai < 3 & dNPi > -2) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_leafnp_clim <- rma.mv(yi = dNPi,
@@ -162,11 +191,12 @@ int_leafnp_clim <- rma.mv(yi = dNPi,
                           control = list(stepadj = 0.3), 
                           data = meta_results_int %>% 
                             filter(response == "leaf_np" & 
-                                     !is.na(gs_mat)))
+                                     !is.na(gs_mat) & gs_ai < 3 & dNPi > -2))
 
 # Summary
 int_leafnp_clim_summary <- data.frame(trait = "leaf_np",
                                       nut_add = "int",
+                                      k = 82,
                                       mod = c("intrcpt", "gs_mat",
                                               "gs_ai", "gs_par"),
                                       coef(summary(int_leafnp_clim)),
@@ -176,6 +206,12 @@ int_leafnp_clim_summary <- data.frame(trait = "leaf_np",
 ##############################################################################
 # Total biomass climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "tbio_gm2" & !is.na(gs_mat) & gs_ai < 3 & dNPi < 1.25) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_tbio_clim <- rma.mv(yi = dNPi,
@@ -187,11 +223,12 @@ int_tbio_clim <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "tbio_gm2" & 
-                                   !is.na(gs_mat)))
+                                   !is.na(gs_mat) & gs_ai < 3 & dNPi < 1.25))
 
 # Summary
 int_tbio_clim_summary <- data.frame(trait = "tbio_gm2",
                                     nut_add = "int",
+                                    k = 29,
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
                                     coef(summary(int_tbio_clim)),
@@ -200,6 +237,12 @@ int_tbio_clim_summary <- data.frame(trait = "tbio_gm2",
 ##############################################################################
 # Aboveground biomass climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "anpp" & !is.na(gs_mat) & gs_ai < 3 & dNPi < 2 & dNPi > -1) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_anpp_clim <- rma.mv(yi = dNPi,
@@ -211,11 +254,12 @@ int_anpp_clim <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "anpp" & 
-                                   !is.na(gs_mat) & dNPi < 2 & dNPi > -2))
+                                   !is.na(gs_mat) & gs_ai < 3 & dNPi < 2 & dNPi > -2))
 
 # Summary
 int_anpp_clim_summary <- data.frame(trait = "anpp",
                                     nut_add = "int",
+                                    k = 104,
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
                                     coef(summary(int_anpp_clim)),
@@ -224,6 +268,12 @@ int_anpp_clim_summary <- data.frame(trait = "anpp",
 ##############################################################################
 # Belowground biomass climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "bnpp" & !is.na(gs_mat) & gs_ai < 3 & dNPi > -1) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_bnpp_clim <- rma.mv(yi = dNPi,
@@ -234,12 +284,13 @@ int_bnpp_clim <- rma.mv(yi = dNPi,
                         slab = exp, 
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
-                          filter(response == "bgb" & 
-                                   !is.na(gs_mat)))
+                          filter(response == "bnpp" & 
+                                   !is.na(gs_mat) & gs_ai < 3 & dNPi > -1))
 
 # Summary
 int_bnpp_clim_summary <- data.frame(trait = "bnpp",
                                     nut_add = "int",
+                                    k = 51,
                                     mod = c("intrcpt", "gs_mat",
                                             "gs_ai", "gs_par"),
                                     coef(summary(int_bnpp_clim)),
@@ -248,6 +299,12 @@ int_bnpp_clim_summary <- data.frame(trait = "bnpp",
 ##############################################################################
 # Root mass fraction climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "rmf" & !is.na(gs_mat) & gs_ai < 3) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_rmf_clim <- rma.mv(yi = dNPi,
@@ -259,11 +316,12 @@ int_rmf_clim <- rma.mv(yi = dNPi,
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
                          filter(response == "rmf" & 
-                                  !is.na(gs_mat)))
+                                  !is.na(gs_mat) & gs_ai < 3))
 
 # Summary
 int_rmf_clim_summary <- data.frame(trait = "rmf",
                                    nut_add = "int",
+                                   k = 34,
                                    mod = c("intrcpt", "gs_mat",
                                            "gs_ai", "gs_par"),
                                    coef(summary(int_rmf_clim)),
@@ -272,6 +330,12 @@ int_rmf_clim_summary <- data.frame(trait = "rmf",
 ##############################################################################
 # Root:shoot climate moderators
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "rootshoot" & !is.na(gs_mat) & gs_ai < 3) %>%
+  ggplot(aes(x = gs_mat, y = dNPi)) +
+  geom_point()
 
 # Model
 int_rootshoot_clim <- rma.mv(yi = dNPi,
@@ -283,11 +347,12 @@ int_rootshoot_clim <- rma.mv(yi = dNPi,
                              control = list(stepadj = 0.3), 
                              data = meta_results_int %>% 
                                filter(response == "rootshoot" & 
-                                        !is.na(gs_mat)))
+                                        !is.na(gs_mat) & gs_ai < 3))
 
 # Summary
 int_rootshoot_clim_summary <- data.frame(trait = "rootshoot",
                                          nut_add = "int",
+                                         k = 36,
                                          mod = c("intrcpt", "gs_mat",
                                                  "gs_ai", "gs_par"),
                                          coef(summary(int_rootshoot_clim)),
@@ -307,20 +372,23 @@ int_marea_clim_summary %>%
   full_join(int_bnpp_clim_summary) %>%
   full_join(int_rmf_clim_summary) %>%
   full_join(int_rootshoot_clim_summary) %>%
-  mutate(estimate_perc = (exp(estimate) - 1) * 100,
-         se_perc = (exp(se) - 1) * 100,
-         ci.lb_perc = (exp(ci.lb) - 1) * 100,
-         ci.ub_perc = (exp(ci.ub) - 1) * 100,
-         across(estimate:ci.ub_perc, ~round(.x, 3)),
-         estimate_se = str_c(estimate, "±", se),
-         estimate_se_perc = str_c(estimate_perc, "±", se_perc),
-         ci.range = str_c("[", ci.lb, ", ", ci.ub, "]"),
-         ci.range_perc = str_c("[", ci.lb_perc, ", ", ci.ub_perc, "]")) %>%
-  write.csv("../data/CNPmeta_clim_moderators_int.csv", row.names = F)
+  mutate(across(estimate:ci.ub, ~round(.x, 3)),
+         zval = str_c(sprintf("%.3f", zval)),
+         pval = str_c(sprintf("%.3f", pval)),
+         estimate_se = str_c(sprintf("%.3f", estimate), "±", sprintf("%.3f", se)),
+         ci.range = str_c("[", sprintf("%.3f", ci.lb), ", ", sprintf("%.3f", ci.ub), "]")) %>%
+  dplyr::select(trait:se, estimate_se, zval:ci.ub, ci.range) %>%
+  write_excel_csv("../data/CNPmeta_clim_moderators_int.csv")
 
 ##############################################################################
 # Marea photosynthetic pathway
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "lma" & !is.na(photo_path) & dNPi > -2 & dNPi < 2) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_marea_pft <- rma.mv(yi = dNPi,
@@ -332,7 +400,7 @@ int_marea_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "lma" & 
-                                   !is.na(photo_path)))
+                                   !is.na(photo_path) & dNPi > -2 & dNPi < 2))
 
 # Extract photosynthetic pathway summary statistics
 int_marea_photo <- data.frame(trait = "marea", 
@@ -374,7 +442,7 @@ int_marea_nfix <- data.frame(trait = "marea",
 int_marea_pft_results <- int_marea_photo %>% 
   rbind(int_marea_myc) %>% 
   rbind(int_marea_nfix) %>%
-  mutate(k = 113,
+  mutate(k = 110,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -383,6 +451,12 @@ int_marea_pft_results <- int_marea_photo %>%
 ##############################################################################
 # Nmass
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_n_mass" & !is.na(photo_path) & dNPi > -2) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_nmass_pft <- rma.mv(yi = dNPi,
@@ -394,7 +468,7 @@ int_nmass_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "leaf_n_mass" & 
-                                   !is.na(photo_path)))
+                                   !is.na(photo_path) & dNPi > -2))
 
 # Extract photosynthetic pathway summary statistics
 int_nmass_photo <- data.frame(trait = "nmass", 
@@ -436,7 +510,7 @@ int_nmass_nfix <- data.frame(trait = "nmass",
 int_nmass_pft_results <- int_nmass_photo %>% 
   rbind(int_nmass_myc) %>% 
   rbind(int_nmass_nfix) %>%
-  mutate(k = 136,
+  mutate(k = 134,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -446,6 +520,12 @@ int_nmass_pft_results <- int_nmass_photo %>%
 ##############################################################################
 # Narea - pft
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_n_area" & !is.na(photo_path) & dNPi > -2) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_narea_pft <- rma.mv(yi = dNPi,
@@ -457,7 +537,7 @@ int_narea_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "leaf_n_area" & 
-                                   !is.na(photo_path)))
+                                   !is.na(photo_path) & dNPi > -2))
 
 # Extract photosynthetic pathway summary statistics
 int_narea_photo <- data.frame(trait = "narea", 
@@ -499,7 +579,7 @@ int_narea_nfix <- data.frame(trait = "narea",
 int_narea_pft_results <- int_narea_photo %>% 
   rbind(int_narea_myc) %>% 
   rbind(int_narea_nfix) %>%
-  mutate(k = 87,
+  mutate(k = 86,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -508,6 +588,13 @@ int_narea_pft_results <- int_narea_photo %>%
 ##############################################################################
 # Pmass - plant functional type
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_p_mass" & !is.na(photo_path) & dNPi > -2) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
+
 # Model
 int_pmass_pft <- rma.mv(yi = dNPi,
                         V = vNPi,
@@ -518,7 +605,7 @@ int_pmass_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "leaf_p_mass" & 
-                                   !is.na(photo_path)))
+                                   !is.na(photo_path) & dNPi > -2))
 
 # Extract photosynthetic pathway summary statistics
 int_pmass_photo <- data.frame(trait = "pmass", 
@@ -560,7 +647,7 @@ int_pmass_nfix <- data.frame(trait = "pmass",
 int_pmass_pft_results <- int_pmass_photo %>% 
   rbind(int_pmass_myc) %>% 
   rbind(int_pmass_nfix) %>%
-  mutate(k = 130,
+  mutate(k = 128,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -569,6 +656,12 @@ int_pmass_pft_results <- int_pmass_photo %>%
 ##############################################################################
 # Parea - plant functional type
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_p_area" & !is.na(photo_path) & dNPi > -2 & dNPi < 2) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_parea_pft <- rma.mv(yi = dNPi,
@@ -580,7 +673,7 @@ int_parea_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "leaf_p_area" & 
-                                   !is.na(photo_path)))
+                                   !is.na(photo_path) & dNPi < 2 & dNPi > -2))
 
 # Extract photosynthetic pathway summary statistics
 int_parea_photo <- data.frame(trait = "parea", 
@@ -622,7 +715,7 @@ int_parea_nfix <- data.frame(trait = "parea",
 int_parea_pft_results <- int_parea_photo %>% 
   rbind(int_parea_myc) %>% 
   rbind(int_parea_nfix) %>%
-  mutate(k = 82,
+  mutate(k = 79,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -631,6 +724,12 @@ int_parea_pft_results <- int_parea_photo %>%
 ##############################################################################
 # Leaf N:P - plant functional type
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_np" & !is.na(photo_path)) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_leafnp_pft <- rma.mv(yi = dNPi,
@@ -694,6 +793,12 @@ int_leafnp_pft_results <- int_leafnp_photo %>%
 # Asat - plant functional type
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "asat" & !is.na(photo_path) & dNPi < 5 & dNPi > -2.5) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
+
 # Model
 int_asat_pft <- rma.mv(yi = dNPi,
                        V = vNPi,
@@ -704,7 +809,7 @@ int_asat_pft <- rma.mv(yi = dNPi,
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
                          filter(response == "asat" & 
-                                  !is.na(photo_path)))
+                                  !is.na(photo_path) & dNPi < 5 & dNPi > -2.5))
 
 # Extract photosynthetic pathway summary statistics
 int_asat_photo <- data.frame(trait = "asat", 
@@ -746,7 +851,7 @@ int_asat_nfix <- data.frame(trait = "asat",
 int_asat_pft_results <- int_asat_photo %>% 
   rbind(int_asat_myc) %>% 
   rbind(int_asat_nfix) %>%
-  mutate(k = 93,
+  mutate(k = 90,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -755,6 +860,12 @@ int_asat_pft_results <- int_asat_photo %>%
 ##############################################################################
 # gsw - plant functional type
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "gsw" & !is.na(photo_path)) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_gsw_pft <- rma.mv(yi = dNPi,
@@ -818,6 +929,12 @@ int_gsw_pft_results <- int_gsw_photo %>%
 # Rd - plant functional type
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "rd" & !is.na(photo_path)) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
+
 # Model
 int_rd_pft <- rma.mv(yi = dNPi,
                      V = vNPi,
@@ -879,6 +996,12 @@ int_rd_pft_results <- int_rd_photo %>%
 ##############################################################################
 # Vcmax - plant functional type
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "vcmax" & !is.na(photo_path)) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_vcmax_pft <- rma.mv(yi = dNPi,
@@ -942,6 +1065,12 @@ int_vcmax_pft_results <- int_vcmax_photo %>%
 # Jmax - plant functional type
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "jmax" & !is.na(photo_path)) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
+
 # Model
 int_jmax_pft <- rma.mv(yi = dNPi,
                        V = vNPi,
@@ -952,7 +1081,7 @@ int_jmax_pft <- rma.mv(yi = dNPi,
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
                          filter(response == "jmax" & 
-                                  !is.na(photo_path)))
+                                  !is.na(photo_path) & dNPi > -1))
 
 # Extract photosynthetic pathway summary statistics
 int_jmax_photo <- data.frame(trait = "jmax", 
@@ -1003,6 +1132,12 @@ int_jmax_pft_results <- int_jmax_photo %>%
 ##############################################################################
 # Jmax:Vcmax - plant functional type
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "jmax_vcmax" & !is.na(photo_path)) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_jmaxvcmax_pft <- rma.mv(yi = dNPi,
@@ -1066,6 +1201,12 @@ int_jmaxvcmax_pft_results <- int_jmaxvcmax_photo %>%
 # PNUE - plant functional type
 ##############################################################################
 
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_pnue" & !is.na(photo_path) & dNPi > -3 & dNPi < 5) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
+
 # Model
 int_pnue_pft <- rma.mv(yi = dNPi,
                        V = vNPi,
@@ -1076,7 +1217,7 @@ int_pnue_pft <- rma.mv(yi = dNPi,
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
                          filter(response == "leaf_pnue" & 
-                                  !is.na(photo_path)))
+                                  !is.na(photo_path) & dNPi > -3 & dNPi < 5))
 
 # Extract photosynthetic pathway summary statistics
 int_pnue_photo <- data.frame(trait = "pnue", 
@@ -1118,7 +1259,7 @@ int_pnue_nfix <- data.frame(trait = "pnue",
 int_pnue_pft_results <- int_pnue_photo %>% 
   rbind(int_pnue_myc) %>% 
   rbind(int_pnue_nfix) %>%
-  mutate(k = 65,
+  mutate(k = 63,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -1127,6 +1268,12 @@ int_pnue_pft_results <- int_pnue_photo %>%
 ##############################################################################
 # PPUE - plant functional type
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "leaf_ppue" & !is.na(photo_path) & dNPi > -2.5 & dNPi < 2.5) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_ppue_pft <- rma.mv(yi = dNPi,
@@ -1138,7 +1285,7 @@ int_ppue_pft <- rma.mv(yi = dNPi,
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
                          filter(response == "leaf_ppue" & 
-                                  !is.na(photo_path)))
+                                  !is.na(photo_path) & dNPi < 2.5 & dNPi > -2.5))
 
 # Extract photosynthetic pathway summary statistics
 int_ppue_photo <- data.frame(trait = "ppue", 
@@ -1180,7 +1327,7 @@ int_ppue_nfix <- data.frame(trait = "ppue",
 int_ppue_pft_results <- int_ppue_photo %>% 
   rbind(int_ppue_myc) %>% 
   rbind(int_ppue_nfix) %>%
-  mutate(k = 66,
+  mutate(k = 64,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -1189,6 +1336,12 @@ int_ppue_pft_results <- int_ppue_photo %>%
 ##############################################################################
 # ANPP - plant functional type
 ##############################################################################
+
+# Visualize responses
+meta_results_int %>% 
+  filter(response == "anpp" & !is.na(photo_path)) %>%
+  ggplot(aes(x = photo_path, y = dNPi)) +
+  geom_point()
 
 # Model
 int_anpp_pft <- rma.mv(yi = dNPi,
@@ -1262,9 +1415,9 @@ int_marea_pft_results %>%
   full_join(int_gsw_pft_results) %>%
   full_join(int_vcmax_pft_results) %>%
   full_join(int_jmax_pft_results) %>%
-  full_join(int_jmaxvcmax_pft_results)
+  full_join(int_jmaxvcmax_pft_results) %>%
   full_join(int_pnue_pft_results) %>%
   full_join(int_ppue_pft_results) %>%
-  mutate(across(estimate:upperCL_perc, ~round(as.numeric(.x), 3)),
-         ci.range = str_c("[", lowerCL, ", ", upperCL, "]")) %>%
-  write.csv("../data/CNPmeta_moderators_int.csv", row.names = F)
+  mutate(across(estimate:upperCL, ~round(as.numeric(.x), 3)),
+         ci.range = str_c("[", sprintf("%.3f", lowerCL), ", ", sprintf("%.3f", upperCL), "]")) %>%
+  write.csv("../data/CNPmeta_pft_moderators_int.csv", row.names = F)
