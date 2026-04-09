@@ -90,9 +90,7 @@ nfert_responses <- nfert_only %>%
 
 use_vars_n <- unique(nfert_responses$myvar)
 
-# Calculate log-response ratios using `escalc` in `metafor`. Also, convert SLA 
-# to Marea (logr = opposite sign, stdev/error/variance remains the same)
-
+# Calculate log-response ratios using `escalc` in `metafor`.
 nfert_lnRR <- nfert_responses %>% 
   escalc(measure = "ROM",
          m1i = x_t, sd1i = sd_t, n1i = rep_t, 
@@ -102,7 +100,35 @@ nfert_lnRR <- nfert_responses %>%
          var.names = c("logr", "logr_var")) %>%
   mutate(logr_se = sqrt(logr_var) / sqrt(rep_t))  %>%
   mutate(logr = ifelse(myvar == "sla", logr * -1, logr), 
-         myvar = ifelse(myvar == "sla", "lma", myvar))
+         myvar = ifelse(myvar == "sla", "lma", myvar),
+         logr = ifelse(myvar == "lma" & logr < -0.5, NA, logr),
+         logr = ifelse(myvar == "leaf_p_mass" & logr < -2, NA, logr),
+         logr = ifelse(myvar == "vcmax" & logr < -1, NA, logr),
+         logr = ifelse(myvar == "jmax" & logr > 1, NA, logr),
+         logr = ifelse(myvar == "jmax_vcmax" & logr > 0.3, NA, logr),
+         logr = ifelse(myvar == "leaf_pnue" & logr > 1.5, NA, logr),
+         logr = ifelse(myvar == "tbio_gm2" & logr < -0.6, NA, logr),
+         logr = ifelse(myvar == "rootshoot" & logr < -2, NA, logr))
+
+# Investigate any outliers before running meta-regression models
+hist(subset(nfert_lnRR, myvar == "lma")$logr)
+hist(subset(nfert_lnRR, myvar == "leaf_n_mass")$logr)
+hist(subset(nfert_lnRR, myvar == "leaf_n_area")$logr)
+hist(subset(nfert_lnRR, myvar == "leaf_p_mass")$logr)
+hist(subset(nfert_lnRR, myvar == "leaf_p_area")$logr)
+hist(subset(nfert_lnRR, myvar == "leaf_np")$logr)
+hist(subset(nfert_lnRR, myvar == "asat")$logr)
+hist(subset(nfert_lnRR, myvar == "rd")$logr)
+hist(subset(nfert_lnRR, myvar == "vcmax")$logr)
+hist(subset(nfert_lnRR, myvar == "jmax")$logr)
+hist(subset(nfert_lnRR, myvar == "jmax_vcmax")$logr)
+hist(subset(nfert_lnRR, myvar == "leaf_pnue")$logr)
+hist(subset(nfert_lnRR, myvar == "leaf_ppue")$logr)
+hist(subset(nfert_lnRR, myvar == "tbio_gm2")$logr)
+hist(subset(nfert_lnRR, myvar == "anpp")$logr)
+hist(subset(nfert_lnRR, myvar == "bnpp")$logr)
+hist(subset(nfert_lnRR, myvar == "rootshoot")$logr)
+hist(subset(nfert_lnRR, myvar == "rmf")$logr)
 
 # Determine lnRR across multiple experiments. Takes into account
 # experiment variance and uses experiment identity as grouping
@@ -131,8 +157,6 @@ out_n_modl_df <- data.frame(
          across(ci.lb:ci.ub, \(x) round(x, 3)),
          pval = ifelse(pval < 0.001, "<0.001",
                        round(pval, digits = 3)))
-
-
 
 #####################################################################
 # Set up and carry out P fertilization meta-analysis
@@ -174,7 +198,38 @@ pfert_lnRR <- pfert_responses %>%
          data = ., 
          append = TRUE, 
          var.names = c("logr", "logr_var")) %>%
-  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t))
+  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t),
+         logr = ifelse(myvar == "lma" & logr < -1, NA, logr),
+         logr = ifelse(myvar == "lma" & logr > 0.7, NA, logr),
+         logr = ifelse(myvar == "leaf_n_area" & logr < -1, NA, logr),
+         logr = ifelse(myvar == "leaf_p_mass" & logr > 3, NA, logr),
+         logr = ifelse(myvar == "jmax_vcmax" & logr > 0.04, NA, logr),
+         logr = ifelse(myvar == "leaf_pnue" & logr > 1, NA, logr),
+         logr = ifelse(myvar == "leaf_ppue" & logr < -3, NA, logr),
+         logr = ifelse(myvar == "tbio_gm2" & logr > 1.5, NA, logr),
+         logr = ifelse(myvar == "anpp" & logr > 2, NA, logr),
+         logr = ifelse(myvar == "anpp" & logr < -0.8, NA, logr),
+         logr = ifelse(myvar == "rmf" & logr < -1, NA, logr))
+
+# Investigate any outliers before running meta-regression models
+hist(subset(pfert_lnRR, myvar == "lma")$logr)
+hist(subset(pfert_lnRR, myvar == "leaf_n_mass")$logr)
+hist(subset(pfert_lnRR, myvar == "leaf_n_area")$logr)
+hist(subset(pfert_lnRR, myvar == "leaf_p_mass")$logr)
+hist(subset(pfert_lnRR, myvar == "leaf_p_area")$logr)
+hist(subset(pfert_lnRR, myvar == "leaf_np")$logr)
+hist(subset(pfert_lnRR, myvar == "asat")$logr)
+hist(subset(pfert_lnRR, myvar == "rd")$logr)
+hist(subset(pfert_lnRR, myvar == "vcmax")$logr)
+hist(subset(pfert_lnRR, myvar == "jmax")$logr)
+hist(subset(pfert_lnRR, myvar == "jmax_vcmax")$logr)
+hist(subset(pfert_lnRR, myvar == "leaf_pnue")$logr)
+hist(subset(pfert_lnRR, myvar == "leaf_ppue")$logr)
+hist(subset(pfert_lnRR, myvar == "tbio_gm2")$logr)
+hist(subset(pfert_lnRR, myvar == "anpp")$logr)
+hist(subset(pfert_lnRR, myvar == "bnpp")$logr)
+hist(subset(pfert_lnRR, myvar == "rootshoot")$logr)
+hist(subset(pfert_lnRR, myvar == "rmf")$logr)
 
 # Determine lnRR across multiple experiments. Takes into account
 # experiment variance and uses experiment identity as grouping
@@ -244,7 +299,36 @@ npfert_lnRR <- npfert_responses %>%
          data = ., 
          append = TRUE, 
          var.names = c("logr", "logr_var")) %>%
-  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t))
+  mutate(logr_se = sqrt(logr_var) / sqrt(rep_t),
+         logr = ifelse(myvar == "asat" & logr < -2, NA, logr),
+         logr = ifelse(myvar == "vcmax" & logr > 1.4, NA, logr),
+         logr = ifelse(myvar == "jmax" & logr > 1.4, NA, logr),
+         logr = ifelse(myvar == "jmax_vcmax" & logr > 0.2, NA, logr),
+         logr = ifelse(myvar == "leaf_pnue" & logr < -2, NA, logr),
+         logr = ifelse(myvar == "anpp" & logr < -2, NA, logr),
+         logr = ifelse(myvar == "anpp" & logr > 3, NA, logr),
+         logr = ifelse(myvar == "bnpp" & logr < -3, NA, logr))
+
+# Investigate any outliers before running meta-regression models
+hist(subset(npfert_lnRR, myvar == "lma")$logr)
+hist(subset(npfert_lnRR, myvar == "leaf_n_mass")$logr)
+hist(subset(npfert_lnRR, myvar == "leaf_n_area")$logr)
+hist(subset(npfert_lnRR, myvar == "leaf_p_mass")$logr)
+hist(subset(npfert_lnRR, myvar == "leaf_p_area")$logr)
+hist(subset(npfert_lnRR, myvar == "leaf_np")$logr)
+hist(subset(npfert_lnRR, myvar == "asat")$logr)
+hist(subset(npfert_lnRR, myvar == "rd")$logr)
+hist(subset(npfert_lnRR, myvar == "gsw")$logr)
+hist(subset(npfert_lnRR, myvar == "vcmax")$logr)
+hist(subset(npfert_lnRR, myvar == "jmax")$logr)
+hist(subset(npfert_lnRR, myvar == "jmax_vcmax")$logr)
+hist(subset(npfert_lnRR, myvar == "leaf_pnue")$logr)
+hist(subset(npfert_lnRR, myvar == "leaf_ppue")$logr)
+hist(subset(npfert_lnRR, myvar == "tbio_gm2")$logr)
+hist(subset(npfert_lnRR, myvar == "anpp")$logr)
+hist(subset(npfert_lnRR, myvar == "bnpp")$logr)
+hist(subset(npfert_lnRR, myvar == "rootshoot")$logr)
+hist(subset(npfert_lnRR, myvar == "rmf")$logr)
 
 # Determine lnRR across multiple experiments. Takes into account
 # experiment variance and uses experiment identity as grouping
@@ -366,8 +450,39 @@ CNP_effect_sizes_reduced <- CNP_effect_sizes %>%
   mutate(response = ifelse(response %in% c("amax", "anet", "asat"),
                         "asat", response),
          response = ifelse(response %in% c("bgb", "fine_root_biomass"),
-                        "bgb", response),
-         response = ifelse(response %in% "lai", "tla", response))
+                           "bgb", response),
+         response = ifelse(response %in% "lai", "tla", response)) %>%
+  mutate(dNPi = ifelse(response == "leaf_n_area" & dNPi < -2.5, NA, dNPi),
+         dNPi = ifelse(response == "leaf_p_mass" & dNPi < -2.5, NA, dNPi),
+         dNPi = ifelse(response == "leaf_p_area" & dNPi < -2, NA, dNPi),
+         dNPi = ifelse(response == "leaf_p_area" & dNPi > 2, NA, dNPi),
+         dNPi = ifelse(response == "asat" & dNPi < -3, NA, dNPi),
+         dNPi = ifelse(response == "gsw" & dNPi > 2, NA, dNPi),
+         dNPi = ifelse(response == "jmax" & dNPi < -1.5, NA, dNPi),
+         dNPi = ifelse(response == "leaf_ppue" & dNPi < -4, NA, dNPi),
+         dNPi = ifelse(response == "leaf_ppue" & dNPi > 2.5, NA, dNPi),
+         dNPi = ifelse(response == "rootshoot" & dNPi < -2, NA, dNPi))
+
+# Investigate any outliers before running meta-regression models
+hist(subset(CNP_effect_sizes_reduced, response == "lma")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "leaf_n_mass")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "leaf_n_area")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "leaf_p_mass")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "leaf_p_area")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "leaf_np")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "asat")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "rd")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "gsw")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "vcmax")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "jmax")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "jmax_vcmax")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "leaf_pnue")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "leaf_ppue")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "tbio_gm2")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "anpp")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "bnpp")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "rootshoot")$dNPi)
+hist(subset(CNP_effect_sizes_reduced, response == "rmf")$dNPi)
 
 write.csv(CNP_effect_sizes_reduced, "../data/CNPmeta_logr_results_int.csv", row.names = F)
 
@@ -391,7 +506,7 @@ out_int_modl <- lapply(out_int, `[[`, "modl")
 
 out_int_modl_df <- data.frame(
   var = names(out_int_modl),
-  nut_add = "n",
+  nut_add = "int",
   k = sapply(out_int_modl, \(x) x$k),
   estimate = sapply(out_int_modl, \(x) as.numeric(coef(x))[1]),
   SE = sapply(out_int_modl, \(x) x$se[1]),
@@ -434,11 +549,11 @@ out_n_modl_df %>%
                                  "leaf_metabolic_p", "leaf_pi", "leaf_pre",
                                  "leaf_nre", "leaf_np", "leaf_p_area", "leaf_p_mass", 
                                  "leaf_n_area", "leaf_n_mass", "lma")),
-         estimate_se = str_c(estimate, "±", SE),
-         ci_range = str_c("[", ci.lb, ", ", ci.ub, "]")) %>%
+         estimate_se = str_c(sprintf( "%.3f", estimate), "±", sprintf("%.3f", SE)),
+         ci_range = str_c("[", sprintf("%.3f", ci.lb), ", ", sprintf("%.3f", ci.ub), "]")) %>%
   arrange(var, nut_add) %>%
-  dplyr::select(var:SE, estimate_se, zval:pval, ci.lb, ci.ub, ci_range) #%>%
-  #write.csv("../data/CNPmeta_ci.csv", row.names = F)
+  dplyr::select(var:SE, estimate_se, zval:pval, ci.lb, ci.ub, ci_range) %>%
+  write_excel_csv("../data/CNPmeta_ci.csv")
 
 # Factor interaction effect size variables in a certain order
 out_int_modl_df %>%
@@ -453,8 +568,8 @@ out_int_modl_df %>%
                                  "leaf_n_area", "leaf_n_mass", "lma")),
          int_type = ifelse(var %in% c("leaf_np", "anpp", "leaf_p_mass"),
                            "synergistic", "additive"),
-         estimate_se = str_c(estimate, "±", SE),
-         ci_range = str_c("[", ci.lb, ", ", ci.ub, "]")) %>%
+         estimate_se = str_c(sprintf( "%.3f", estimate), "±", sprintf("%.3f", SE)),
+         ci_range = str_c("[", sprintf("%.3f", ci.lb), ", ", ci.ub, "]")) %>%
   arrange(var, nut_add) %>%
-  dplyr::select(var:SE, estimate_se, zval:pval, ci.lb, ci.ub, ci_range) # %>%
-  #write.csv("../data/CNPmeta_ci_int.csv", row.names = F)
+  dplyr::select(var:SE, estimate_se, zval:pval, ci.lb, ci.ub, ci_range) %>%
+  write_excel_csv("../data/CNPmeta_ci_int.csv")

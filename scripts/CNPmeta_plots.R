@@ -35,7 +35,7 @@ meta_ci_int <- read.csv("../data/CNPmeta_ci_int.csv") %>%
                                       "rmf", "bgb", "bnpp", "agb", "anpp", "total_biomass", "tbio_gm2", "tla")),
          ci_range_plot = str_c("[", sprintf("%.3f", ci.lb), ", ", sprintf("%.3f", ci.ub), "]"),
          k_plot = str_c("(", k, ")"),
-         int_type = ifelse(var == "leaf_p_mass" | var == "anpp" | var == "leaf_np",
+         int_type = ifelse(var == "anpp" | var == "leaf_np",
                            "synergistic", "additive"))
 
 # Load species moderator results for individual and interaction effects
@@ -73,9 +73,16 @@ chemistry_ind_plot <- ggplot(data = meta_ci %>%
   geom_point(aes(fill = nut_add),
              position = position_dodge(0.75), size = 4, shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  geom_text(aes(label = k_plot, y = 1.1), size = 6) +
+  geom_text(data = subset(meta_ci_int, var %in% c("lma", 
+                                                  "leaf_n_mass", 
+                                                  "leaf_n_area", 
+                                                  "leaf_p_mass", 
+                                                  "leaf_p_area",
+                                                  "leaf_np")),
+            aes(label = k_plot, y = 1.1), size = 6) +
   scale_fill_manual(values = c("red", "blue", "magenta"),
-                    breaks = c("n", "p", "np")) +
+                    breaks = c("n", "p", "np"),
+                    labels = c("N", "P", "N+P")) +
   scale_x_discrete(labels = c("Leaf N:P",
                               expression(italic("P")["area"]), 
                               expression(italic("P")["mass"]), 
@@ -169,11 +176,19 @@ photo_ind_plot <- ggplot(data = meta_ci %>%
   geom_point(aes(fill = nut_add),
              position = position_dodge(0.75), size = 4, shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  geom_text(aes(label = k_plot, y = 1.1), size = 6) +
+  geom_text(data = subset(meta_ci_int, var %in% c("asat",
+                                                  "rd",
+                                                  "gsw",
+                                                  "vcmax", 
+                                                  "jmax",
+                                                  "leaf_pnue", 
+                                                  "leaf_ppue")),
+            aes(label = k_plot, y = 1.1), size = 6) +
   #geom_text(aes(label = ci_range, y = 1.2, fontface = bold_yn), size = 5,
   #          position = position_dodge(0.75), hjust = 1) +
   scale_fill_manual(values = c("red", "blue", "magenta"),
-                    breaks = c("n", "p", "np")) +
+                    breaks = c("n", "p", "np"),
+                    labels = c("N", "P", "N+P")) +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression(italic("J")["max"]),
@@ -268,11 +283,18 @@ bio_ind_plot <- ggplot(data = meta_ci %>%
   geom_point(aes(fill = nut_add),
              position = position_dodge(0.75), size = 4, shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
-  geom_text(aes(label = k_plot, y = 1.1), size = 6) +
+  geom_text(data = subset(meta_ci_int, var %in% c("rootshoot", 
+                                                  "rmf", 
+                                                  "bnpp",
+                                                  "anpp",
+                                                  "tbio_gm2",
+                                                  "tla")),
+            aes(label = k_plot, y = 1.1), size = 6) +
   #geom_text(aes(label = ci_range, y = 1.5, fontface = bold_yn), size = 5,
   #          position = position_dodge(0.75), hjust = 1) +
   scale_fill_manual(values = c("red", "blue", "magenta"),
-                    breaks = c("n", "p", "np")) +
+                    breaks = c("n", "p", "np"),
+                    labels = c("N", "P", "N+P")) +
   scale_x_discrete(labels = c("Root:shoot",
                               "Root mass fraction",
                               "Belowground prod.",
@@ -332,8 +354,9 @@ bio_int_plot <- ggplot(data = meta_ci_int %>%
   theme_classic(base_size = 18) +
   theme(title = element_text(face = "bold", hjust = 0),
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_text(face = "plain", size = 22),
+        axis.title.x = element_text(face = "plain", size = 22, hjust = 0.5),
         #axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 18, color = "black"),
         axis.text.y = element_blank(),
         panel.grid = element_blank())
 bio_int_plot
@@ -345,7 +368,7 @@ bio_int_plot
 # target variables
 #####################################################################
 
-png("../plots/fig2_full_responses.png", height = 15, width = 15,
+png("../plots/fig2_full_responses.png", height = 16, width = 15,
     units = "in", res = 600)
 ggarrange(ggarrange(chemistry_ind_plot, photo_ind_plot, bio_ind_plot,
                     ncol = 1, nrow = 3, align = "hv",
@@ -361,102 +384,28 @@ ggarrange(ggarrange(chemistry_ind_plot, photo_ind_plot, bio_ind_plot,
           ncol = 2, nrow = 1, align = "hv", widths = c(1, 0.6))
 dev.off()
 
-
-#####################################################################
-# Nmass -- climate moderators
-#####################################################################
-
-# Nmass climate moderator model
-nadd_nmass_clim <- rma.mv(logr, logr_var, method = "REML", 
-                          random = ~ 1 | exp, mods = ~ gs_mat + gs_ai + gs_par,
-                          slab = exp, control = list(stepadj = 0.3), 
-                          data = meta_results %>% filter(manip_type == "n" & 
-                                     myvar == "leaf_n_mass" & 
-                                     !is.na(gs_mat) & logr > -0.2))
-summary(nadd_nmass_clim)
-
-# Nmass - temperature plot
-nmass_tg_plot <- mod_results(nadd_nmass_clim, mod = "gs_mat",
-                             group = "exp", subset = TRUE)$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
-  geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
-  geom_point(data = subset(meta_results, myvar == "leaf_n_mass" & 
-                             manip_type == "n" & !is.na(gs_mat) & 
-                             logr > -0.2),
-             aes(x = gs_mat, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
-  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "red") +
-  geom_smooth(method = "loess", linewidth = 2, color = "red") +
-  scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
-  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
-  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
-       y = expression(bold("N"["mass"]*" response to N addition (%)")),
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-nmass_tg_plot 
-
-# Nmass - aridity plot
-nmass_ai_plot <- mod_results(nadd_nmass_clim, mod = "gs_ai",
-                             group = "exp", subset = TRUE)$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
-  geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
-  geom_point(data = subset(meta_results, myvar == "leaf_n_mass" & 
-                             manip_type == "n" & !is.na(gs_ai) & 
-                             logr > -0.2),
-             aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
-  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "red") +
-  geom_smooth(method = "loess", linewidth = 2, color = "red") +
-  scale_x_continuous(limits = c(0, 3.4), breaks = seq(0, 3, 1)) +
-  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
-  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("MI"["g"]*" (unitless)")),
-       y = expression(bold("N"["mass"]*" response to N addition (%)")),
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-nmass_ai_plot 
-
-# Nmass - PAR plot
-nmass_par_plot <- ggplot(data = subset(meta_results, myvar == "leaf_n_mass" & 
-                                         manip_type == "n" & !is.na(gs_par) & 
-                                         logr > -0.2),
-                         aes(x = gs_par, y = logr, size = 1/logr_se)) +
-  geom_point(alpha = 0.30) +
-  geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
-  scale_x_continuous(limits = c(500, 1000), breaks = seq(500, 1000, 100)) +
-  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
-  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("PAR"["g"]*" ("*mu*"mol"*" m"^"-2"*"s"^"-1"*")")),
-       y = expression(bold("N"["mass"]*" response to N addition (lnRR)")),
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-nmass_par_plot 
-
 #####################################################################
 # Narea -- climate moderators
 #####################################################################
-ggplot(data = meta_results %>% filter(manip_type == "n" & 
+ggplot(data = meta_results %>% filter(nut_add == "n" & 
                                         myvar == "leaf_n_area" & 
                                         !is.na(gs_mat))) +
   geom_point(aes(x = gs_mat, y = logr))
 
 
 # Narea climate moderator model
-nadd_narea_clim <- rma.mv(logr, logr_var, method = "REML", 
-                          random = ~ 1 | exp, mods = ~ gs_mat + gs_ai + gs_par,
-                          slab = exp, control = list(stepadj = 0.3), 
-                          data = meta_results %>% filter(manip_type == "n" & 
-                                                           myvar == "leaf_n_area" & 
-                                                           !is.na(gs_mat)))
+nadd_narea_clim <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ gs_mat + gs_ai + gs_par,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(nut_add == "n" & 
+                                     myvar == "leaf_n_area" & 
+                                     !is.na(gs_mat) & gs_ai < 3 & logr > -1 & logr < 0.95))
+
 summary(nadd_narea_clim)
 
 # Narea - temperature plot
@@ -465,7 +414,8 @@ narea_tg_plot <- mod_results(nadd_narea_clim, mod = "gs_mat",
   ggplot(aes(x = moderator, y = estimate)) +
   geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
   geom_point(data = subset(meta_results, myvar == "leaf_n_area" & 
-                             manip_type == "n" & !is.na(gs_mat)),
+                             nut_add == "n" & !is.na(gs_mat) & gs_ai < 3 & 
+                             logr > -1 & logr < 0.95),
              aes(x = gs_mat, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
@@ -474,26 +424,33 @@ narea_tg_plot <- mod_results(nadd_narea_clim, mod = "gs_mat",
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
-       y = expression(bold("N"["area"]*" response to N addition (lnRR)")),
+  labs(x = "",
+       y = expression(bolditalic("N")[bold("area")]*bold(" response to N addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 20) +
   theme(axis.title = element_text(face = "bold"),
+        axis.title.y = element_text(vjust = 0),
         axis.text = element_text(color = "black", size = 20))
 narea_tg_plot 
 
 # Narea - aridity plot
-narea_ai_plot <- ggplot() +
+narea_ai_plot <- mod_results(nadd_narea_clim, mod = "gs_ai",
+                             group = "exp", subset = TRUE)$mod_table %>%
+  ggplot(aes(x = moderator, y = estimate)) +
+  geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
   geom_point(data = subset(meta_results, myvar == "leaf_n_area" & 
-                             manip_type == "n" & !is.na(gs_ai) & 
-                             logr > -0.2),
+                             nut_add == "n" & !is.na(gs_mat) & gs_ai < 3 & 
+                             logr > -1 & logr < 0.95),
              aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
-  scale_x_continuous(limits = c(0, 3.4), breaks = seq(0, 3, 1)) +
+  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
+              alpha = 0.3, fill = "red") +
+  geom_smooth(method = "loess", linewidth = 2, color = "red", linetype = "dashed") +
+  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("MI"["g"]*" (unitless)")),
-       y = expression(bold("N"["area"]*" response to N addition (%)")),
+  labs(x = "",
+       y = "",
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 20) +
   theme(axis.title = element_text(face = "bold"),
@@ -502,124 +459,51 @@ narea_ai_plot
 
 # Narea - PAR plot
 narea_par_plot <- ggplot(data = subset(meta_results, myvar == "leaf_n_area" & 
-                                         manip_type == "n" & !is.na(gs_par)),
+                                         nut_add == "n" & !is.na(gs_par) & gs_ai < 3 & 
+                                         logr > -1 & logr < 0.95),
                          aes(x = gs_par, y = logr, size = 1/logr_se)) +
   geom_point(alpha = 0.30) +
   geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
   scale_x_continuous(limits = c(500, 1000), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("PAR"["g"]*" ("*mu*"mol"*" m"^"-2"*"s"^"-1"*")")),
-       y = expression(bold("N"["mass"]*" response to N addition (lnRR)")),
+  labs(x = "",
+       y = "",
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 20) +
   theme(axis.title = element_text(face = "bold"),
         axis.text = element_text(color = "black", size = 20))
 narea_par_plot 
 
-
-#####################################################################
-# Pmass -- climate moderators
-#####################################################################
-ggplot(data = meta_results %>% filter(manip_type == "p" & 
-                                        myvar == "leaf_p_mass" & 
-                                        !is.na(gs_mat))) +
-  geom_point(aes(x = gs_mat, y = logr))
-
-# Pmass climate moderator model
-padd_pmass_clim <- rma.mv(logr, logr_var, method = "REML", 
-                          random = ~ 1 | exp, mods = ~ gs_mat + gs_ai + gs_par,
-                          slab = exp, control = list(stepadj = 0.3), 
-                          data = meta_results %>% filter(manip_type == "p" & 
-                                                           myvar == "leaf_p_mass" & 
-                                                           !is.na(gs_mat) & gs_ai < 3))
-summary(padd_pmass_clim)
-
-# Pmass - temperature plot
-pmass_tg_plot <- ggplot() +
-  geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
-  geom_point(data = subset(meta_results, myvar == "leaf_p_mass" & 
-                             manip_type == "p" & !is.na(gs_mat) & 
-                             gs_ai < 3),
-             aes(x = gs_mat, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
-  scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
-  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
-  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
-       y = expression(bold("P"["mass"]*" response to P addition (lnRR)")),
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-pmass_tg_plot 
-
-# Pmass - aridity plot
-pmass_ai_plot <- mod_results(padd_pmass_clim, mod = "gs_ai",
-                             group = "exp", subset = TRUE)$mod_table %>%
-  ggplot(aes(x = moderator, y = estimate)) +
-  geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
-  geom_point(data = subset(meta_results, myvar == "leaf_p_mass" & 
-                             manip_type == "p" & !is.na(gs_ai) & gs_ai < 3),
-             aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
-  geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "red") +
-  geom_smooth(method = "loess", linewidth = 2, color = "red", linetype = "dashed") +
-  scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
-  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
-  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("MI"["g"]*" (unitless)")),
-       y = expression(bold("P"["mass"]*" response to P addition (%)")),
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-pmass_ai_plot 
-
-# Pmass - PAR plot
-pmass_par_plot <- ggplot(data = subset(meta_results, myvar == "leaf_p_mass" & 
-                                         manip_type == "p" & !is.na(gs_par) & 
-                                         gs_ai < 3),
-                         aes(x = gs_par, y = logr, size = 1/logr_se)) +
-  geom_point(alpha = 0.30) +
-  geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
-  scale_x_continuous(limits = c(500, 1000), breaks = seq(500, 1000, 100)) +
-  scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
-  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("PAR"["g"]*" ("*mu*"mol"*" m"^"-2"*"s"^"-1"*")")),
-       y = expression(bold("P"["mass"]*" response to P addition (lnRR)")),
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-pmass_par_plot 
-
 #####################################################################
 # Parea -- climate moderators
 #####################################################################
-ggplot(data = meta_results %>% filter(manip_type == "p" & 
+ggplot(data = meta_results %>% filter(nut_add == "p" & 
                                         myvar == "leaf_p_area" & 
                                         !is.na(gs_mat)& logr >-1 & gs_ai < 3)) +
   geom_point(aes(x = gs_mat, y = logr))
 
-
 # Narea climate moderator model
-padd_parea_clim <- rma.mv(logr, logr_var, method = "REML", 
-                          random = ~ 1 | exp, mods = ~ gs_mat + gs_ai + gs_par,
-                          slab = exp, control = list(stepadj = 0.3), 
-                          data = meta_results %>% filter(manip_type == "p" & 
-                                                           myvar == "leaf_p_area" & 
-                                                           !is.na(gs_mat) & logr >-1 & gs_ai < 3))
+padd_parea_clim <- rma.mv(logr, 
+                          logr_var,
+                          method = "REML", 
+                          random = ~ 1 | exp, 
+                          mods = ~ gs_mat + gs_ai + gs_par,
+                          slab = exp, 
+                          control = list(stepadj = 0.3), 
+                          data = meta_results %>% 
+                            filter(nut_add == "p" & 
+                                     myvar == "leaf_p_area" & 
+                                     !is.na(gs_mat) & gs_ai < 3 & logr > -1))
 summary(padd_parea_clim)
 
-# Narea - temperature plot
+# Parea - temperature plot
 parea_tg_plot <- mod_results(padd_parea_clim, mod = "gs_mat",
                              group = "exp", subset = TRUE)$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
   geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
   geom_point(data = subset(meta_results, myvar == "leaf_p_area" & 
-                             manip_type == "p" & !is.na(gs_mat)  & logr >-1 & gs_ai < 3),
+                             nut_add == "p" & !is.na(gs_mat)  & logr >-1 & gs_ai < 3),
              aes(x = gs_mat, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
@@ -628,36 +512,31 @@ parea_tg_plot <- mod_results(padd_parea_clim, mod = "gs_mat",
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
-       y = expression(bold(bolditalic("P")["area"]*" response to P addition (lnRR)")),
+  labs(x = expression(bolditalic("T")[bold("g")]*bold(" ("*degree*"C)")),
+       y = expression(bolditalic("P")[bold("area")]*bold(" response to P addition")),
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 20) +
   theme(axis.title = element_text(face = "bold"),
         axis.text = element_text(color = "black", size = 20))
 parea_tg_plot 
 
-# Narea - aridity plot
+# Parea - aridity plot
 parea_ai_plot <- mod_results(padd_parea_clim, mod = "gs_ai",
                              group = "exp", subset = TRUE)$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
   geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
   geom_point(data = subset(meta_results, myvar == "leaf_p_area" & 
-                             manip_type == "p" & !is.na(gs_mat)  & logr >-1 & gs_ai < 3),
+                             nut_add == "p" & !is.na(gs_mat)  & logr >-1 & gs_ai < 3),
              aes(x = gs_ai, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "red") +
-  geom_smooth(method = "loess", linewidth = 2, color = "red") +
-  geom_point(data = subset(meta_results, myvar == "leaf_p_area" & 
-                             manip_type == "p" & !is.na(gs_ai) & 
-                             logr > -1 & gs_ai < 3),
-             aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
+              alpha = 0.3, fill = "blue") +
+  geom_smooth(method = "loess", linewidth = 2, color = "blue") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("MI"["g"]*" (unitless)")),
-       y = expression(bold("P"["area"]*" response to P addition (%)")),
+  labs(x = expression(bolditalic("MI")[bold("g")]*bold(" (unitless)")),
+       y = "",
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 20) +
   theme(axis.title = element_text(face = "bold"),
@@ -670,43 +549,31 @@ parea_par_plot <- mod_results(padd_parea_clim, mod = "gs_par",
   ggplot(aes(x = moderator, y = estimate)) +
   geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
   geom_point(data = subset(meta_results, myvar == "leaf_p_area" & 
-                             manip_type == "p" & !is.na(gs_mat)  & logr >-1 & gs_ai < 3),
+                             nut_add == "p" & !is.na(gs_mat)  & logr >-1 & gs_ai < 3),
              aes(x = gs_par, y = logr, size = 1/logr_se), 
              alpha = 0.30) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
-              alpha = 0.3, fill = "red") +
-  geom_smooth(method = "loess", linewidth = 2, color = "red") +
-  geom_point(data = subset(meta_results, myvar == "leaf_p_area" & 
-                             manip_type == "p" & !is.na(gs_ai) & 
-                             logr > -1 & gs_ai < 3),
-             aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
+              alpha = 0.3, fill = "blue") +
+  geom_smooth(method = "loess", linewidth = 2, color = "blue") +
   scale_x_continuous(limits = c(500, 1000), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("PAR"["g"]*" ("*mu*"mol"*" m"^"-2"*"s"^"-1"*")")),
-       y = expression(bold("P"["area"]*" response to P addition (lnRR)")),
+  labs(x = expression(bolditalic("PAR")[bold("g")]*bold(" ("*mu*"mol"*" m"^"-2"*"s"^"-1"*")")),
+       y = "",
        size = expression(bold("Error"^"-1"))) +
   theme_classic(base_size = 20) +
   theme(axis.title = element_text(face = "bold"),
         axis.text = element_text(color = "black", size = 20))
 parea_par_plot 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+png("../plots/CNP_fig3_climate_responses.png", height = 12, width = 18,
+    units = "in", res = 600)
+ggarrange(narea_tg_plot, narea_ai_plot, narea_par_plot,
+          parea_tg_plot, parea_ai_plot, parea_par_plot,
+          common.legend = TRUE, legend = "bottom",
+          labels = c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)"),
+          font.label = list(size = 18))
+dev.off()
 
 
 

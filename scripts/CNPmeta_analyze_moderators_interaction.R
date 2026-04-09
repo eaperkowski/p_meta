@@ -202,7 +202,6 @@ int_leafnp_clim_summary <- data.frame(trait = "leaf_np",
                                       coef(summary(int_leafnp_clim)),
                                       row.names = NULL)
 
-
 ##############################################################################
 # Total biomass climate moderators
 ##############################################################################
@@ -373,8 +372,6 @@ int_marea_clim_summary %>%
   full_join(int_rmf_clim_summary) %>%
   full_join(int_rootshoot_clim_summary) %>%
   mutate(across(estimate:ci.ub, ~round(.x, 3)),
-         zval = str_c(sprintf("%.3f", zval)),
-         pval = str_c(sprintf("%.3f", pval)),
          estimate_se = str_c(sprintf("%.3f", estimate), "±", sprintf("%.3f", se)),
          ci.range = str_c("[", sprintf("%.3f", ci.lb), ", ", sprintf("%.3f", ci.ub), "]")) %>%
   dplyr::select(trait:se, estimate_se, zval:ci.ub, ci.range) %>%
@@ -386,7 +383,7 @@ int_marea_clim_summary %>%
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "lma" & !is.na(photo_path) & dNPi > -2 & dNPi < 2) %>%
+  filter(response == "lma" & !is.na(photo_path)) %>%
   ggplot(aes(x = photo_path, y = dNPi)) +
   geom_point()
 
@@ -400,7 +397,7 @@ int_marea_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "lma" & 
-                                   !is.na(photo_path) & dNPi > -2 & dNPi < 2))
+                                   !is.na(photo_path)))
 
 # Extract photosynthetic pathway summary statistics
 int_marea_photo <- data.frame(trait = "marea", 
@@ -442,7 +439,7 @@ int_marea_nfix <- data.frame(trait = "marea",
 int_marea_pft_results <- int_marea_photo %>% 
   rbind(int_marea_myc) %>% 
   rbind(int_marea_nfix) %>%
-  mutate(k = 110,
+  mutate(k = 113,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -454,7 +451,7 @@ int_marea_pft_results <- int_marea_photo %>%
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "leaf_n_mass" & !is.na(photo_path) & dNPi > -2) %>%
+  filter(response == "leaf_n_mass" & !is.na(photo_path)) %>%
   ggplot(aes(x = photo_path, y = dNPi)) +
   geom_point()
 
@@ -468,7 +465,7 @@ int_nmass_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "leaf_n_mass" & 
-                                   !is.na(photo_path) & dNPi > -2))
+                                   !is.na(photo_path)))
 
 # Extract photosynthetic pathway summary statistics
 int_nmass_photo <- data.frame(trait = "nmass", 
@@ -510,7 +507,7 @@ int_nmass_nfix <- data.frame(trait = "nmass",
 int_nmass_pft_results <- int_nmass_photo %>% 
   rbind(int_nmass_myc) %>% 
   rbind(int_nmass_nfix) %>%
-  mutate(k = 134,
+  mutate(k = 136,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -523,7 +520,7 @@ int_nmass_pft_results <- int_nmass_photo %>%
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "leaf_n_area" & !is.na(photo_path) & dNPi > -2) %>%
+  filter(response == "leaf_n_area" & !is.na(photo_path)) %>%
   ggplot(aes(x = photo_path, y = dNPi)) +
   geom_point()
 
@@ -537,7 +534,7 @@ int_narea_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "leaf_n_area" & 
-                                   !is.na(photo_path) & dNPi > -2))
+                                   !is.na(photo_path)))
 
 # Extract photosynthetic pathway summary statistics
 int_narea_photo <- data.frame(trait = "narea", 
@@ -591,7 +588,7 @@ int_narea_pft_results <- int_narea_photo %>%
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "leaf_p_mass" & !is.na(photo_path) & dNPi > -2) %>%
+  filter(response == "leaf_p_mass" & !is.na(photo_path)) %>%
   ggplot(aes(x = photo_path, y = dNPi)) +
   geom_point()
 
@@ -605,7 +602,7 @@ int_pmass_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "leaf_p_mass" & 
-                                   !is.na(photo_path) & dNPi > -2))
+                                   !is.na(photo_path)))
 
 # Extract photosynthetic pathway summary statistics
 int_pmass_photo <- data.frame(trait = "pmass", 
@@ -659,7 +656,7 @@ int_pmass_pft_results <- int_pmass_photo %>%
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "leaf_p_area" & !is.na(photo_path) & dNPi > -2 & dNPi < 2) %>%
+  filter(response == "leaf_p_area" & !is.na(photo_path)) %>%
   ggplot(aes(x = photo_path, y = dNPi)) +
   geom_point()
 
@@ -673,7 +670,7 @@ int_parea_pft <- rma.mv(yi = dNPi,
                         control = list(stepadj = 0.3), 
                         data = meta_results_int %>% 
                           filter(response == "leaf_p_area" & 
-                                   !is.na(photo_path) & dNPi < 2 & dNPi > -2))
+                                   !is.na(photo_path)))
 
 # Extract photosynthetic pathway summary statistics
 int_parea_photo <- data.frame(trait = "parea", 
@@ -795,7 +792,7 @@ int_leafnp_pft_results <- int_leafnp_photo %>%
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "asat" & !is.na(photo_path) & dNPi < 5 & dNPi > -2.5) %>%
+  filter(response == "asat" & !is.na(photo_path) & dNPi < 5) %>%
   ggplot(aes(x = photo_path, y = dNPi)) +
   geom_point()
 
@@ -809,7 +806,7 @@ int_asat_pft <- rma.mv(yi = dNPi,
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
                          filter(response == "asat" & 
-                                  !is.na(photo_path) & dNPi < 5 & dNPi > -2.5))
+                                  !is.na(photo_path) & dNPi < 5))
 
 # Extract photosynthetic pathway summary statistics
 int_asat_photo <- data.frame(trait = "asat", 
@@ -1081,7 +1078,7 @@ int_jmax_pft <- rma.mv(yi = dNPi,
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
                          filter(response == "jmax" & 
-                                  !is.na(photo_path) & dNPi > -1))
+                                  !is.na(photo_path)))
 
 # Extract photosynthetic pathway summary statistics
 int_jmax_photo <- data.frame(trait = "jmax", 
@@ -1123,7 +1120,7 @@ int_jmax_nfix <- data.frame(trait = "jmax",
 int_jmax_pft_results <- int_jmax_photo %>% 
   rbind(int_jmax_myc) %>% 
   rbind(int_jmax_nfix) %>%
-  mutate(k = 40,
+  mutate(k = 39,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -1203,7 +1200,7 @@ int_jmaxvcmax_pft_results <- int_jmaxvcmax_photo %>%
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "leaf_pnue" & !is.na(photo_path) & dNPi > -3 & dNPi < 5) %>%
+  filter(response == "leaf_pnue" & !is.na(photo_path)) %>%
   ggplot(aes(x = photo_path, y = dNPi)) +
   geom_point()
 
@@ -1217,7 +1214,7 @@ int_pnue_pft <- rma.mv(yi = dNPi,
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
                          filter(response == "leaf_pnue" & 
-                                  !is.na(photo_path) & dNPi > -3 & dNPi < 5))
+                                  !is.na(photo_path)))
 
 # Extract photosynthetic pathway summary statistics
 int_pnue_photo <- data.frame(trait = "pnue", 
@@ -1259,7 +1256,7 @@ int_pnue_nfix <- data.frame(trait = "pnue",
 int_pnue_pft_results <- int_pnue_photo %>% 
   rbind(int_pnue_myc) %>% 
   rbind(int_pnue_nfix) %>%
-  mutate(k = 63,
+  mutate(k = 65,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
@@ -1271,7 +1268,7 @@ int_pnue_pft_results <- int_pnue_photo %>%
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "leaf_ppue" & !is.na(photo_path) & dNPi > -2.5 & dNPi < 2.5) %>%
+  filter(response == "leaf_ppue" & !is.na(photo_path)) %>%
   ggplot(aes(x = photo_path, y = dNPi)) +
   geom_point()
 
@@ -1285,7 +1282,7 @@ int_ppue_pft <- rma.mv(yi = dNPi,
                        control = list(stepadj = 0.3), 
                        data = meta_results_int %>% 
                          filter(response == "leaf_ppue" & 
-                                  !is.na(photo_path) & dNPi < 2.5 & dNPi > -2.5))
+                                  !is.na(photo_path)))
 
 # Extract photosynthetic pathway summary statistics
 int_ppue_photo <- data.frame(trait = "ppue", 
@@ -1328,74 +1325,6 @@ int_ppue_pft_results <- int_ppue_photo %>%
   rbind(int_ppue_myc) %>% 
   rbind(int_ppue_nfix) %>%
   mutate(k = 64,
-         estimate = round(estimate, digits = 3),
-         across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
-  dplyr::select(trait:comp, k, estimate:upperCL)
-
-##############################################################################
-# ANPP - plant functional type
-##############################################################################
-
-# Visualize responses
-meta_results_int %>% 
-  filter(response == "anpp" & !is.na(photo_path)) %>%
-  ggplot(aes(x = photo_path, y = dNPi)) +
-  geom_point()
-
-# Model
-int_anpp_pft <- rma.mv(yi = dNPi,
-                       V = vNPi,
-                       method = "REML", 
-                       random = ~ 1 | exp, 
-                       mods = ~ photo_path + myc_nas + n_fixer,
-                       slab = exp, 
-                       control = list(stepadj = 0.3), 
-                       data = meta_results_int %>% 
-                         filter(response == "anpp" & 
-                                  !is.na(photo_path)))
-
-# Extract photosynthetic pathway summary statistics
-int_anpp_photo <- data.frame(trait = "anpp", 
-                             nut_add = "int",
-                             mod = "photo",
-                             mod_results(int_anpp_pft, 
-                                         mod = "photo_path", 
-                                         group = "exp")$mod_table,
-                             z = coef(summary(int_anpp_pft))[2,3],
-                             p = coef(summary(int_anpp_pft))[2, 4]) %>%
-  dplyr::select(trait, nut_add, mod, comp = name, estimate, z, p, lowerCL, upperCL)
-
-# Extract mycorrhizal acquisition strategy summary statistics
-int_anpp_myc <- data.frame(trait = "anpp", 
-                           nut_add = "int",
-                           mod = "myc_nas",
-                           mod_results(int_anpp_pft, 
-                                       mod = "myc_nas", 
-                                       group = "exp")$mod_table,
-                           z = coef(summary(int_anpp_pft))[3,3],
-                           p = coef(summary(int_anpp_pft))[3,4]) %>%
-  dplyr::select(trait, nut_add, mod, comp = name, estimate, z, p, lowerCL, upperCL)
-
-# Extract N-fixation ability summary statistics
-int_anpp_nfix <- data.frame(trait = "anpp", 
-                            nut_add = "int",
-                            mod = "nfix",
-                            mod_results(int_anpp_pft, 
-                                        mod = "n_fixer", 
-                                        group = "exp")$mod_table,
-                            z = coef(summary(int_anpp_pft))[4,3],
-                            p = coef(summary(int_anpp_pft))[4,4]) %>%
-  dplyr::select(trait, nut_add, mod, comp = name, estimate, z, p, lowerCL, upperCL)
-
-#############
-# Merge summary statistics into single data frame
-#############
-
-int_anpp_pft_results <- int_anpp_photo %>% 
-  rbind(int_anpp_myc) %>% 
-  rbind(int_anpp_nfix) %>%
-  mutate(k = 18,
          estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
