@@ -417,19 +417,21 @@ narea_tg_plot <- mod_results(nadd_narea_clim, mod = "gs_mat",
                              nut_add == "n" & !is.na(gs_mat) & gs_ai < 3 & 
                              logr > -1 & logr < 0.95),
              aes(x = gs_mat, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
+             alpha = 0.30, fill = "red", shape = 21) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "red") +
   geom_smooth(method = "loess", linewidth = 2, color = "red") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = "",
-       y = expression(bolditalic("N")[bold("area")]*bold(" response to N addition")),
+  labs(title = expression(bolditalic("N")[bold("area")]*bold(" N response to ")*bolditalic("T")[bold("g")]),
+       x = "",
+       y = "Log-response ratio",
        size = expression(bold("Error"^"-1"))) +
+  guides(size = guide_legend(override.aes = list(fill = "grey", shape = 21))) +
   theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.title.y = element_text(vjust = 0),
+  theme(title = element_text(size = 14),
+        axis.title = element_text(face = "bold", size = 22),
         axis.text = element_text(color = "black", size = 20))
 narea_tg_plot 
 
@@ -442,18 +444,21 @@ narea_ai_plot <- mod_results(nadd_narea_clim, mod = "gs_ai",
                              nut_add == "n" & !is.na(gs_mat) & gs_ai < 3 & 
                              logr > -1 & logr < 0.95),
              aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
+             alpha = 0.30, fill = "red", shape = 21) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "red") +
   geom_smooth(method = "loess", linewidth = 2, color = "red", linetype = "dashed") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = "",
+  labs(title = expression(bolditalic("N")[bold("area")]*bold(" N response to ")*bolditalic("MI")[bold("g")]),
+       x = "",
        y = "",
        size = expression(bold("Error"^"-1"))) +
+  guides(size = guide_legend(override.aes = list(fill = "grey", shape = 21))) +
   theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
+  theme(title = element_text(size = 14),
+        axis.title = element_text(face = "bold", size = 22),
         axis.text = element_text(color = "black", size = 20))
 narea_ai_plot 
 
@@ -462,16 +467,19 @@ narea_par_plot <- ggplot(data = subset(meta_results, myvar == "leaf_n_area" &
                                          nut_add == "n" & !is.na(gs_par) & gs_ai < 3 & 
                                          logr > -1 & logr < 0.95),
                          aes(x = gs_par, y = logr, size = 1/logr_se)) +
-  geom_point(alpha = 0.30) +
+  geom_point(alpha = 0.30, fill = "red", shape = 21) +
   geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
   scale_x_continuous(limits = c(500, 1000), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-0.5, 1), breaks = seq(-0.5, 1, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = "",
+  labs(title = expression(bolditalic("N")[bold("area")]*bold(" N response to ")*bolditalic("PAR")[bold("g")]),
+       x = "",
        y = "",
        size = expression(bold("Error"^"-1"))) +
+  guides(size = guide_legend(override.aes = list(fill = "grey", shape = 21))) +
   theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
+  theme(title = element_text(size = 14),
+        axis.title = element_text(face = "bold", size = 22),
         axis.text = element_text(color = "black", size = 20))
 narea_par_plot 
 
@@ -505,18 +513,21 @@ parea_tg_plot <- mod_results(padd_parea_clim, mod = "gs_mat",
   geom_point(data = subset(meta_results, myvar == "leaf_p_area" & 
                              nut_add == "p" & !is.na(gs_mat)  & logr >-1 & gs_ai < 3),
              aes(x = gs_mat, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
+             alpha = 0.30, fill = "blue", shape = 21) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "blue") +
   geom_smooth(method = "loess", linewidth = 2, color = "blue") +
   scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bolditalic("T")[bold("g")]*bold(" ("*degree*"C)")),
-       y = expression(bolditalic("P")[bold("area")]*bold(" response to P addition")),
+  labs(title = expression(bolditalic("P")[bold("area")]*bold(" P response to ")*bolditalic("T")[bold("g")]),
+       x = expression(bolditalic("T")[bold("g")]*bold(" ("*degree*"C)")),
+       y = "Log-response ratio",
        size = expression(bold("Error"^"-1"))) +
+  guides(size = guide_legend(override.aes = list(fill = "grey", shape = 21))) +
   theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
+  theme(title = element_text(size = 14),
+        axis.title = element_text(face = "bold", size = 22),
         axis.text = element_text(color = "black", size = 20))
 parea_tg_plot 
 
@@ -528,18 +539,21 @@ parea_ai_plot <- mod_results(padd_parea_clim, mod = "gs_ai",
   geom_point(data = subset(meta_results, myvar == "leaf_p_area" & 
                              nut_add == "p" & !is.na(gs_mat)  & logr >-1 & gs_ai < 3),
              aes(x = gs_ai, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
+             alpha = 0.30, fill = "blue", shape = 21) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "blue") +
   geom_smooth(method = "loess", linewidth = 2, color = "blue") +
   scale_x_continuous(limits = c(0, 3), breaks = seq(0, 3, 1)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bolditalic("MI")[bold("g")]*bold(" (unitless)")),
+  labs(title = expression(bolditalic("P")[bold("area")]*bold(" P response to ")*bolditalic("MI")[bold("g")]),
+       x = expression(bolditalic("MI")[bold("g")]*bold(" (unitless)")),
        y = "",
        size = expression(bold("Error"^"-1"))) +
+  guides(size = guide_legend(override.aes = list(fill = "grey", shape = 21))) +
   theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
+  theme(title = element_text(size = 14),
+        axis.title = element_text(face = "bold", size = 22),
         axis.text = element_text(color = "black", size = 20))
 parea_ai_plot 
 
@@ -551,28 +565,31 @@ parea_par_plot <- mod_results(padd_parea_clim, mod = "gs_par",
   geom_point(data = subset(meta_results, myvar == "leaf_p_area" & 
                              nut_add == "p" & !is.na(gs_mat)  & logr >-1 & gs_ai < 3),
              aes(x = gs_par, y = logr, size = 1/logr_se), 
-             alpha = 0.30) +
+             alpha = 0.30, fill = "blue", shape = 21) +
   geom_ribbon(aes(ymax = upperCL, ymin = lowerCL),
               alpha = 0.3, fill = "blue") +
   geom_smooth(method = "loess", linewidth = 2, color = "blue") +
   scale_x_continuous(limits = c(500, 1000), breaks = seq(500, 1000, 100)) +
   scale_y_continuous(limits = c(-0.5, 2), breaks = seq(-0.5, 2, 0.5)) +
   scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bolditalic("PAR")[bold("g")]*bold(" ("*mu*"mol"*" m"^"-2"*"s"^"-1"*")")),
+  labs(title = expression(bolditalic("P")[bold("area")]*bold(" P response to ")*bolditalic("PAR")[bold("g")]),
+       x = expression(bolditalic("PAR")[bold("g")]*bold(" ("*mu*"mol"*" m"^"-2"*"s"^"-1"*")")),
        y = "",
        size = expression(bold("Error"^"-1"))) +
+  guides(size = guide_legend(override.aes = list(fill = "grey", shape = 21))) +
   theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
+  theme(title = element_text(size = 14),
+        axis.title = element_text(face = "bold", size = 22),
         axis.text = element_text(color = "black", size = 20))
 parea_par_plot 
 
-png("../plots/CNP_fig3_climate_responses.png", height = 12, width = 18,
+png("../plots/CNP_fig3_climate_responses.png", height = 10, width = 14,
     units = "in", res = 600)
 ggarrange(narea_tg_plot, narea_ai_plot, narea_par_plot,
           parea_tg_plot, parea_ai_plot, parea_par_plot,
-          common.legend = TRUE, legend = "bottom",
+          ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom",
           labels = c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)"),
-          font.label = list(size = 18))
+          font.label = list(size = 22))
 dev.off()
 
 

@@ -1170,7 +1170,7 @@ padd_pmass_tg_plot <- ggplot() +
 padd_pmass_tg_plot 
 
 # Aridity plot
-padd_pmass_ai_plot <- mod_results(padd_parea_clim, mod = "gs_ai",
+padd_pmass_ai_plot <- mod_results(padd_pmass_clim, mod = "gs_ai",
                                   group = "exp", subset = TRUE)$mod_table %>%
   ggplot(aes(x = moderator, y = estimate)) +
   geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
@@ -1544,7 +1544,6 @@ padd_parea_par_plot <- mod_results(padd_parea_clim, mod = "gs_par",
         axis.title = element_text(face = "bold", size = 22),
         axis.text = element_text(color = "black", size = 20))
 padd_parea_par_plot 
-
 
 ###############
 # N+P addition
@@ -2007,13 +2006,17 @@ dev.off()
 ##############################################################################
 # Total biomass climate moderators
 ##############################################################################
-
+###############
 # N addition
+###############
+
+# Visualize data distribution
 ggplot(data = meta_results %>% filter(nut_add == "n" & 
                                         myvar == "tbio_gm2" & 
                                         !is.na(gs_mat) & gs_ai < 3 & logr > -0.75)) +
   geom_point(aes(x = gs_mat, y = logr))
 
+# Model
 nadd_tbio_clim <- rma.mv(logr, 
                           logr_var,
                           method = "REML", 
@@ -2026,6 +2029,7 @@ nadd_tbio_clim <- rma.mv(logr,
                                      myvar == "tbio_gm2" & 
                                      !is.na(gs_mat) & gs_ai < 3 & logr > -0.75))
 
+# Climate summary
 nadd_tbio_clim_summary <- data.frame(trait = "tbio_gm2",
                                      nut_add = "n",
                                      k = 29,
@@ -2034,12 +2038,17 @@ nadd_tbio_clim_summary <- data.frame(trait = "tbio_gm2",
                                      coef(summary(nadd_tbio_clim)),
                                      row.names = NULL)
 
+###############
 # P addition
+###############
+
+# Visualize data distribution
 ggplot(data = meta_results %>% filter(nut_add == "p" & 
                                         myvar == "tbio_gm2" & 
                                         !is.na(gs_mat) & gs_ai < 3)) +
   geom_point(aes(x = gs_mat, y = logr))
 
+# Model
 padd_tbio_clim <- rma.mv(logr, 
                          logr_var,
                          method = "REML", 
@@ -2052,6 +2061,7 @@ padd_tbio_clim <- rma.mv(logr,
                                     myvar == "tbio_gm2" & 
                                     !is.na(gs_mat) & gs_ai < 3))
 
+# Climate summary
 padd_tbio_clim_summary <- data.frame(trait = "tbio",
                                      nut_add = "p",
                                      k = 30,
@@ -2060,12 +2070,17 @@ padd_tbio_clim_summary <- data.frame(trait = "tbio",
                                      coef(summary(padd_tbio_clim)),
                                      row.names = NULL)
 
+###############
 # N+P addition
+###############
+
+# Visualize data distribution
 ggplot(data = meta_results %>% filter(nut_add == "np" & 
                                         myvar == "tbio_gm2" & 
                                         !is.na(gs_mat) & gs_ai < 3)) +
   geom_point(aes(x = gs_mat, y = logr))
 
+# Model
 npadd_tbio_clim <- rma.mv(logr, 
                            logr_var,
                            method = "REML", 
@@ -2078,6 +2093,7 @@ npadd_tbio_clim <- rma.mv(logr,
                                       myvar == "tbio_gm2" & 
                                       !is.na(gs_mat) & gs_ai < 3))
 
+# Climate summary
 npadd_tbio_clim_summary <- data.frame(trait = "tbio",
                                       nut_add = "np",
                                       k = 30,
@@ -2086,12 +2102,18 @@ npadd_tbio_clim_summary <- data.frame(trait = "tbio",
                                       coef(summary(npadd_tbio_clim)),
                                       row.names = NULL)
 
-## Merge Parea moderator results, with some light cleaning
+###################
+# Merge total biomass results, plots
+###################
+# Merge total biomass moderator results, with some light cleaning
 tbio_clim_summary <- rbind(nadd_tbio_clim_summary, 
                             padd_tbio_clim_summary, 
                             npadd_tbio_clim_summary) %>%
   mutate(across(estimate:se, ~ round(.x, digits = 4)),
          across(zval:ci.ub, ~ round(.x, digits = 4)))
+
+# Create plot
+
 
 ##############################################################################
 # Aboveground biomass (g/m2) climate moderators

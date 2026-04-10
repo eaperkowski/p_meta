@@ -137,8 +137,9 @@ prcp_long <- prcp_extracted2 %>%
 # Growing season precipitation (where degC > 0)
 map <- prcp_long %>%
   group_by(exp, latitude, longitude) %>%
-  summarize(map = mean(value, na.rm = TRUE))
+  summarize(map = sum(value, na.rm = TRUE))
 
+hist(map$map)
 
 #####################################################################
 # Combine extracted climate data into single data frame
@@ -154,7 +155,7 @@ png("../plots/CNP_fig1_whittaker_plot.png",
     width = 10, height = 6, units = "in", res = 600)
 whittaker_base_plot() +
   geom_point(data = climate_norms,
-             aes(x = mat, y = map), alpha = 0.7, size = 2) +
+             aes(x = mat, y = map / 10), alpha = 0.7, size = 2) +
   scale_y_continuous(limits = c(0, 500),
                      breaks = seq(0, 500, 100),
                      labels = seq(0, 5000, 1000)) +
