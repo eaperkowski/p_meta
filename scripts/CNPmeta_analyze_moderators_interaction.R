@@ -177,7 +177,7 @@ int_parea_clim_summary <- data.frame(trait = "parea",
 
 # Visualize responses
 meta_results_int %>% 
-  filter(response == "leaf_np" & !is.na(gs_mat) & gs_ai < 3 & dNPi > -2) %>%
+  filter(response == "leaf_np" & !is.na(gs_mat) & gs_ai < 3) %>%
   ggplot(aes(x = gs_mat, y = dNPi)) +
   geom_point()
 
