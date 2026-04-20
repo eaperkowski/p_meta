@@ -2493,7 +2493,7 @@ marea_clim_summary %>%
 
 
 ##############################################################################
-# Marea
+# Marea plant functional type moderators
 ##############################################################################
 
 #############
@@ -2516,8 +2516,7 @@ nadd_marea_pft <- rma.mv(logr,
                          control = list(stepadj = 0.3), 
                          data = meta_results %>% 
                            filter(nut_add == "n" & 
-                                    myvar == "lma" & 
-                                    !is.na(photo_path) & logr < 0.6))
+                                    myvar == "lma" & !is.na(photo_path)))
 
 # Extract photosynthetic pathway summary statistics
 nadd_marea_photo <- data.frame(trait = "marea", 
@@ -2690,8 +2689,105 @@ marea_pft_summary <- rbind(nadd_marea_pft_results,
                              npadd_marea_pft_results) %>%
   mutate(estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
+         p = as.character(ifelse(p < 0.001, "<0.001", p)),
+         nut_add = factor(nut_add, levels = c("n", "p", "np"))) %>%
   dplyr::select(trait:comp, k, estimate:upperCL)
+
+#############
+# Make Marea moderator plots
+#############
+
+# Photosynthetic pathway plot
+marea_photo_plot <- ggplot(data = subset(marea_pft_summary, mod == "photo"), 
+                           aes(x = nut_add, y = estimate, fill = nut_add, shape = comp)) +
+  geom_hline(yintercept = 0, linetype = "dashed", size = 1) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75),
+                width = 0.2, size = 1) +
+  geom_point(size = 5, position = position_dodge(width = 0.75)) +
+  scale_shape_manual(values = c(21, 24),
+                     labels = c(expression("C"["3"]),
+                                expression("C"["4"]))) +
+  scale_fill_manual(values = c("red", "blue", "magenta")) +
+  scale_x_discrete(labels = c("N", "P", "N+P")) +
+  scale_y_continuous(limits = c(-0.3, 0.3), breaks = seq(-0.3, 0.3, 0.15)) +
+  labs(title = expression(bolditalic("M")[bold("area")]*bold(" by photo. pathway")),
+       x = "",
+       y = "",
+       shape = expression(bold("Photosynthetic\npathway"))) +
+  guides(fill = "none") +
+  theme_classic(base_size = 20) +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+marea_photo_plot
+
+# N-fixer plot
+marea_nfix_plot <- ggplot(data = subset(marea_pft_summary, mod == "nfix"), 
+                           aes(x = nut_add, y = estimate, fill = nut_add, shape = comp)) +
+  geom_hline(yintercept = 0, linetype = "dashed", size = 1) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75),
+                width = 0.2, size = 1) +
+  geom_point(size = 5, position = position_dodge(width = 0.75)) +
+  scale_shape_manual(values = c(21, 24),
+                     labels = c(expression("N"["2"]*"-fixer"),
+                                "non-fixer")) +
+  scale_fill_manual(values = c("red", "blue", "magenta")) +
+  scale_x_discrete(labels = c("N", "P", "N+P")) +
+  scale_y_continuous(limits = c(-0.3, 0.3), breaks = seq(-0.3, 0.3, 0.15)) +
+  labs(title = expression(bolditalic("M")[bold("area")]*bold(" by N"["2"]*" fixation ability")),
+       x = "",
+       y = "Log-response ratio",
+       shape = expression(bold("N"["2"]*" fixation ability"))) +
+  guides(fill = "none") +
+  theme_classic(base_size = 20) +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+marea_nfix_plot
+
+# Mycorrhizal acquisition strategy plot
+marea_myc_plot <- ggplot(data = subset(marea_pft_summary, mod == "myc_nas"), 
+                          aes(x = nut_add, y = estimate, fill = nut_add, shape = comp)) +
+  geom_hline(yintercept = 0, linetype = "dashed", size = 1) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75),
+                width = 0.2, size = 1) +
+  geom_point(size = 5, position = position_dodge(width = 0.75)) +
+  scale_shape_manual(values = c(21, 24),
+                     labels = c("mining",
+                                "scavenging")) +
+  scale_fill_manual(values = c("red", "blue", "magenta")) +
+  scale_x_discrete(labels = c("N", "P", "N+P")) +
+  scale_y_continuous(limits = c(-0.3, 0.3), breaks = seq(-0.3, 0.3, 0.15)) +
+  labs(title = expression(bolditalic("M")[bold("area")]*bold(" by mycorrhizal strategy")),
+       x = "Nutrient addition",
+       y = "",
+       shape = expression(bold("Mycorrhizal\nacquisition\nstrategy"))) +
+  guides(fill = "none") +
+  theme_classic(base_size = 20) +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+marea_myc_plot
+
+# Make plot
+png("../plots/supp/CNP_figSX_marea_pft.png", height = 14, width = 8, units = "in",
+    res = 600)
+ggarrange(marea_photo_plot, marea_nfix_plot, marea_myc_plot,
+          nrow = 3, ncol = 1, align = "hv",
+          labels = c("(a)", "(b)", "(c)"), font.label = list(size = 20))
+dev.off()
 
 ##############################################################################
 # Nmass
@@ -2783,7 +2879,7 @@ padd_nmass_pft <- rma.mv(logr,
 
 # Extract photosynthetic pathway summary statistics
 padd_nmass_photo <- data.frame(trait = "nmass", 
-                               nut_add = "n",
+                               nut_add = "p",
                                mod = "photo",
                                mod_results(padd_nmass_pft, 
                                            mod = "photo_path", 
@@ -2889,8 +2985,105 @@ nmass_pft_summary <- rbind(nadd_nmass_pft_results,
                              npadd_nmass_pft_results) %>%
   mutate(estimate = round(estimate, digits = 3),
          across(z:upperCL, ~ round(.x, digits = 3)),
-         p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
+         p = as.character(ifelse(p < 0.001, "<0.001", p)),
+         nut_add = factor(nut_add, levels = c("n", "p", "np"))) %>%
   dplyr::select(trait:comp, k, estimate:upperCL)
+
+#############
+# Make Nmass moderator plots
+#############
+
+# Photosynthetic pathway plot
+nmass_photo_plot <- ggplot(data = subset(nmass_pft_summary, mod == "photo"), 
+                           aes(x = nut_add, y = estimate, fill = nut_add, shape = comp)) +
+  geom_hline(yintercept = 0, linetype = "dashed", size = 1) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75),
+                width = 0.2, size = 1) +
+  geom_point(size = 5, position = position_dodge(width = 0.75)) +
+  scale_shape_manual(values = c(21, 24),
+                     labels = c(expression("C"["3"]),
+                                expression("C"["4"]))) +
+  scale_fill_manual(values = c("red", "blue", "magenta")) +
+  scale_x_discrete(labels = c("N", "P", "N+P")) +
+  scale_y_continuous(limits = c(-0.2, 0.4), breaks = seq(-0.2, 0.4, 0.2)) +
+  labs(title = expression(bolditalic("N")[bold("mass")]*bold(" by photo. pathway")),
+       x = "",
+       y = "",
+       shape = expression(bold("Photosynthetic\npathway"))) +
+  guides(fill = "none") +
+  theme_classic(base_size = 20) +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+nmass_photo_plot
+
+# N-fixer plot
+nmass_nfix_plot <- ggplot(data = subset(nmass_pft_summary, mod == "nfix"), 
+                          aes(x = nut_add, y = estimate, fill = nut_add, shape = comp)) +
+  geom_hline(yintercept = 0, linetype = "dashed", size = 1) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75),
+                width = 0.2, size = 1) +
+  geom_point(size = 5, position = position_dodge(width = 0.75)) +
+  scale_shape_manual(values = c(21, 24),
+                     labels = c(expression("N"["2"]*"-fixer"),
+                                "non-fixer")) +
+  scale_fill_manual(values = c("red", "blue", "magenta")) +
+  scale_x_discrete(labels = c("N", "P", "N+P")) +
+  scale_y_continuous(limits = c(-0.2, 0.4), breaks = seq(-0.2, 0.4, 0.2)) +
+  labs(title = expression(bolditalic("N")[bold("mass")]*bold(" by N"["2"]*" fixation ability")),
+       x = "",
+       y = "Log-response ratio",
+       shape = expression(bold("N"["2"]*" fixation ability"))) +
+  guides(fill = "none") +
+  theme_classic(base_size = 20) +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+nmass_nfix_plot
+
+# Mycorrhizal acquisition strategy plot
+nmass_myc_plot <- ggplot(data = subset(nmass_pft_summary, mod == "myc_nas"), 
+                         aes(x = nut_add, y = estimate, fill = nut_add, shape = comp)) +
+  geom_hline(yintercept = 0, linetype = "dashed", size = 1) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75),
+                width = 0.2, size = 1) +
+  geom_point(size = 5, position = position_dodge(width = 0.75)) +
+  scale_shape_manual(values = c(21, 24),
+                     labels = c("mining",
+                                "scavenging")) +
+  scale_fill_manual(values = c("red", "blue", "magenta")) +
+  scale_x_discrete(labels = c("N", "P", "N+P")) +
+  scale_y_continuous(limits = c(-0.2, 0.4), breaks = seq(-0.2, 0.4, 0.2)) +
+  labs(title = expression(bolditalic("N")[bold("mass")]*bold(" by mycorrhizal strategy")),
+       x = "Nutrient addition",
+       y = "",
+       shape = expression(bold("Mycorrhizal\nacquisition\nstrategy"))) +
+  guides(fill = "none") +
+  theme_classic(base_size = 20) +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+nmass_myc_plot
+
+# Make plot
+png("../plots/supp/CNP_figSX_nmass_pft.png", height = 14, width = 14, units = "in",
+    res = 600)
+ggarrange(nmass_photo_plot, nmass_nfix_plot, nmass_myc_plot,
+          nrow = 3, ncol = 1, align = "hv",
+          labels = c("(a)", "(b)", "(c)"), font.label = list(size = 20))
+dev.off()
 
 ##############################################################################
 # Narea - pft
@@ -3091,6 +3284,9 @@ narea_pft_summary <- rbind(nadd_narea_pft_results,
          p = as.character(ifelse(p < 0.001, "<0.001", p))) %>%
   dplyr::select(trait:comp, k, estimate:upperCL)
 
+#############
+# Make Narea moderator plots
+#############
 
 ##############################################################################
 # Pmass - plant functional type

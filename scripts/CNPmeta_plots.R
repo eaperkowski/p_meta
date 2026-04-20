@@ -678,8 +678,9 @@ leafnp_int_par_plot <- mod_results(int_leafnp_clim, mod = "gs_par",
 leafnp_int_par_plot 
 
 
-
-
+#####################################################################
+# Figure 4: climate responses
+#####################################################################
 
 png("../plots/CNP_fig4_climate_responses.png", height = 14, width = 14,
     units = "in", res = 600)
@@ -694,367 +695,379 @@ ggarrange(narea_tg_plot, narea_ai_plot, narea_par_plot,
 dev.off()
 
 
-
-
-
-
-
-# Nmass - photosynthetic pathway
-nmass_photo_plot <- ggplot(data = meta_photo_results %>% 
-                             filter(trait == "nmass" &
-                                      nut_add == "n"),
-                           aes(x = photo, y = estimate)) +
-  geom_errorbar(aes(ymin = lowerCL, 
-                    ymax = upperCL),
-                width = 0.3, linewidth = 1) +
-  geom_point(aes(fill = photo), shape = 21, size = 5) +
-  geom_bracket(xmin = "C3", xmax = "C4", y.position = 0.5, size = 1,
-               label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 0.52, label = "**", size = 6) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  scale_fill_manual(values = c("pink", "darkred")) +
-  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
-  labs(x = "Photosynthetic pathway",
-       y = expression(bold("N"["mass"]*" response to N addition"))) +
-  guides(fill = "none") +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-nmass_photo_plot
-
-# Nmass - N fixation
-nmass_nfix_plot <- ggplot(data = meta_nfix_results %>% 
-                             filter(trait == "nmass" &
-                                      nut_add == "n"),
-                           aes(x = nfix, y = estimate)) +
+#####################################################################
+# N addition: Photosynthetic pathway
+#####################################################################
+# Plot
+nadd_photo_plot <- ggplot(data = ind_pft_results %>% 
+                            filter(trait %in% c("nmass", "narea",
+                                                "asat", "rd",
+                                                "vcmax", "jmax") & nut_add == "n" & mod == "photo"),
+                          aes(x = factor(trait, 
+                                         levels = c("jmax", "vcmax", "rd", 
+                                                    "asat", 
+                                                    "narea", "nmass")), 
+                              y = estimate, 
+                              shape = factor(comp, levels = c("C3", "C4")),
+                              fill = factor(comp, levels = c("C3", "C4")))) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
   geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
-                width = 0.3, linewidth = 1) +
-  geom_point(aes(fill = nfix), shape = 21, size = 5) +
-  geom_bracket(xmin = "No", xmax = "Yes", y.position = 0.5, size = 1,
-               label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 0.52, label = "***", size = 6) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  scale_fill_manual(values = c("pink", "darkred")) +
-  scale_x_discrete(labels = c("non-fixer", expression("N"["2"]*"-fixer"))) +
-  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
-  labs(x = expression(bold("N"["2"]*" fixation ability")),
-       y = expression(bold("N"["mass"]*" response to N addition"))) +
-  guides(fill = "none") +
+                position = position_dodge(width = 0.75), width = 0.2, color = "black", size = 1) +
+  geom_point(position = position_dodge(width = 0.75), size = 5) +
+  geom_text(aes(x = 1, y = 0.95, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 2, y = 0.95, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 3, y = 0.95, label = " ** "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 4, y = 0.95, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 5, y = 0.95, label = " * "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 6, y = 0.95, label = " * "), size = 7, fontface = "bold") +
+  scale_shape_manual(values = c(21, 22),
+                     labels = c(expression("C"["3"]),
+                                expression("C"["4"]))) +
+  scale_fill_manual(values = c("ivory", "red2"),
+                    labels = c(expression("C"["3"]),
+                               expression("C"["4"]))) +
+  scale_x_discrete(labels = c(expression(italic("J")["max"]),
+                              expression(italic("V")["cmax"]),
+                              expression(italic("R")["d"]),
+                              expression(italic("A")["sat"]),
+                              expression(italic("N")["area"]),
+                              expression(italic("N")["mass"]))) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  coord_flip() +
+  labs(title = "N addition responses to photo. pathway",
+       x = "",
+       y = "",
+       shape = expression(bold("Photo.\npathway")),
+       fill = expression(bold("Photo.\npathway"))) +   
   theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-nmass_nfix_plot
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+nadd_photo_plot
 
-# Nmass - mycorrhizal acquisition strategy
-nmass_myc_plot <- ggplot(data = meta_myc_results %>% 
-                            filter(trait == "nmass" &
-                                     nut_add == "n"),
-                          aes(x = myc, y =  estimate)) +
+#####################################################################
+# N addition: N2 fixation
+#####################################################################
+# Plot
+nadd_nfix_plot <- ggplot(data = ind_pft_results %>% 
+                            filter(trait %in% c("nmass", "narea",
+                                                "asat", "rd",
+                                                "vcmax", "jmax") & nut_add == "n" & mod == "nfix"),
+                          aes(x = factor(trait, 
+                                         levels = c("jmax", "vcmax", "rd", "asat", 
+                                                    "narea", "nmass")), 
+                              y = estimate, 
+                              shape = factor(comp, levels = c("Yes", "No")),
+                              fill = factor(comp, levels = c("Yes", "No")))) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
+  geom_text(aes(x = 1, y = 0.95, label = " * "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 2, y = 0.95, label = " ** "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 3, y = 0.95, label = " * "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 4, y = 0.95, label = "***"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 5, y = 0.95, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 6, y = 0.95, label = "***"), size = 7, fontface = "bold") +
   geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
-                width = 0.3, linewidth = 1) +
-  geom_point(aes(fill = myc), shape = 21, size = 5) +
-  geom_bracket(xmin = "Mining", xmax = "Scavenging", y.position = 0.5, size = 1,
-               label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 0.52, label = "NS", size = 6) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  scale_fill_manual(values = c("pink", "darkred")) +
-  scale_x_discrete(labels = c("mining", "scavenging")) +
-  scale_y_continuous(limits = c(-0.25, 0.5), breaks = seq(-0.25, 0.5, 0.25)) +
-  labs(x = expression(bold("Mycorrhizal-NAS")),
-       y = expression(bold("N"["mass"]*" response to N addition (%)"))) +
-  guides(fill = "none") +
+                position = position_dodge(width = 0.75),
+                width = 0.2, color = "black", size = 1) +
+  geom_point(position = position_dodge(width = 0.75), size = 5) +
+  scale_shape_manual(values = c(23, 21),
+                     labels = c(expression("N"["2"]*"-fixer"),
+                                "non-fixer")) +
+  scale_fill_manual(values = c("red2", "ivory"),
+                     labels = c(expression("N"["2"]*"-fixer"),
+                                "non-fixer")) +
+  scale_x_discrete(labels = c(expression(italic("J")["max"]),
+                              expression(italic("V")["cmax"]),
+                              expression(italic("R")["d"]),
+                              expression(italic("A")["sat"]),
+                              expression(italic("N")["area"]),
+                              expression(italic("N")["mass"]))) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  coord_flip() +
+  labs(title = "N addition responses to N-fixation ability",
+       x = "",
+       y = "",
+       shape = expression(bold("N-fixation\nability")),
+       fill = expression(bold("N-fixation\nability"))) +   
   theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-nmass_myc_plot
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+nadd_nfix_plot
 
 #####################################################################
-# Pmass -- climate and species identity moderators
+# N addition: Mycorrhizal acquisition strategy
 #####################################################################
-
-# Nmass climate moderator model
-padd_pmass_clim <- rma.mv(logr, logr_var, method = "REML", 
-                          random = ~ 1 | exp, mods = ~ gs_mat + gs_ai + gs_par,
-                          slab = exp, control = list(stepadj = 0.3), 
-                          data = meta_results %>% 
-                            filter(manip_type == "p" & 
-                                     myvar == "leaf_p_mass" & 
-                                     !is.na(gs_mat)))
-summary(padd_pmass_clim)
-
-# Pmass - temperature plot
-pmass_tg_plot <- mod_results(padd_pmass_clim, mod = "gs_mat",
-                             group = "exp", subset = TRUE)$mod_table %>%
-  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
-  geom_point(data = subset(meta_results, myvar == "leaf_p_mass" & 
-                             manip_type == "p" & !is.na(gs_mat)),
-             aes(x = gs_mat, y = (exp(logr) - 1) * 100, size = 1/logr_se), 
-             alpha = 0.30) +
-  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
-              alpha = 0.3, fill = "blue") +
-  geom_smooth(method = "loess", linewidth = 2, color = "blue") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-  scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
-  scale_y_continuous(limits = c(-50, 400), breaks = seq(0, 400, 100)) +
-  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
-       y = expression(bold("P"["mass"]*" response to P addition (%)")),
-       size = expression(bold("Error"^"-1"))) +
+# Plot
+nadd_myc_plot <- ggplot(data = ind_pft_results %>% 
+                          filter(trait %in% c("nmass", "narea",
+                                              "asat", "rd",
+                                              "vcmax", "jmax") & nut_add == "n" & mod == "myc_nas"),
+                        aes(x = factor(trait, levels = c("jmax", "vcmax", "rd", "asat", 
+                                                         "narea", "nmass")), 
+                            y = estimate, 
+                            shape = factor(comp, levels = c("Scavenging", "Mining")),
+                            fill = factor(comp, levels = c("Scavenging", "Mining")))) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75), 
+                width = 0.2, color = "black", size = 1) +
+  geom_point(position = position_dodge(width = 0.75), size = 5) +
+  geom_text(aes(x = 1, y = 0.95, label = "***"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 2, y = 0.95, label = "***"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 3, y = 0.95, label = "***"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 4, y = 0.95, label = "***"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 5, y = 0.95, label = " ** "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 6, y = 0.95, label = " NS "), size = 7, fontface = "bold") +
+  scale_shape_manual(values = c(21, 24),
+                     labels = c("scavenging", "mining")) +
+  scale_fill_manual(values = c("ivory", "red2"),
+                    labels = c("scavenging",
+                               "mining")) +
+  scale_x_discrete(labels = c(expression(italic("J")["max"]),
+                              expression(italic("V")["cmax"]),
+                              expression(italic("R")["d"]),
+                              expression(italic("A")["sat"]),
+                              expression(italic("N")["area"]),
+                              expression(italic("N")["mass"]))) +
+  scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, 0.5)) +
+  coord_flip() +
+  labs(title = "N addition responses to mycorrhizal strategy",
+       x = "",
+       y = "",
+       shape = expression(bold("Mycorrhizal\nacquisition\nstrategy")),
+       fill = expression(bold("Mycorrhizal\nacquisition\nstrategy"))) +   
   theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-pmass_tg_plot 
-
-# Pmass - aridity plot
-pmass_ai_plot <- mod_results(padd_pmass_clim, mod = "gs_ai",
-                             group = "exp", subset = TRUE)$mod_table %>%
-  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
-  geom_point(data = subset(meta_results, myvar == "leaf_p_mass" & 
-                             manip_type == "p" & !is.na(gs_ai)),
-             aes(x = gs_ai, y = (exp(logr) - 1) * 100, size = 1/logr_se), 
-             alpha = 0.30) +
-  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
-              alpha = 0.3, fill = "blue") +
-  geom_smooth(method = "loess", linewidth = 2, 
-              color = "blue", linetype = "dashed") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-  scale_x_continuous(limits = c(0, 3.4), breaks = seq(0, 3, 1)) +
-  scale_y_continuous(limits = c(-50, 400), breaks = seq(0, 400, 100)) +
-  scale_size_continuous(limits = c(0, 224), range = c(1, 7)) +
-  labs(x = expression(bold("MI"["g"]*" (unitless)")),
-       y = expression(bold("P"["mass"]*" response to P addition (%)")),
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-pmass_ai_plot 
-
-# Pmass - photosynthetic pathway
-pmass_photo_plot <- ggplot(data = meta_photo_results %>% 
-                             filter(trait == "pmass" &
-                                      nut_add == "p"),
-                           aes(x = photo, y = (exp(estimate) - 1) * 100)) +
-  geom_errorbar(aes(ymin = (exp(lowerCL) - 1) * 100, ymax = (exp(upperCL) - 1) * 100),
-                width = 0.3, linewidth = 1) +
-  geom_point(aes(fill = photo), shape = 21, size = 5) +
-  geom_bracket(xmin = "C3", xmax = "C4", y.position = 390, size = 1,
-               label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 400, label = "***", size = 6) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  scale_fill_manual(values = c("lightblue", "darkblue")) +
-  scale_y_continuous(limits = c(-50, 400), breaks = seq(0, 400, 100)) +
-  labs(x = "Photosynthetic pathway",
-       y = expression(bold("P"["mass"]*" response to P addition (%)"))) +
-  guides(fill = "none") +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-pmass_photo_plot
-
-# Pmass - N fixation
-pmass_nfix_plot <- ggplot(data = meta_nfix_results %>% 
-                            filter(trait == "pmass" &
-                                     nut_add == "p"),
-                          aes(x = nfix, y = (exp(estimate) - 1) * 100)) +
-  geom_errorbar(aes(ymin = (exp(lowerCL) - 1) * 100,
-                    ymax = (exp(upperCL) - 1) * 100),
-                width = 0.3, linewidth = 1) +
-  geom_point(aes(fill = nfix), shape = 21, size = 5) +
-  geom_bracket(xmin = "No", xmax = "Yes", y.position = 390, size = 1,
-               label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 400, label = "***", size = 6) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  scale_fill_manual(values = c("lightblue", "darkblue")) +
-  scale_x_discrete(labels = c("non-fixer", expression("N"["2"]*"-fixer"))) +
-  scale_y_continuous(limits = c(-50, 400), breaks = seq(0, 400, 100)) +
-  labs(x = expression(bold("N"["2"]*" fixation ability")),
-       y = expression(bold("P"["mass"]*" response to P addition (%)"))) +
-  guides(fill = "none") +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-pmass_nfix_plot
-
-# Pmass - mycorrhizal acquisition strategy
-pmass_myc_plot <- ggplot(data = meta_myc_results %>% 
-                           filter(trait == "pmass" &
-                                    nut_add == "p"),
-                         aes(x = myc, y = (exp(estimate) - 1) * 100)) +
-  geom_errorbar(aes(ymin = (exp(lowerCL) - 1) * 100, ymax = (exp(upperCL) - 1) * 100),
-                width = 0.3, linewidth = 1) +
-  geom_point(aes(fill = myc), shape = 21, size = 5) +
-  geom_bracket(xmin = "Mining", xmax = "Scavenging", y.position = 390, size = 1,
-               label = "", tip.length = 0.02) +
-  geom_text(x = 1.5, y = 400, label = "***", size = 6) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  scale_x_discrete(label = c("mining", "scavenging")) +
-  scale_fill_manual(values = c("lightblue", "darkblue")) +
-  scale_y_continuous(limits = c(-50, 400), breaks = seq(0, 400, 100)) +
-  labs(x = expression(bold("Mycorrhizal-NAS")),
-       y = expression(bold("P"["mass"]*" response to P addition (%)"))) +
-  guides(fill = "none") +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-pmass_myc_plot
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+nadd_myc_plot
 
 #####################################################################
-# Leaf N:P interaction -- climate and species identity moderators
+# Figure 5: N addition PFT moderators
 #####################################################################
-# Climate Model
-int_leafnp_clim <- rma.mv(yi = dNPi, V = vNPi, W = wNPi, method = "REML", 
-                          random = ~ 1 | exp, mods = ~ gs_mat + gs_ai + gs_par,
-                          slab = exp, control = list(stepadj = 0.3), 
-                          data = meta_results_int %>% 
-                            filter(myvar == "leaf_np" & !is.na(gs_mat) & dNPi < 1))
-summary(int_leafnp_clim)
-
-# Temperature plot
-leafnp_int_tg_plot <- mod_results(int_leafnp_clim, 
-                                  mod = "gs_mat", 
-                                  group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_point(data = subset(meta_results_int, myvar == "leaf_np" & dNPi < 1), 
-             aes(x = gs_mat, y = (exp(dNPi) - 1) * 100,
-             size = 1 / dNPi_se)) +
-  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
-              alpha = 0.3) +
-  geom_smooth(linewidth = 1.5, color = "black") +
-  scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
-  scale_y_continuous(limits = c(-100, 200)) +
-  scale_size_continuous(limits = c(0, 120), range = c(1, 7)) +
-  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
-       y = "Leaf N:P interaction effect (%)",
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-leafnp_int_tg_plot
-
-# Moisture index plot
-leafnp_int_par_plot <- mod_results(int_leafnp_clim, 
-                                  mod = "gs_par", 
-                                  group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_point(data = subset(meta_results_int, myvar == "leaf_np" & dNPi < 1), 
-             aes(x = gs_par, y = (exp(dNPi) - 1) * 100,
-                 size = 1 / dNPi_se)) +
-  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
-              alpha = 0.3) +
-  geom_smooth(linewidth = 1.5, color = "black") +
-  scale_y_continuous(limits = c(-100, 200)) +
-  scale_x_continuous(limits = c(600, 1000), breaks = seq(600, 1000, 100)) +
-  scale_size_continuous(limits = c(0, 120), range = c(1, 7)) +
-  labs(x = expression(bold("PAR"["g"]*" ("*mu*"mol m"^"-2"*" s"^"-1"*")")),
-       y = "Leaf N:P interaction effect (%)",
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-leafnp_int_par_plot
-
-#####################################################################
-# AGB interaction -- climate moderators
-#####################################################################
-
-# Climate Model
-int_agb_clim <- rma.mv(yi = dNPi, V = vNPi, W = wNPi, method = "REML", 
-                       random = ~ 1 | exp, mods = ~ gs_mat + gs_ai + gs_par,
-                       slab = exp, control = list(stepadj = 0.3), 
-                       data = meta_results_int %>% 
-                         filter(myvar == "agb" & !is.na(gs_mat) & dNPi < 2))
-summary(int_agb_clim)
-
-
-# Temperature plot
-agb_int_tg_plot <- mod_results(int_agb_clim, 
-                               mod = "gs_mat", 
-                               group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_point(data = subset(meta_results_int, myvar == "agb" & dNPi < 2), 
-             aes(x = gs_mat, y = (exp(dNPi) - 1) * 100,
-                 size = 1 / dNPi_se)) +
-  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
-              alpha = 0.3) +
-  geom_smooth(linewidth = 1.5, color = "black") +
-  scale_x_continuous(limits = c(5, 27), breaks = seq(5, 25, 5)) +
-  scale_y_continuous(limits = c(-100, 400)) +
-  scale_size_continuous(limits = c(0, 120), range = c(1, 7)) +
-  labs(x = expression(bold("T"["g"]*" ("*degree*"C)")),
-       y = "AGB interaction effect (%)",
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-
-# Moisture index plot
-agb_int_ai_plot <- mod_results(int_agb_clim, 
-                                  mod = "gs_ai", 
-                                  group = "exp")$mod_table %>%
-  ggplot(aes(x = moderator, y = (exp(estimate) - 1) * 100)) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_point(data = subset(meta_results_int, myvar == "agb" & dNPi < 2), 
-             aes(x = gs_ai, y = (exp(dNPi) - 1) * 100,
-                 size = 1 / dNPi_se)) +
-  geom_ribbon(aes(ymax = (exp(upperCL) - 1) * 100, ymin = (exp(lowerCL) - 1) * 100),
-              alpha = 0.3) +
-  geom_smooth(linewidth = 1.5, color = "black") +
-  scale_y_continuous(limits = c(-100, 400)) +
-  scale_x_continuous(limits = c(0, 3.4), breaks = seq(0, 3, 1)) +
-  scale_size_continuous(limits = c(0, 120), range = c(1, 7)) +
-  labs(x = expression(bold("MI"["g"]*" (unitless)")),
-       y = "AGB interaction effect (%)",
-       size = expression(bold("Error"^"-1"))) +
-  theme_classic(base_size = 20) +
-  theme(axis.title = element_text(face = "bold"),
-        axis.text = element_text(color = "black", size = 20))
-
-
-#####################################################################
-# Write plots
-#####################################################################
-
-# Figure 1 - individual effects
-png("../plots/CNP_fig1_indEffects2.png", height = 12, width = 16, 
+png("../plots/CNP_fig5_Nadd_pft_responses.png", height = 16, width = 8.5,
     units = "in", res = 600)
-ggarrange(nadd_chemistry_plot, nadd_photo_plot, nadd_bio_plot,
-          padd_chemistry_plot, padd_photo_plot, padd_bio_plot,
-          npadd_chemistry_plot, npadd_photo_plot, npadd_bio_plot,
-          nrow = 3, ncol = 3, labels = c("(a)", "(b)", "(c)",
-                                         "(d)", "(e)", "(f)",
-                                         "(g)", "(h)", "(i)"), 
-          font.label = list(size = 18),
-          align = "hv")
+ggarrange(nadd_nfix_plot, nadd_myc_plot, nadd_photo_plot,
+          nrow = 3, labels = c("(a)", "(b)", "(c)"), align = "hv",
+          font.label = list(size = 20))
 dev.off()
 
-# Figure 2 - moderator plots
-png("../plots/CNP_fig2_moderators_ind.png", height = 12.5, width = 24,
+
+
+#####################################################################
+# N addition: Photosynthetic pathway
+#####################################################################
+# Plot
+padd_photo_plot <- ggplot(data = ind_pft_results %>% 
+                            filter(trait %in% c("pmass", "parea",
+                                                "asat", "rd",
+                                                "vcmax", "jmax") & nut_add == "p" & mod == "photo"),
+                          aes(x = factor(trait, 
+                                         levels = c("jmax", "vcmax", "rd", 
+                                                    "asat", "parea", "pmass")), 
+                              y = estimate, 
+                              shape = factor(comp, levels = c("C3", "C4")),
+                              fill = factor(comp, levels = c("C3", "C4")))) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75), width = 0.2, color = "black", size = 1) +
+  geom_point(position = position_dodge(width = 0.75), size = 5) +
+  geom_text(aes(x = 1, y = 1.45, label = "NS"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 2, y = 1.45, label = "NS"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 3, y = 1.45, label = "NS"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 4, y = 1.45, label = "NS"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 5, y = 1.45, label = "NS"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 6, y = 1.45, label = "NS"), size = 7, fontface = "bold") +
+  scale_shape_manual(values = c(21, 22),
+                     labels = c(expression("C"["3"]),
+                                expression("C"["4"]))) +
+  scale_fill_manual(values = c("ivory", "blue2"),
+                    labels = c(expression("C"["3"]),
+                               expression("C"["4"]))) +
+  scale_x_discrete(labels = c(expression(italic("J")["max"]),
+                              expression(italic("V")["cmax"]),
+                              expression(italic("R")["d"]),
+                              expression(italic("A")["sat"]),
+                              expression(italic("P")["area"]),
+                              expression(italic("P")["mass"]))) +
+  scale_y_continuous(limits = c(-0.5, 1.5), breaks = seq(-0.5, 1.5, 0.5)) +
+  coord_flip() +
+  labs(title = "P addition responses to photo. pathway",
+       x = "",
+       y = "",
+       shape = expression(bold("Photo.\npathway")),
+       fill = expression(bold("Photo.\npathway"))) +   
+  theme_classic(base_size = 20) +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+padd_photo_plot
+
+#####################################################################
+# P addition: N2 fixation
+#####################################################################
+# Plot
+padd_nfix_plot <- ggplot(data = ind_pft_results %>% 
+                           filter(trait %in% c("pmass", "parea",
+                                               "asat", "rd",
+                                               "vcmax", "jmax") & 
+                                    nut_add == "p" & mod == "nfix"),
+                         aes(x = factor(trait, 
+                                        levels = c("jmax", "vcmax", "rd", "asat", 
+                                                   "parea", "pmass")), 
+                             y = estimate, 
+                             shape = factor(comp, levels = c("Yes", "No")),
+                             fill = factor(comp, levels = c("Yes", "No")))) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
+  geom_text(aes(x = 1, y = 1.45, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 2, y = 1.45, label = " * "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 3, y = 1.45, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 4, y = 1.45, label = "***"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 5, y = 1.45, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 6, y = 1.45, label = "***"), size = 7, fontface = "bold") +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75),
+                width = 0.2, color = "black", size = 1) +
+  geom_point(position = position_dodge(width = 0.75), size = 5) +
+  scale_shape_manual(values = c(23, 21),
+                     labels = c(expression("N"["2"]*"-fixer"),
+                                "non-fixer")) +
+  scale_fill_manual(values = c("blue2", "ivory"),
+                    labels = c(expression("N"["2"]*"-fixer"),
+                               "non-fixer")) +
+  scale_x_discrete(labels = c(expression(italic("J")["max"]),
+                              expression(italic("V")["cmax"]),
+                              expression(italic("R")["d"]),
+                              expression(italic("A")["sat"]),
+                              expression(italic("P")["area"]),
+                              expression(italic("P")["mass"]))) +
+  scale_y_continuous(limits = c(-0.5, 1.5), breaks = seq(-0.5, 1.5, 0.5)) +
+  coord_flip() +
+  labs(title = "P addition responses to N-fixation ability",
+       x = "",
+       y = "",
+       shape = expression(bold("N-fixation\nability")),
+       fill = expression(bold("N-fixation\nability"))) +   
+  theme_classic(base_size = 20) +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+padd_nfix_plot
+
+#####################################################################
+# N addition: Mycorrhizal acquisition strategy
+#####################################################################
+# Plot
+padd_myc_plot <- ggplot(data = ind_pft_results %>% 
+                          filter(trait %in% c("pmass", "parea",
+                                              "asat", "rd",
+                                              "vcmax", "jmax") & nut_add == "p" & mod == "myc_nas"),
+                        aes(x = factor(trait, levels = c("jmax", "vcmax", "rd", "asat", 
+                                                         "parea", "pmass")), 
+                            y = estimate, 
+                            shape = factor(comp, levels = c("Scavenging", "Mining")),
+                            fill = factor(comp, levels = c("Scavenging", "Mining")))) +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -Inf, ymax = Inf),
+            fill = "lightgrey", alpha = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1) +
+  geom_errorbar(aes(ymin = lowerCL, ymax = upperCL),
+                position = position_dodge(width = 0.75), 
+                width = 0.2, color = "black", size = 1) +
+  geom_point(position = position_dodge(width = 0.75), size = 5) +
+  geom_text(aes(x = 1, y = 1.45, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 2, y = 1.45, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 3, y = 1.45, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 4, y = 1.45, label = " NS "), size = 7, fontface = "bold") +
+  geom_text(aes(x = 5, y = 1.45, label = "***"), size = 7, fontface = "bold") +
+  geom_text(aes(x = 6, y = 1.45, label = "***"), size = 7, fontface = "bold") +
+  scale_shape_manual(values = c(21, 24),
+                     labels = c("scavenging", "mining")) +
+  scale_fill_manual(values = c("ivory", "blue2"),
+                    labels = c("scavenging",
+                               "mining")) +
+  scale_x_discrete(labels = c(expression(italic("J")["max"]),
+                              expression(italic("V")["cmax"]),
+                              expression(italic("R")["d"]),
+                              expression(italic("A")["sat"]),
+                              expression(italic("P")["area"]),
+                              expression(italic("P")["mass"]))) +
+  scale_y_continuous(limits = c(-0.5, 1.5), breaks = seq(-0.5, 1.5, 0.5)) +
+  coord_flip() +
+  labs(title = "P addition responses to mycorrhizal strategy",
+       x = "",
+       y = "",
+       shape = expression(bold("Mycorrhizal\nacquisition\nstrategy")),
+       fill = expression(bold("Mycorrhizal\nacquisition\nstrategy"))) +   
+  theme_classic(base_size = 20) +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold", size = 22),
+        axis.text.y = element_text(size = 20, color = "black"),
+        axis.text.x = element_text(size = 20, color = "black"),
+        panel.grid = element_blank(),
+        title = element_text(face = "bold"))
+padd_myc_plot
+
+#####################################################################
+# Figure 5: P addition PFT moderators
+#####################################################################
+png("../plots/CNP_fig6_Padd_pft_responses.png", height = 16, width = 8.5,
     units = "in", res = 600)
-ggarrange(nmass_tg_plot, nmass_ai_plot, nmass_nfix_plot, nmass_myc_plot, nmass_photo_plot,
-          pmass_tg_plot, pmass_ai_plot, pmass_nfix_plot, pmass_myc_plot, pmass_photo_plot,
-          nrow = 2, ncol = 5, legend = "bottom", common.legend = TRUE,
-          labels = c("(a)", "(b)", "(c)", "(d)", "(e)", 
-                     "(f)", "(g)", "(h)", "(i)", "(j)"),
-          font.label = list(size = 20), align = "hv")
+ggarrange(padd_nfix_plot, padd_myc_plot, padd_photo_plot,
+          nrow = 3, labels = c("(a)", "(b)", "(c)"), align = "hv",
+          font.label = list(size = 20))
 dev.off()
 
-# Figure 3 - interaction effects
-png("../plots/CNP_fig3_intEffects.png", height = 12, width = 5.5, 
-    units = "in", res = 600)
-ggarrange(npint_chemistry_plot, npint_photo_plot, npint_bio_plot, 
-          nrow = 3, ncol = 1, labels = c("(a)", "(b)", "(c)"), 
-          font.label = list(size = 18), align = "hv")
-dev.off()
 
-# Figure 4 - climate interactions plots
-png("../plots/CNP_fig4_climate_mod_int.png", height = 12, width = 12,
-    units = "in", res = 600)
-ggarrange(leafnp_int_tg_plot, leafnp_int_par_plot, 
-          agb_int_tg_plot, agb_int_ai_plot, 
-          nrow = 2, ncol = 2, legend = "bottom", common.legend = TRUE,
-          labels = c("(a)", "(b)", "(c)", "(d)"),
-          font.label = list(size = 20), align = "hv")
-dev.off()
+
+
+
