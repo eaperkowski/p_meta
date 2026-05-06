@@ -1,8 +1,9 @@
 # CNPmeta_pOnly.R - script conducts meta-analysis for P addition experiments
-# This is for the review paper on our theoretical and empirical understanding
-# of phosphorus availability on ecophysiological traits and includes experiments
-# that include a phosphorus addition treatment (as opposed to full-factorial
-# experiments that add both phosphorus and nitrogen)
+# This is for the review paper Nick is leading on our theoretical and empirical
+# understanding of phosphorus availability on ecophysiological traits and 
+# includes experiments that include a phosphorus addition treatment
+#
+# Note: all paths assume that the root directory is the location of this script.
 
 ##############################################################################
 # Libraries
@@ -28,6 +29,13 @@ source("../helper_fxns/analyse_meta.R")
 # Run meta-analysis
 ##############################################################################
 
+#####################################################################
+# Set up and carry out P fertilization meta-analysis
+#####################################################################
+
+# What traits are included?
+unique(df_pOnly$response)
+
 # Select variables
 use_response_p <- c("anpp_n", "anpp_p", "anpp", "leaf_n_mass", "leaf_p_mass", "anet",
                     "tbio_gm2", "bnpp", "rootshoot", "bgb", "lma",
@@ -44,7 +52,8 @@ pfert_responses <- df_pOnly %>%
   mutate(myvar = ifelse(myvar %in% c("amax", "anet", "asat"),
                         "asat", myvar),
          myvar = ifelse(myvar %in% c("bgb", "fine_root_biomass"),
-                        "bgb", myvar))
+                        "bgb", myvar),
+         myvar = ifelse(myvar %in% "lai", "tla", myvar))
 
 use_vars_p <- unique(pfert_responses$myvar)
 
@@ -66,55 +75,31 @@ out_p <- purrr::map(as.list(use_vars_p),
                                     rename(var = myvar), nam_target = .))
 names(out_p) <- use_vars_p
 
-df_box_p_k <- data.frame(var = use_vars_p,
-                         k = c("(15)", "(12)", "(114)", "(160)", "(163)", "(115)",
-                               "(33)", "(54)", "(61)", "(30)", "(123)",
-                               "(5)", "(37)", "(17)", "(63)", "(41)", "(127)", 
-                               "(33)", "(41)", "(87)", "(84)", "(52)", "(50)", 
-                               "(37)", "(35)", "(65)", "(70)", "(24)", "(25)",
-                               "(25)", "(24)", "(10)", "(6)", "(5)"),
-                         sig.level = c("   ", "***", "***", "   ", "***", "***",
-                                       ".  ", "   ", "***", "   ", "   ", 
-                                       ".  ", ".  ", ".  ", "***", "***", "***",
-                                       "***", "   ", "   ", "***", "***", "***", 
-                                       "   ", "   ", ".  ", "*  ", "   ", "** ",
-                                       "   ", "   ", "***", "   ", "   "))
+# Extract summary statistics for each model
+out_p_modl <- lapply(out_p, `[[`, "modl")
 
-df_box_p_k$k_sig <- str_c(df_box_p_k$k, df_box_p_k$sig.level)
-
-df_box_p <- purrr::map_dfr(out_p, "df_box") |> 
-  full_join(df_box_p_k) |>
-  left_join(
-    pfert_lnRR |> 
-      group_by(myvar) |> 
-      summarise(logr_min = min(logr), logr_max = max(logr)) |> 
-      rename(var = myvar),
-    by = "var") |>
-  mutate(var = factor(var, 
-                      levels = c("rootshoot", "rmf", "bgb", "bnpp", "agb_p", 
-                                 "agb_p_mass", "agb_n", "agb_n_mass",
-                                 "agb", "anpp", "total_biomass",
-                                 "leaf_wue", "leaf_ppue", "leaf_pnue", "jmax_vcmax",
-                                 "jmax", "vcmax", "gsw", "asat", "leaf_residual_p", 
-                                 "leaf_structural_p", "leaf_nucleic_p", 
-                                 "leaf_metabolic_p", "leaf_pi", 
-                                 "leaf_np", "leaf_p_area", "leaf_p_mass", 
-                                 "leaf_n_area", "leaf_n_mass", "lma")),
-         middle_fixed = ifelse(middle >= 0,
-                               sprintf(" %.3f", middle),
-                               sprintf("%.3f", middle)),
-         plot_label = paste0("paste('", middle_fixed, "'^'", sig.level, "')"),
-         bold_yn = ifelse(sig.level %in% c("*", "**", "***"),
-                          "bold", "plain"),
-         middle_perc = (exp(middle) - 1) * 100,
-         upper_perc = (exp(ymax) - 1) * 100,
-         lower_perc = (exp(ymin) - 1) * 100)
+out_p_modl_df <- data.frame(
+  var = names(out_p_modl),
+  nut_add = "p",
+  k = sapply(out_p_modl, \(x) x$k),
+  estimate = sapply(out_p_modl, \(x) as.numeric(coef(x))[1]),
+  SE = sapply(out_p_modl, \(x) x$se[1]),
+  zval = sapply(out_p_modl, \(x) x$zval[1]),
+  pval = sapply(out_p_modl, \(x) x$pval[1]),
+  ci.lb = sapply(out_p_modl, \(x) x$ci.lb[1]),
+  ci.ub = sapply(out_p_modl, \(x) x$ci.ub[1]),
+  row.names = NULL) |>
+  mutate(across(estimate:zval, \(x) round(x, 3)),
+         across(ci.lb:ci.ub, \(x) round(x, 3)),
+         pval = ifelse(pval < 0.001, "<0.001",
+                       round(pval, digits = 3)),
+         k_plot = str_c("(", k, ")"))
 
 ##############################################################################
 # Make some plots
 ##############################################################################
 
-padd_chemistry_plot <- ggplot(data = df_box_p %>% 
+padd_chemistry_plot <- ggplot(data = out_p_modl_df %>% 
                                 drop_na(var) %>% 
                                 filter(var %in% c("lma", 
                                                   "leaf_n_mass", 
@@ -122,8 +107,8 @@ padd_chemistry_plot <- ggplot(data = df_box_p %>%
                                                   "leaf_p_mass", 
                                                   "leaf_p_area",
                                                   "leaf_np")),
-                              aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                              aes(x = var, y = estimate)) +
+  geom_errorbar(aes(ymin = ci.lb, ymax = ci.ub), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Leaf N:P",
@@ -132,7 +117,7 @@ padd_chemistry_plot <- ggplot(data = df_box_p %>%
                               expression("N"["area"]),
                               expression("N"["mass"]),
                               expression("M"["area"]))) +
-  geom_text(aes(label = k_sig), y = 1.3, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_plot), y = 1.3, fontface = "bold", size = 5) +
   scale_y_continuous(limits = c(-1, 1.5), breaks = seq(-1, 1.5, 0.5)) +
   labs(x = "", 
        y = NULL) +
@@ -144,22 +129,31 @@ padd_chemistry_plot <- ggplot(data = df_box_p %>%
         axis.text.y = element_text(size = 18, color = "black"))
 padd_chemistry_plot
 
-padd_photo_plot <- ggplot(data = df_box_p %>% 
+padd_photo_plot <- ggplot(data = out_p_modl_df %>% 
                             drop_na(var) %>% 
-                            filter(var %in% c("asat", 
+                            filter(var %in% c("asat",
+                                              "rd",
                                               "vcmax", 
                                               "jmax",
                                               "leaf_pnue", 
                                               "leaf_ppue")),
-                          aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), size = 1, width = 0.25) +
+                          aes(x = factor(var, levels = c("leaf_ppue",
+                                                         "leaf_pnue",
+                                                         "jmax",
+                                                         "vcmax",
+                                                         "rd",
+                                                         "asat")),
+                              
+                              y = estimate)) +
+  geom_errorbar(aes(ymin = ci.lb, ymax = ci.ub), size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1.3, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_plot), y = 1.3, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("PPUE",
                               "PNUE",
                               expression("J"["max"]),
                               expression("V"["cmax"]),
+                              expression("R"["d"]),
                               expression("A"["sat"]))) +
   scale_y_continuous(limits = c(-1, 1.5), breaks = seq(-1, 1.5, 0.5)) +
   scale_fill_manual(values = "blue") +
@@ -172,18 +166,18 @@ padd_photo_plot <- ggplot(data = df_box_p %>%
         axis.text.y = element_text(size = 18, color = "black"))
 padd_photo_plot
 
-padd_bio_plot <- ggplot(data = df_box_p %>% 
+padd_bio_plot <- ggplot(data = out_p_modl_df %>% 
                           drop_na(var) %>% 
                           filter(var %in% c("rootshoot", 
                                             "rmf", 
                                             "bnpp", 
                                             "anpp", 
-                                            "total_biomass")),
-                        aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), 
+                                            "tbio_gm2")),
+                        aes(x = var, y = estimate)) +
+  geom_errorbar(aes(ymin = ci.lb, ymax = ci.ub), 
                 size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 1.3, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_plot), y = 1.3, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Root:shoot",
                               "RMF",
@@ -202,18 +196,24 @@ padd_bio_plot <- ggplot(data = df_box_p %>%
 padd_bio_plot
 
 
-padd_pfract_plot <- ggplot(data = df_box_p %>% 
+padd_pfract_plot <- ggplot(data = out_p_modl_df %>% 
                              drop_na(var) %>% 
                              filter(var %in% c("leaf_residual_p", 
                                                "leaf_structural_p", 
                                                "leaf_nucleic_p", 
                                                "leaf_metabolic_p", 
                                                "leaf_pi")),
-                           aes(x = var, y = middle)) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax), 
+                           aes(x = factor(var,
+                                          levels = c("leaf_residual_p", 
+                                          "leaf_structural_p", 
+                                          "leaf_nucleic_p", 
+                                          "leaf_metabolic_p", 
+                                          "leaf_pi")), 
+                               y = estimate)) +
+  geom_errorbar(aes(ymin = ci.lb, ymax = ci.ub), 
                 size = 1, width = 0.25) +
   geom_point(size = 4, fill = "blue", shape = 21) +
-  geom_text(aes(label = k_sig), y = 2.5, fontface = "bold", size = 5) +
+  geom_text(aes(label = k_plot), y = 2.5, fontface = "bold", size = 5) +
   geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dashed") +
   scale_x_discrete(labels = c("Leaf residual P",
                               "Leaf structural P",
@@ -234,18 +234,18 @@ padd_pfract_plot
 
 
 # Figure 1 - individual effects
-png("../plots/CNP_pOnly_indEffects.png", height = 10, width = 6, 
-    units = "in", res = 600)
+#png("../plots/CNP_pOnly_indEffects.png", height = 10, width = 6, 
+#    units = "in", res = 600)
 ggarrange(padd_chemistry_plot, padd_photo_plot, padd_bio_plot,
           nrow = 3, ncol = 1, labels = c("(a)", "(b)", "(c)"), 
           font.label = list(size = 18),
           align = "hv")
-dev.off()
+#dev.off()
 
 # Figure 2 - P fractionation
-png("../plots/CNP_pOnly_Pfraction.png", height = 5, width = 8, 
-    units = "in", res = 600)
+#png("../plots/CNP_pOnly_Pfraction.png", height = 5, width = 8, 
+#    units = "in", res = 600)
 padd_pfract_plot
-dev.off()
+#dev.off()
 
 
